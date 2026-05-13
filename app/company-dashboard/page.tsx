@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 
 import {
-  Building2,
   LayoutDashboard,
   Users,
   Settings,
-  LogOut,
-  Mail,
-  Phone,
-  MapPin,
-  ChevronRight,
   Bell,
+  Search,
+  ChevronDown,
+  Plus,
+  Building2,
+  LogOut,
+  Briefcase,
+  BarChart3,
+  CalendarDays,
 } from "lucide-react";
 
 export default function CompanyDashboard() {
@@ -42,243 +44,406 @@ export default function CompanyDashboard() {
 
   if (!company) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="flex min-h-screen items-center justify-center">
         Cargando...
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f5f7fb]">
+    <div className="flex min-h-screen bg-[#f6f7fb]">
       {/* SIDEBAR */}
-      <aside className="hidden w-72 flex-col border-r bg-white lg:flex">
-        {/* Logo */}
-        <div className="flex items-center gap-4 border-b p-6">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
-            <Building2 size={30} />
+      <aside className="hidden w-[280px] flex-col border-r border-gray-200 bg-white lg:flex">
+        {/* LOGO */}
+        <div className="flex items-center gap-4 border-b border-gray-100 px-6 py-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
+            <Building2 size={28} />
           </div>
 
           <div>
-            <h2 className="font-bold">
+            <h2 className="text-lg font-bold text-gray-800">
               {company.company_name}
             </h2>
 
             <p className="text-sm text-gray-500">
-              Empresa
+              Workspace
             </p>
           </div>
         </div>
 
-        {/* Menu */}
-        <nav className="flex-1 p-5">
+        {/* MENU */}
+        <div className="flex-1 px-4 py-6">
+          <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            Main
+          </p>
+
           <div className="space-y-2">
-            <button className="flex w-full items-center gap-3 rounded-2xl bg-black px-4 py-4 text-white">
+            <button className="flex w-full items-center gap-3 rounded-2xl bg-blue-600 px-4 py-4 font-medium text-white shadow-md">
               <LayoutDashboard size={20} />
+
               Dashboard
             </button>
 
-            <button className="flex w-full items-center gap-3 rounded-2xl px-4 py-4 transition hover:bg-gray-100">
-              <Users size={20} />
-              Empleados
+            <button className="flex w-full items-center gap-3 rounded-2xl px-4 py-4 font-medium text-gray-700 transition hover:bg-gray-100">
+              <Briefcase size={20} />
+
+              Projects
             </button>
 
-            <button className="flex w-full items-center gap-3 rounded-2xl px-4 py-4 transition hover:bg-gray-100">
-              <Settings size={20} />
-              Configuración
+            <button className="flex w-full items-center gap-3 rounded-2xl px-4 py-4 font-medium text-gray-700 transition hover:bg-gray-100">
+              <Users size={20} />
+
+              Employees
+            </button>
+
+            <button className="flex w-full items-center gap-3 rounded-2xl px-4 py-4 font-medium text-gray-700 transition hover:bg-gray-100">
+              <CalendarDays size={20} />
+
+              Calendar
+            </button>
+
+            <button className="flex w-full items-center gap-3 rounded-2xl px-4 py-4 font-medium text-gray-700 transition hover:bg-gray-100">
+              <BarChart3 size={20} />
+
+              Analytics
             </button>
           </div>
-        </nav>
 
-        {/* Logout */}
-        <div className="border-t p-5">
+          {/* TEAM */}
+          <div className="mt-10">
+            <div className="mb-4 flex items-center justify-between px-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                Teams
+              </p>
+
+              <Plus
+                size={16}
+                className="text-gray-400"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-gray-100">
+                <div className="h-3 w-3 rounded-full bg-green-500" />
+
+                <span className="text-sm font-medium text-gray-700">
+                  Marketing
+                </span>
+              </button>
+
+              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-gray-100">
+                <div className="h-3 w-3 rounded-full bg-orange-500" />
+
+                <span className="text-sm font-medium text-gray-700">
+                  Sales
+                </span>
+              </button>
+
+              <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-gray-100">
+                <div className="h-3 w-3 rounded-full bg-pink-500" />
+
+                <span className="text-sm font-medium text-gray-700">
+                  Support
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="border-t border-gray-100 p-4">
           <button
             onClick={logout}
-            className="flex w-full items-center gap-3 rounded-2xl bg-red-500 px-4 py-4 text-white transition hover:bg-red-600"
+            className="flex w-full items-center gap-3 rounded-2xl bg-red-500 px-4 py-4 font-medium text-white transition hover:bg-red-600"
           >
             <LogOut size={20} />
-            Cerrar Sesión
+
+            Logout
           </button>
         </div>
       </aside>
 
-      {/* CONTENT */}
+      {/* MAIN */}
       <main className="flex-1">
         {/* TOPBAR */}
-        <header className="flex items-center justify-between border-b bg-white px-6 py-5">
+        <header className="flex flex-col gap-5 border-b border-gray-200 bg-white px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
+          {/* LEFT */}
           <div>
-            <h1 className="text-3xl font-bold">
-              Dashboard
+            <h1 className="text-3xl font-bold text-gray-800">
+              Welcome back 👋
             </h1>
 
-            <p className="text-gray-500">
-              Bienvenido nuevamente
+            <p className="mt-1 text-gray-500">
+              Here's what's happening in your
+              workspace today.
             </p>
           </div>
 
+          {/* RIGHT */}
           <div className="flex items-center gap-4">
-            <button className="rounded-2xl bg-gray-100 p-3">
+            {/* SEARCH */}
+            <div className="hidden items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 lg:flex">
+              <Search
+                size={18}
+                className="text-gray-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Search..."
+                className="bg-transparent outline-none"
+              />
+            </div>
+
+            {/* NOTIFICATION */}
+            <button className="rounded-2xl bg-gray-100 p-3 transition hover:bg-gray-200">
               <Bell size={20} />
             </button>
 
-            <div className="flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black text-white">
+            {/* USER */}
+            <button className="flex items-center gap-3 rounded-2xl bg-gray-100 px-4 py-2 transition hover:bg-gray-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                 <Building2 size={22} />
               </div>
 
-              <div className="hidden md:block">
-                <h3 className="font-semibold">
+              <div className="hidden text-left md:block">
+                <h3 className="font-semibold text-gray-800">
                   {company.manager_name}
                 </h3>
 
                 <p className="text-sm text-gray-500">
-                  Administrador
+                  Administrator
                 </p>
               </div>
-            </div>
+
+              <ChevronDown size={18} />
+            </button>
           </div>
         </header>
 
-        {/* BODY */}
-        <div className="p-6">
+        {/* CONTENT */}
+        <div className="space-y-8 p-6">
           {/* STATS */}
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-3xl bg-gradient-to-r from-black to-gray-800 p-6 text-white shadow-xl">
-              <p className="text-sm opacity-70">
-                Empresa
-              </p>
-
-              <h2 className="mt-4 text-3xl font-bold">
-                Activa
-              </h2>
-
-              <p className="mt-2 text-sm opacity-70">
-                Sistema funcionando
-              </p>
-            </div>
-
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-3xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-gray-500">
-                Código Empresa
+              <p className="text-sm font-medium text-gray-500">
+                Active Projects
               </p>
 
-              <h2 className="mt-4 text-3xl font-bold">
-                {company.company_code}
+              <h2 className="mt-4 text-4xl font-bold text-gray-800">
+                12
               </h2>
 
               <p className="mt-2 text-sm text-green-600">
-                Cuenta verificada
+                +8% this month
               </p>
             </div>
 
             <div className="rounded-3xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-gray-500">
-                Plan
+              <p className="text-sm font-medium text-gray-500">
+                Employees
               </p>
 
-              <h2 className="mt-4 text-3xl font-bold">
-                Premium
+              <h2 className="mt-4 text-4xl font-bold text-gray-800">
+                24
               </h2>
 
               <p className="mt-2 text-sm text-blue-600">
-                SaaS Empresarial
+                Team growing
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-gray-500">
+                Tasks Completed
+              </p>
+
+              <h2 className="mt-4 text-4xl font-bold text-gray-800">
+                184
+              </h2>
+
+              <p className="mt-2 text-sm text-purple-600">
+                Productivity up
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white shadow-xl">
+              <p className="text-sm opacity-80">
+                Workspace Status
+              </p>
+
+              <h2 className="mt-4 text-4xl font-bold">
+                Active
+              </h2>
+
+              <p className="mt-2 text-sm opacity-80">
+                All systems operational
               </p>
             </div>
           </div>
 
-          {/* INFO */}
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {/* Company Info */}
-            <div className="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
+          {/* TABLE + ACTIVITY */}
+          <div className="grid gap-6 xl:grid-cols-3">
+            {/* TABLE */}
+            <div className="rounded-3xl bg-white p-6 shadow-sm xl:col-span-2">
               <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">
-                  Información Empresa
-                </h2>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Active Tasks
+                  </h2>
 
-                <button className="flex items-center gap-2 text-sm font-semibold text-gray-500">
-                  Ver más
-                  <ChevronRight size={18} />
+                  <p className="text-sm text-gray-500">
+                    Workspace progress
+                  </p>
+                </div>
+
+                <button className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700">
+                  + New Task
                 </button>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex items-center gap-4 rounded-2xl bg-gray-50 p-5">
-                  <Mail size={22} />
+              {/* TABLE */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-100 text-left text-sm text-gray-400">
+                      <th className="pb-4">
+                        Task
+                      </th>
 
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Correo
-                    </p>
+                      <th className="pb-4">
+                        Status
+                      </th>
 
-                    <h3 className="font-semibold">
-                      {
-                        company.company_email
-                      }
-                    </h3>
-                  </div>
-                </div>
+                      <th className="pb-4">
+                        Team
+                      </th>
 
-                <div className="flex items-center gap-4 rounded-2xl bg-gray-50 p-5">
-                  <Phone size={22} />
+                      <th className="pb-4">
+                        Progress
+                      </th>
+                    </tr>
+                  </thead>
 
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Teléfono
-                    </p>
+                  <tbody className="divide-y divide-gray-100">
+                    <tr>
+                      <td className="py-5 font-medium text-gray-700">
+                        Website redesign
+                      </td>
 
-                    <h3 className="font-semibold">
-                      {
-                        company.company_phone
-                      }
-                    </h3>
-                  </div>
-                </div>
+                      <td>
+                        <span className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
+                          Done
+                        </span>
+                      </td>
 
-                <div className="flex items-center gap-4 rounded-2xl bg-gray-50 p-5 md:col-span-2">
-                  <MapPin size={22} />
+                      <td className="text-gray-600">
+                        Marketing
+                      </td>
 
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Dirección
-                    </p>
+                      <td>
+                        <div className="h-2 w-full rounded-full bg-gray-100">
+                          <div className="h-2 w-[90%] rounded-full bg-green-500" />
+                        </div>
+                      </td>
+                    </tr>
 
-                    <h3 className="font-semibold">
-                      {company.address}
-                    </h3>
-                  </div>
-                </div>
+                    <tr>
+                      <td className="py-5 font-medium text-gray-700">
+                        CRM Integration
+                      </td>
+
+                      <td>
+                        <span className="rounded-full bg-orange-100 px-3 py-1 text-sm text-orange-700">
+                          In Progress
+                        </span>
+                      </td>
+
+                      <td className="text-gray-600">
+                        Development
+                      </td>
+
+                      <td>
+                        <div className="h-2 w-full rounded-full bg-gray-100">
+                          <div className="h-2 w-[65%] rounded-full bg-orange-500" />
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td className="py-5 font-medium text-gray-700">
+                        New campaign
+                      </td>
+
+                      <td>
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                          Planned
+                        </span>
+                      </td>
+
+                      <td className="text-gray-600">
+                        Sales
+                      </td>
+
+                      <td>
+                        <div className="h-2 w-full rounded-full bg-gray-100">
+                          <div className="h-2 w-[30%] rounded-full bg-blue-500" />
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            {/* Quick Actions */}
+            {/* ACTIVITY */}
             <div className="rounded-3xl bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-2xl font-bold">
-                Accesos Rápidos
+              <h2 className="mb-6 text-2xl font-bold text-gray-800">
+                Recent Activity
               </h2>
 
-              <div className="space-y-4">
-                <button className="flex w-full items-center justify-between rounded-2xl bg-gray-50 p-5 transition hover:bg-gray-100">
-                  <div className="flex items-center gap-3">
-                    <Users size={22} />
+              <div className="space-y-5">
+                <div className="flex gap-4">
+                  <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
 
-                    <span className="font-semibold">
-                      Empleados
-                    </span>
+                  <div>
+                    <h3 className="font-semibold text-gray-700">
+                      New employee added
+                    </h3>
+
+                    <p className="text-sm text-gray-500">
+                      2 minutes ago
+                    </p>
                   </div>
+                </div>
 
-                  <ChevronRight size={18} />
-                </button>
+                <div className="flex gap-4">
+                  <div className="mt-1 h-3 w-3 rounded-full bg-blue-500" />
 
-                <button className="flex w-full items-center justify-between rounded-2xl bg-gray-50 p-5 transition hover:bg-gray-100">
-                  <div className="flex items-center gap-3">
-                    <Settings size={22} />
+                  <div>
+                    <h3 className="font-semibold text-gray-700">
+                      Project updated
+                    </h3>
 
-                    <span className="font-semibold">
-                      Configuración
-                    </span>
+                    <p className="text-sm text-gray-500">
+                      1 hour ago
+                    </p>
                   </div>
+                </div>
 
-                  <ChevronRight size={18} />
-                </button>
+                <div className="flex gap-4">
+                  <div className="mt-1 h-3 w-3 rounded-full bg-orange-500" />
+
+                  <div>
+                    <h3 className="font-semibold text-gray-700">
+                      Task assigned
+                    </h3>
+
+                    <p className="text-sm text-gray-500">
+                      Yesterday
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
