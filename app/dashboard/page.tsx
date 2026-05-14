@@ -1,31 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import { supabase } from "@/lib/supabase";
 
 import {
   Building2,
   Users,
-  ShieldCheck,
+  UserCog,
+  ClipboardList,
 } from "lucide-react";
 
 export default function DashboardPage() {
-  const [companies, setCompanies] =
+
+  const [companies,
+    setCompanies] =
     useState(0);
 
   const [technicians,
-    setTechnicians] = useState(0);
-
-  const [admins, setAdmins] =
+    setTechnicians] =
     useState(0);
 
+  const [admins,
+    setAdmins] =
+    useState(0);
+
+  const [services,
+    setServices] =
+    useState(0);
+
+  const [adminName,
+    setAdminName] =
+    useState("");
+
   useEffect(() => {
-    loadStats();
+
+    loadDashboard();
+
+    // GET ADMIN SESSION
+    const adminData =
+      localStorage.getItem(
+        "admin"
+      );
+
+    if (adminData) {
+
+      const admin =
+        JSON.parse(
+          adminData
+        );
+
+      setAdminName(
+        admin.name || ""
+      );
+    }
+
   }, []);
 
-  async function loadStats() {
-    // EMPRESAS
+  async function loadDashboard() {
+
+    // COMPANIES
     const {
       count: companiesCount,
     } = await supabase
@@ -35,7 +72,7 @@ export default function DashboardPage() {
         head: true,
       });
 
-    // TECNICOS
+    // TECHNICIANS
     const {
       count: techniciansCount,
     } = await supabase
@@ -55,6 +92,16 @@ export default function DashboardPage() {
         head: true,
       });
 
+    // SERVICES
+    const {
+      count: servicesCount,
+    } = await supabase
+      .from("work_orders")
+      .select("*", {
+        count: "exact",
+        head: true,
+      });
+
     setCompanies(
       companiesCount || 0
     );
@@ -63,96 +110,148 @@ export default function DashboardPage() {
       techniciansCount || 0
     );
 
-    setAdmins(adminsCount || 0);
+    setAdmins(
+      adminsCount || 0
+    );
+
+    setServices(
+      servicesCount || 0
+    );
   }
 
   return (
-    <div className="min-h-screen">
-      {/* HEADER */}
-      <div className="mb-12">
-        <h1 className="text-5xl font-bold text-gray-900">
-          Dashboard
-        </h1>
+    <div className="flex min-h-screen flex-col">
 
-        <p className="mt-4 text-xl text-gray-500">
-          Resumen general del sistema
-        </p>
-      </div>
+      {/* CONTENT */}
+      <div className="flex-1">
 
-      {/* STATS */}
-      <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-        {/* EMPRESAS */}
-        <div className="rounded-[35px] bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="rounded-3xl bg-blue-100 p-5">
+        {/* HEADER */}
+        <div className="mb-6 rounded-[28px] bg-white p-5 shadow-sm sm:p-6">
+
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+            Dashboard Administrativo
+          </h1>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Bienvenido{" "}
+            <span className="font-semibold text-gray-800">
+              {adminName}
+            </span>
+          </p>
+
+        </div>
+
+        {/* STATS */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+          <DashboardCard
+            title="Empresas"
+            value={companies}
+            icon={
               <Building2
-                size={36}
-                className="text-blue-600"
+                size={22}
               />
-            </div>
+            }
+            color="blue"
+          />
 
-            <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
-              Empresas
-            </span>
-          </div>
-
-          <h2 className="text-6xl font-bold text-gray-900">
-            {companies}
-          </h2>
-
-          <p className="mt-4 text-lg text-gray-500">
-            Empresas registradas
-          </p>
-        </div>
-
-        {/* TECNICOS */}
-        <div className="rounded-[35px] bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="rounded-3xl bg-green-100 p-5">
+          <DashboardCard
+            title="Técnicos"
+            value={technicians}
+            icon={
               <Users
-                size={36}
-                className="text-green-600"
+                size={22}
               />
-            </div>
+            }
+            color="green"
+          />
 
-            <span className="rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
-              Técnicos
-            </span>
-          </div>
+          <DashboardCard
+            title="Administradores"
+            value={admins}
+            icon={
+              <UserCog
+                size={22}
+              />
+            }
+            color="purple"
+          />
 
-          <h2 className="text-6xl font-bold text-gray-900">
-            {technicians}
-          </h2>
+          <DashboardCard
+            title="Servicios"
+            value={services}
+            icon={
+              <ClipboardList
+                size={22}
+              />
+            }
+            color="yellow"
+          />
 
-          <p className="mt-4 text-lg text-gray-500">
-            Técnicos registrados
-          </p>
         </div>
 
-        {/* ADMINS */}
-        <div className="rounded-[35px] bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="rounded-3xl bg-purple-100 p-5">
-              <ShieldCheck
-                size={36}
-                className="text-purple-600"
-              />
-            </div>
-
-            <span className="rounded-full bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-700">
-              Administradores
-            </span>
-          </div>
-
-          <h2 className="text-6xl font-bold text-gray-900">
-            {admins}
-          </h2>
-
-          <p className="mt-4 text-lg text-gray-500">
-            Administradores activos
-          </p>
-        </div>
       </div>
+
+      {/* FOOTER */}
+      <footer className="mt-10 border-t border-gray-200 py-5 text-center">
+
+        <p className="text-xs text-gray-500">
+          Desarrollado por wiledwardmunoz
+        </p>
+
+      </footer>
+
+    </div>
+  );
+}
+
+function DashboardCard({
+  title,
+  value,
+  icon,
+  color,
+}: any) {
+
+  const styles =
+    color === "green"
+      ? "bg-green-50 text-green-900"
+      : color === "purple"
+      ? "bg-purple-50 text-purple-900"
+      : color === "yellow"
+      ? "bg-yellow-50 text-yellow-900"
+      : "bg-blue-50 text-blue-900";
+
+  return (
+    <div className={`rounded-[28px] p-5 shadow-sm ${styles}`}>
+
+      {/* TOP */}
+      <div className="flex items-center justify-between">
+
+        <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
+
+          {title}
+
+        </p>
+
+        <div>
+
+          {icon}
+
+        </div>
+
+      </div>
+
+      {/* VALUE */}
+      <div className="mt-6">
+
+        <h2 className="text-4xl font-bold">
+
+          {value}
+
+        </h2>
+
+      </div>
+
     </div>
   );
 }
