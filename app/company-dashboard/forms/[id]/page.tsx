@@ -1,562 +1,357 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 
-import {
-  Plus,
-  Trash2,
-} from "lucide-react";
+// FORMULARIOS
+import RodentMonitoringForm from "@/components/forms/RodentMonitoringForm";
 
-export default function RodentFormPage() {
+import MothMonitoringForm from "@/components/forms/MothMonitoringForm";
+
+import FlyingInsectsMonitoringForm from "@/components/forms/FlyingInsectsMonitoringForm";
+
+import FlyMonitoringForm from "@/components/forms/FlyMonitoringForm";
+
+import CrawlingInsectsMonitoringForm from "@/components/forms/CrawlingInsectsMonitoringForm";
+
+export default function DynamicFormPage() {
 
   const params = useParams();
 
-  const workOrderId = params.id;
+  const router = useRouter();
 
-  const [stations,
-    setStations] =
-    useState([
-      createStation(),
-    ]);
+  const orderId =
+    params.id as string;
 
-  function createStation() {
-    return {
+  const [loading,
+    setLoading] =
+    useState(true);
 
-      station_number: "",
+  const [order,
+    setOrder] =
+    useState<any>(null);
 
-      rodent_present: false,
-      rodent_not_present: false,
+  const [serviceType,
+    setServiceType] =
+    useState("");
 
-      bait_applied: false,
-      bait_not_applied: false,
+  useEffect(() => {
 
-      evidence_total: false,
-      evidence_partial: false,
-      evidence_deterioration: false,
-      evidence_no_findings: false,
+    if (orderId) {
 
-      device_functional: false,
-      device_damaged: false,
+      loadOrder();
 
-      adhesive_functional: false,
-      adhesive_replacement: false,
+    }
 
-      cleaning: false,
+  }, [orderId]);
 
-      observations: "",
-    };
-  }
+  async function loadOrder() {
 
-  function addStation() {
-    setStations([
-      ...stations,
-      createStation(),
-    ]);
-  }
+    try {
 
-  function removeStation(
-    index: number
-  ) {
+      setLoading(true);
 
-    const updated =
-      [...stations];
+      const { data, error } =
+        await supabase
+          .from("work_orders")
+          .select(`
+            *,
+            companies (
+              company_name
+            ),
+            service_types (
+              name
+            )
+          `)
+          .eq("id", orderId)
+          .single();
 
-    updated.splice(index, 1);
+      if (error) {
 
-    setStations(updated);
-  }
+        console.log(error);
 
-  function updateStation(
-    index: number,
-    field: string,
-    value: any
-  ) {
+        alert(
+          "Error cargando orden"
+        );
 
-    const updated =
-      [...stations];
+        return;
+      }
 
-    (
-      updated[index] as any
-    )[field] = value;
+      if (!data) {
 
-    setStations(updated);
-  }
+        alert(
+          "Orden no encontrada"
+        );
 
-  async function saveForm() {
+        return;
+      }
 
-    const payload =
-      stations.map(
-        (station) => ({
-          work_order_id:
-            workOrderId,
+      setOrder(data);
 
-          ...station,
-        })
+      const serviceName =
+        (
+          data.service_types
+            ?.name || ""
+        )
+          .trim()
+          .toLowerCase();
+
+      console.log(
+        "SERVICIO:",
+        serviceName
       );
 
-    // GUARDAR FORMULARIO
-    const { error } =
-      await supabase
-        .from("rodent_forms")
-        .insert(payload);
+      // =========================
+      // POLILLEROS
+      // =========================
+      if (
+        serviceName ===
+        "monitoreo de polilleros"
+      ) {
 
-    if (error) {
-      alert(error.message);
-      return;
+        setServiceType(
+          "polilleros"
+        );
+      }
+
+      // =========================
+      // ROEDORES
+      // =========================
+      else if (
+        serviceName ===
+        "monitoreo de roedores"
+      ) {
+
+        setServiceType(
+          "roedores"
+        );
+      }
+
+      // =========================
+      // INSECTOS VOLADORES
+      // =========================
+      else if (
+        serviceName ===
+        "monitoreo de insectos voladores"
+      ) {
+
+        setServiceType(
+          "insectos_voladores"
+        );
+      }
+
+      // =========================
+      // MONITOREO MOSCAS
+      // =========================
+      else if (
+        serviceName ===
+        "monitoreo de moscas"
+      ) {
+
+        setServiceType(
+          "moscas"
+        );
+      }
+
+      // =========================
+      // INSECTOS RASTREROS
+      // =========================
+      else if (
+        serviceName ===
+        "monitoreo de insectos rastreros"
+      ) {
+
+        setServiceType(
+          "rastreros"
+        );
+      }
+
+      // =========================
+      // SERVICIO NO CONFIGURADO
+      // =========================
+      else {
+
+        setServiceType(
+          "default"
+        );
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Error cargando formulario"
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
-
-    // ACTUALIZAR STATUS
-    const {
-      error: updateError,
-    } = await supabase
-      .from("work_orders")
-      .update({
-        status: "completed",
-      })
-      .eq("id", workOrderId);
-
-    if (updateError) {
-      alert(updateError.message);
-      return;
-    }
-
-    // ALERTA
-    alert(
-      "Formulario guardado correctamente"
-    );
-
-    // REDIRECT
-    window.location.href =
-      "/company-dashboard";
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-5">
+  // =========================
+  // LOADING
+  // =========================
+  if (loading) {
 
-      {/* HEADER */}
-      <div className="mb-8 flex items-center justify-between">
+    return (
 
-        <div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-100">
 
-          <h1 className="text-3xl font-bold text-gray-900">
-            Monitoreo de Roedores
-          </h1>
+        <div className="rounded-2xl bg-white px-8 py-6 text-sm font-semibold shadow-sm">
 
-          <p className="mt-2 text-sm text-gray-500">
-            Registro técnico operativo
-          </p>
+          Cargando formulario...
 
         </div>
 
+      </div>
+    );
+  }
+
+  // =========================
+  // SIN ORDEN
+  // =========================
+  if (!order) {
+
+    return (
+
+      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+
+        <div className="rounded-2xl bg-white px-8 py-6 text-sm font-semibold shadow-sm">
+
+          Orden no encontrada
+
+        </div>
+
+      </div>
+    );
+  }
+
+  // =========================
+  // FORM POLILLEROS
+  // =========================
+  if (
+    serviceType ===
+    "polilleros"
+  ) {
+
+    return (
+
+      <MothMonitoringForm
+        order={order}
+      />
+
+    );
+  }
+
+  // =========================
+  // FORM ROEDORES
+  // =========================
+  if (
+    serviceType ===
+    "roedores"
+  ) {
+
+    return (
+
+      <RodentMonitoringForm
+        order={order}
+      />
+
+    );
+  }
+
+  // =========================
+  // FORM INSECTOS VOLADORES
+  // =========================
+  if (
+    serviceType ===
+    "insectos_voladores"
+  ) {
+
+    return (
+
+      <FlyingInsectsMonitoringForm
+        order={order}
+      />
+
+    );
+  }
+
+  // =========================
+  // FORM MOSCAS
+  // =========================
+  if (
+    serviceType ===
+    "moscas"
+  ) {
+
+    return (
+
+      <FlyMonitoringForm
+        order={order}
+      />
+
+    );
+  }
+
+  // =========================
+  // FORM RASTREROS
+  // =========================
+  if (
+    serviceType ===
+    "rastreros"
+  ) {
+
+    return (
+
+      <CrawlingInsectsMonitoringForm
+        order={order}
+      />
+
+    );
+  }
+
+  // =========================
+  // DEFAULT
+  // =========================
+  return (
+
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+
+      <div className="w-full max-w-lg rounded-[28px] bg-white p-8 text-center shadow-sm">
+
+        <h1 className="text-2xl font-bold text-gray-900">
+
+          Servicio no configurado
+
+        </h1>
+
+        <p className="mt-3 text-sm text-gray-500">
+
+          Este servicio aún no tiene un formulario asociado.
+
+        </p>
+
         <button
-          onClick={addStation}
-          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white"
+          onClick={() =>
+            router.push(
+              "/company-dashboard/pending-orders"
+            )
+          }
+          className="mt-6 rounded-2xl bg-black px-6 py-3 text-sm font-semibold text-white"
         >
-          + Estación
+
+          Regresar
+
         </button>
 
       </div>
-
-      {/* STATIONS */}
-      <div className="space-y-6">
-
-        {stations.map(
-          (station, index) => (
-            <div
-              key={index}
-              className="rounded-[30px] bg-white p-6 shadow-sm"
-            >
-
-              {/* TOP */}
-              <div className="mb-6 flex items-center justify-between">
-
-                <div>
-
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Estación #
-                    {index + 1}
-                  </h2>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    Inspección operativa
-                  </p>
-
-                </div>
-
-                {stations.length >
-                  1 && (
-                  <button
-                    onClick={() =>
-                      removeStation(
-                        index
-                      )
-                    }
-                    className="rounded-2xl bg-red-100 p-3 text-red-600"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
-
-              </div>
-
-              {/* NUMERO */}
-              <Input
-                label="Número Estación"
-                value={
-                  station.station_number
-                }
-                onChange={(v: string) =>
-                  updateStation(
-                    index,
-                    "station_number",
-                    v
-                  )
-                }
-              />
-
-              {/* CAPTURA */}
-              <SectionTitle
-                title="Captura de roedor"
-              />
-
-              <div className="grid gap-4 md:grid-cols-2">
-
-                <Checkbox
-                  label="Presente"
-                  checked={
-                    station.rodent_present
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "rodent_present",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="No presente"
-                  checked={
-                    station.rodent_not_present
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "rodent_not_present",
-                      v
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* RODENTICIDA */}
-              <SectionTitle
-                title="Reposición de rodenticida"
-              />
-
-              <div className="grid gap-4 md:grid-cols-2">
-
-                <Checkbox
-                  label="Aplicado"
-                  checked={
-                    station.bait_applied
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "bait_applied",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="No aplicado"
-                  checked={
-                    station.bait_not_applied
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "bait_not_applied",
-                      v
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* EVIDENCIA */}
-              <SectionTitle
-                title="Tipo de evidencia encontrada"
-              />
-
-              <div className="grid gap-4 md:grid-cols-2">
-
-                <Checkbox
-                  label="Consumo total"
-                  checked={
-                    station.evidence_total
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "evidence_total",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="Consumo parcial"
-                  checked={
-                    station.evidence_partial
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "evidence_partial",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="Deterioro"
-                  checked={
-                    station.evidence_deterioration
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "evidence_deterioration",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="Sin hallazgo"
-                  checked={
-                    station.evidence_no_findings
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "evidence_no_findings",
-                      v
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* DISPOSITIVO */}
-              <SectionTitle
-                title="Condición dispositivo"
-              />
-
-              <div className="grid gap-4 md:grid-cols-2">
-
-                <Checkbox
-                  label="Funcional"
-                  checked={
-                    station.device_functional
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "device_functional",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="Dañado"
-                  checked={
-                    station.device_damaged
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "device_damaged",
-                      v
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* ADHESIVO */}
-              <SectionTitle
-                title="Estado del adhesivo"
-              />
-
-              <div className="grid gap-4 md:grid-cols-2">
-
-                <Checkbox
-                  label="Funcional"
-                  checked={
-                    station.adhesive_functional
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "adhesive_functional",
-                      v
-                    )
-                  }
-                />
-
-                <Checkbox
-                  label="Reemplazo"
-                  checked={
-                    station.adhesive_replacement
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "adhesive_replacement",
-                      v
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* MANTENIMIENTO */}
-              <SectionTitle
-                title="Mantenimiento dispositivo"
-              />
-
-              <div className="grid gap-4">
-
-                <Checkbox
-                  label="Limpieza"
-                  checked={
-                    station.cleaning
-                  }
-                  onChange={(v:boolean)=>
-                    updateStation(
-                      index,
-                      "cleaning",
-                      v
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* OBS */}
-              <div className="mt-8">
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Observaciones
-                </label>
-
-                <textarea
-                  rows={4}
-                  value={
-                    station.observations
-                  }
-                  onChange={(e)=>
-                    updateStation(
-                      index,
-                      "observations",
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none"
-                />
-
-              </div>
-
-            </div>
-          )
-        )}
-
-      </div>
-
-      {/* SAVE */}
-      <button
-        onClick={saveForm}
-        className="mt-8 w-full rounded-2xl bg-blue-600 py-5 text-sm font-semibold text-white"
-      >
-        Guardar Formulario
-      </button>
-
-    </div>
-  );
-}
-
-function SectionTitle({
-  title,
-}: any) {
-
-  return (
-    <h3 className="mt-8 mb-4 text-lg font-bold text-gray-900">
-      {title}
-    </h3>
-  );
-}
-
-function Checkbox({
-  label,
-  checked,
-  onChange,
-}: any) {
-
-  return (
-    <label className="flex items-center gap-3 rounded-2xl border border-gray-200 p-4">
-
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e)=>
-          onChange(
-            e.target.checked
-          )
-        }
-      />
-
-      <span className="text-sm text-gray-700">
-        {label}
-      </span>
-
-    </label>
-  );
-}
-
-function Input({
-  label,
-  value,
-  onChange,
-}: any) {
-
-  return (
-    <div>
-
-      <label className="mb-2 block text-sm font-semibold text-gray-700">
-        {label}
-      </label>
-
-      <input
-        type="text"
-        value={value}
-        onChange={(e)=>
-          onChange(
-            e.target.value
-          )
-        }
-        className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none"
-      />
 
     </div>
   );

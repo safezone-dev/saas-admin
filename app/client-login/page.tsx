@@ -10,67 +10,77 @@ export default function ClientLoginPage() {
 
   const router = useRouter();
 
-  const [username, setUsername] =
+  const [username,
+    setUsername] =
     useState("");
 
-  const [password, setPassword] =
+  const [password,
+    setPassword] =
     useState("");
 
-  const [loading, setLoading] =
+  const [loading,
+    setLoading] =
     useState(false);
 
-  const [error, setError] =
-    useState("");
+  async function handleLogin() {
 
-  async function handleLogin(
-    e: any
-  ) {
+    try {
 
-    e.preventDefault();
+      setLoading(true);
 
-    setLoading(true);
+      const { data, error } =
+        await supabase
+          .from("companies")
+          .select("*")
+          .eq(
+            "username",
+            username
+          )
+          .eq(
+            "password",
+            password
+          )
+          .single();
 
-    setError("");
+      if (error || !data) {
 
-    const { data, error } =
-      await supabase
-        .from("companies")
-        .select("*")
-        .eq(
-          "username",
-          username
-        )
-        .eq(
-          "password",
-          password
-        )
-        .single();
+        alert(
+          "Credenciales inválidas"
+        );
 
-    if (error || !data) {
+        return;
+      }
 
-      setError(
-        "Credenciales inválidas"
+      // GUARDAR SESION
+      localStorage.setItem(
+        "client",
+        JSON.stringify(data)
       );
+
+      // REDIRECCION
+      router.push(
+        "/client-dashboard"
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Error iniciando sesión"
+      );
+
+    } finally {
 
       setLoading(false);
 
-      return;
     }
-
-    localStorage.setItem(
-      "client",
-      JSON.stringify(data)
-    );
-
-    router.push(
-      "/client-dashboard"
-    );
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
 
-      <div className="w-full max-w-md rounded-[32px] bg-white p-8 shadow-sm">
+      <div className="w-full max-w-md rounded-[32px] bg-white p-8 shadow-xl">
 
         {/* LOGO */}
         <div className="mb-8 flex justify-center">
@@ -78,7 +88,7 @@ export default function ClientLoginPage() {
           <img
             src="https://mjr-fumigaciones.com/wp-content/uploads/2026/02/logo_colorm.png"
             alt="Logo"
-            className="w-[180px]"
+            className="h-auto w-[220px] object-contain"
           />
 
         </div>
@@ -86,59 +96,74 @@ export default function ClientLoginPage() {
         {/* TITLE */}
         <div className="mb-8 text-center">
 
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold text-gray-900">
+
             Portal Clientes
+
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            Acceso empresarial
+
+            Ingrese sus credenciales
+
           </p>
 
         </div>
 
         {/* FORM */}
-        <form
-          onSubmit={handleLogin}
-          className="space-y-4"
-        >
+        <div className="space-y-5">
 
-          <input
-            type="text"
-            placeholder="Usuario"
-            value={username}
-            onChange={(e) =>
-              setUsername(
-                e.target.value
-              )
-            }
-            className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm outline-none"
-          />
+          {/* USERNAME */}
+          <div>
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) =>
-              setPassword(
-                e.target.value
-              )
-            }
-            className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm outline-none"
-          />
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-          {error && (
+              Usuario
 
-            <div className="rounded-2xl bg-red-100 px-4 py-3 text-sm text-red-700">
+            </label>
 
-              {error}
+            <input
+              type="text"
+              value={username}
+              onChange={(e) =>
+                setUsername(
+                  e.target.value
+                )
+              }
+              placeholder="Ingrese usuario"
+              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+            />
 
-            </div>
-          )}
+          </div>
 
+          {/* PASSWORD */}
+          <div>
+
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+              Contraseña
+
+            </label>
+
+            <input
+              type="password"
+              value={password}
+              onChange={(e) =>
+                setPassword(
+                  e.target.value
+                )
+              }
+              placeholder="Ingrese contraseña"
+              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+            />
+
+          </div>
+
+          {/* BUTTON */}
           <button
-            type="submit"
+            onClick={handleLogin}
             disabled={loading}
-            className="w-full rounded-2xl bg-black px-4 py-4 text-sm font-semibold text-white"
+            className="w-full rounded-2xl bg-black px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
           >
 
             {loading
@@ -147,7 +172,16 @@ export default function ClientLoginPage() {
 
           </button>
 
-        </form>
+        </div>
+
+        {/* FOOTER */}
+        <div className="mt-8 text-center text-xs text-gray-500">
+
+          Desarrollado por
+          {" "}
+          wiledwardmunoz
+
+        </div>
 
       </div>
 

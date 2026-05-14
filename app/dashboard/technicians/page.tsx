@@ -4,538 +4,470 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 
-import {
-  User,
-  Plus,
-  Pencil,
-  Trash2,
-  X,
-} from "lucide-react";
-
 export default function TechniciansPage() {
-  const [technicians, setTechnicians] =
+
+  const [technicians,
+    setTechnicians] =
     useState<any[]>([]);
 
-  const [companies, setCompanies] =
-    useState<any[]>([]);
-
-  const [showCreateModal,
-    setShowCreateModal] =
+  const [loading,
+    setLoading] =
     useState(false);
 
-  const [showEditModal,
-    setShowEditModal] =
+  const [openModal,
+    setOpenModal] =
     useState(false);
 
-  const [selectedTechnician,
-    setSelectedTechnician] =
-    useState<any>(null);
-
-  const [name, setName] =
+  // FORM STATES
+  const [name,
+    setName] =
     useState("");
 
-  const [email, setEmail] =
+  const [email,
+    setEmail] =
     useState("");
 
-  const [password, setPassword] =
+  const [phone,
+    setPhone] =
     useState("");
 
-  const [searchCompany,
-    setSearchCompany] =
+  const [password,
+    setPassword] =
     useState("");
 
-  const [selectedCompanies,
-    setSelectedCompanies] =
-    useState<string[]>([]);
-
+  // LOAD
   useEffect(() => {
+
     loadTechnicians();
-    loadCompanies();
+
   }, []);
 
+  // GET TECHNICIANS
   async function loadTechnicians() {
-    const { data } = await supabase
-      .from("technicians")
-      .select("*")
-      .order("created_at", {
-        ascending: false,
-      });
 
-    if (data) {
-      setTechnicians(data);
-    }
-  }
-
-  async function loadCompanies() {
-    const { data } = await supabase
-      .from("companies")
-      .select("*");
-
-    if (data) {
-      setCompanies(data);
-    }
-  }
-
-  async function createTechnician() {
-    const { error } = await supabase
-      .from("technicians")
-      .insert([
-        {
-          name,
-          email,
-          password,
-          companies:
-            selectedCompanies,
-        },
-      ]);
+    const { data, error } =
+      await supabase
+        .from("technicians")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          }
+        );
 
     if (error) {
-      alert(error.message);
+
+      console.log(error);
+
       return;
     }
 
-    resetForm();
-
-    setShowCreateModal(false);
-
-    loadTechnicians();
+    setTechnicians(data || []);
   }
 
-  function openEdit(
-    technician: any
-  ) {
-    setSelectedTechnician(
-      technician
-    );
+  // CREATE TECHNICIAN
+  const handleCreateTechnician =
+    async () => {
 
-    setName(technician.name);
+      try {
 
-    setEmail(technician.email);
+        setLoading(true);
 
-    setPassword(
-      technician.password
-    );
+        // VALIDAR CAMPOS
+        if (
+          !name ||
+          !email ||
+          !phone ||
+          !password
+        ) {
 
-    setSelectedCompanies(
-      technician.companies || []
-    );
+          alert(
+            "Complete todos los campos"
+          );
 
-    setShowEditModal(true);
-  }
+          return;
+        }
 
-  async function updateTechnician() {
-    const { error } = await supabase
-      .from("technicians")
-      .update({
-        name,
-        email,
-        password,
-        companies:
-          selectedCompanies,
-      })
-      .eq(
-        "id",
-        selectedTechnician.id
-      );
+        // GENERAR USERNAME
+        const generatedUsername =
+          name
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "");
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+        // INSERTAR
+        const { error } =
+          await supabase
+            .from("technicians")
+            .insert([
 
-    resetForm();
+              {
 
-    setShowEditModal(false);
+                // NOMBRE
+                name: name,
 
-    loadTechnicians();
-  }
+                // FULL NAME
+                full_name: name,
 
+                // EMAIL
+                email: email,
+
+                // PHONE
+                phone: phone,
+
+                // USERNAME
+                username:
+                  generatedUsername,
+
+                // PASSWORD
+                password: password,
+
+                // STATUS
+                status: true,
+
+              },
+
+            ]);
+
+        if (error) {
+
+          console.log(error);
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        alert(
+          "Técnico registrado correctamente"
+        );
+
+        // LIMPIAR
+        setName("");
+
+        setEmail("");
+
+        setPhone("");
+
+        setPassword("");
+
+        // RECARGAR
+        loadTechnicians();
+
+        // CERRAR MODAL
+        setOpenModal(false);
+
+      } catch (error) {
+
+        console.log(error);
+
+        alert(
+          "Error registrando técnico"
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+  // DELETE
   async function deleteTechnician(
     id: string
   ) {
-    const confirmDelete = confirm(
-      "¿Eliminar técnico?"
-    );
 
-    if (!confirmDelete) return;
+    const confirmDelete =
+      confirm(
+        "¿Eliminar técnico?"
+      );
 
-    await supabase
-      .from("technicians")
-      .delete()
-      .eq("id", id);
+    if (!confirmDelete)
+      return;
+
+    const { error } =
+      await supabase
+        .from("technicians")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+      console.log(error);
+
+      alert(
+        "Error eliminando técnico"
+      );
+
+      return;
+    }
 
     loadTechnicians();
   }
 
-  function resetForm() {
-    setName("");
-    setEmail("");
-    setPassword("");
-    setSelectedCompanies([]);
-  }
-
-  function toggleCompany(
-    companyCode: string
-  ) {
-    if (
-      selectedCompanies.includes(
-        companyCode
-      )
-    ) {
-      setSelectedCompanies(
-        selectedCompanies.filter(
-          (c) =>
-            c !== companyCode
-        )
-      );
-    } else {
-      setSelectedCompanies([
-        ...selectedCompanies,
-        companyCode,
-      ]);
-    }
-  }
-
-  const filteredCompanies =
-    companies.filter((company) =>
-      company.company_name
-        ?.toLowerCase()
-        .includes(
-          searchCompany.toLowerCase()
-        )
-    );
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
 
-      {/* HEADER */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900">
-            Técnicos
-          </h1>
+      <div className="mx-auto max-w-7xl">
 
-          <p className="mt-2 text-sm text-gray-500">
-            Gestión técnica
-          </p>
-        </div>
+        {/* HEADER */}
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-        <button
-          onClick={() =>
-            setShowCreateModal(true)
-          }
-          className="flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:scale-105"
-        >
-          <Plus size={18} />
-          Agregar Técnico
-        </button>
-      </div>
+          <div>
 
-      {/* TABLE */}
-      <div className="overflow-hidden rounded-[30px] bg-white shadow-sm">
+            <h1 className="text-2xl font-bold text-gray-900">
 
-        <div className="grid grid-cols-4 border-b border-gray-200 bg-gray-50 px-6 py-4 text-sm font-semibold text-gray-600">
-          <div>Técnico</div>
-          <div>Email</div>
-          <div>Empresas</div>
-          <div className="text-center">
-            Acciones
+              Técnicos
+
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+
+              Administración de técnicos
+
+            </p>
+
           </div>
+
+          <button
+            onClick={() =>
+              setOpenModal(true)
+            }
+            className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+          >
+
+            Nuevo técnico
+
+          </button>
+
         </div>
 
-        {technicians.map(
-          (technician) => (
-            <div
-              key={technician.id}
-              className="grid grid-cols-4 items-center border-b border-gray-100 px-6 py-5 hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-blue-100 p-3">
-                  <User
-                    size={18}
-                    className="text-blue-600"
-                  />
-                </div>
+        {/* TABLE */}
+        <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
 
-                <h3 className="font-medium text-gray-900">
-                  {technician.name}
-                </h3>
-              </div>
+          <div className="overflow-x-auto">
 
-              <div className="text-sm text-gray-600">
-                {technician.email}
-              </div>
+            <table className="w-full min-w-[900px]">
 
-              <div className="text-sm text-gray-600">
-                {
-                  technician
-                    .companies
-                    ?.length
-                }{" "}
-                empresas
-              </div>
+              <thead className="bg-gray-50">
 
-              <div className="flex justify-center gap-2">
-                <button
-                  onClick={() =>
-                    openEdit(
-                      technician
-                    )
-                  }
-                  className="rounded-xl bg-blue-100 p-3 hover:scale-105"
-                >
-                  <Pencil
-                    size={16}
-                    className="text-blue-600"
-                  />
-                </button>
+                <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
-                <button
-                  onClick={() =>
-                    deleteTechnician(
-                      technician.id
-                    )
-                  }
-                  className="rounded-xl bg-red-100 p-3 hover:scale-105"
-                >
-                  <Trash2
-                    size={16}
-                    className="text-red-600"
-                  />
-                </button>
-              </div>
-            </div>
-          )
-        )}
+                  <th className="p-4">
+                    Nombre
+                  </th>
+
+                  <th className="p-4">
+                    Usuario
+                  </th>
+
+                  <th className="p-4">
+                    Email
+                  </th>
+
+                  <th className="p-4">
+                    Teléfono
+                  </th>
+
+                  <th className="p-4">
+                    Estado
+                  </th>
+
+                  <th className="p-4">
+                    Acciones
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {technicians.map(
+                  (tech) => (
+
+                    <tr
+                      key={tech.id}
+                      className="border-t text-sm"
+                    >
+
+                      <td className="p-4 font-medium">
+
+                        {tech.name}
+
+                      </td>
+
+                      <td className="p-4">
+
+                        {tech.username}
+
+                      </td>
+
+                      <td className="p-4">
+
+                        {tech.email}
+
+                      </td>
+
+                      <td className="p-4">
+
+                        {tech.phone}
+
+                      </td>
+
+                      <td className="p-4">
+
+                        <span className="rounded-xl bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+
+                          Activo
+
+                        </span>
+
+                      </td>
+
+                      <td className="p-4">
+
+                        <button
+                          onClick={() =>
+                            deleteTechnician(
+                              tech.id
+                            )
+                          }
+                          className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-700"
+                        >
+
+                          Eliminar
+
+                        </button>
+
+                      </td>
+
+                    </tr>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
       </div>
 
-      {/* CREATE */}
-      {showCreateModal && (
-        <TechnicianModal
-          title="Nuevo Técnico"
-          buttonText="Crear Técnico"
-          name={name}
-          setName={setName}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          companies={filteredCompanies}
-          searchCompany={
-            searchCompany
-          }
-          setSearchCompany={
-            setSearchCompany
-          }
-          selectedCompanies={
-            selectedCompanies
-          }
-          toggleCompany={
-            toggleCompany
-          }
-          onClose={() =>
-            setShowCreateModal(false)
-          }
-          onSubmit={
-            createTechnician
-          }
-        />
+      {/* MODAL */}
+      {openModal && (
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+
+          <div className="w-full max-w-lg rounded-[28px] bg-white p-6">
+
+            <h2 className="mb-6 text-xl font-bold text-gray-900">
+
+              Nuevo técnico
+
+            </h2>
+
+            <div className="space-y-5">
+
+              <InputField
+                label="Nombre"
+                value={name}
+                onChange={setName}
+              />
+
+              <InputField
+                label="Email"
+                value={email}
+                onChange={setEmail}
+                type="email"
+              />
+
+              <InputField
+                label="Teléfono"
+                value={phone}
+                onChange={setPhone}
+              />
+
+              <InputField
+                label="Contraseña"
+                value={password}
+                onChange={setPassword}
+                type="password"
+              />
+
+            </div>
+
+            {/* ACTIONS */}
+            <div className="mt-8 flex gap-4">
+
+              <button
+                onClick={() =>
+                  setOpenModal(false)
+                }
+                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold"
+              >
+
+                Cancelar
+
+              </button>
+
+              <button
+                onClick={
+                  handleCreateTechnician
+                }
+                disabled={loading}
+                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+              >
+
+                {loading
+                  ? "Guardando..."
+                  : "Guardar"}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
       )}
 
-      {/* EDIT */}
-      {showEditModal && (
-        <TechnicianModal
-          title="Editar Técnico"
-          buttonText="Guardar Cambios"
-          name={name}
-          setName={setName}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          companies={filteredCompanies}
-          searchCompany={
-            searchCompany
-          }
-          setSearchCompany={
-            setSearchCompany
-          }
-          selectedCompanies={
-            selectedCompanies
-          }
-          toggleCompany={
-            toggleCompany
-          }
-          onClose={() =>
-            setShowEditModal(false)
-          }
-          onSubmit={
-            updateTechnician
-          }
-        />
-      )}
     </div>
   );
 }
 
-function TechnicianModal({
-  title,
-  buttonText,
-  name,
-  setName,
-  email,
-  setEmail,
-  password,
-  setPassword,
-  companies,
-  searchCompany,
-  setSearchCompany,
-  selectedCompanies,
-  toggleCompany,
-  onClose,
-  onSubmit,
+function InputField({
+  label,
+  value,
+  onChange,
+  type = "text",
 }: any) {
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-5 backdrop-blur-sm">
+    <div>
 
-      <div className="mx-auto my-10 w-full max-w-2xl rounded-[30px] bg-white p-8">
+      <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-        {/* HEADER */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {title}
-            </h2>
+        {label}
 
-            <p className="mt-2 text-sm text-gray-500">
-              Gestión técnica
-            </p>
-          </div>
+      </label>
 
-          <button
-            onClick={onClose}
-            className="rounded-xl bg-gray-100 p-3 hover:bg-gray-200"
-          >
-            <X size={20} />
-          </button>
-        </div>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) =>
+          onChange(
+            e.target.value
+          )
+        }
+        className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
+      />
 
-        {/* FORM */}
-        <div className="space-y-5">
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Nombre Técnico
-            </label>
-
-            <input
-              type="text"
-              value={name}
-              onChange={(e) =>
-                setName(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Correo
-            </label>
-
-            <input
-              type="email"
-              value={email}
-              onChange={(e) =>
-                setEmail(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Contraseña
-            </label>
-
-            <input
-              type="password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-blue-500"
-            />
-          </div>
-
-          {/* SEARCH */}
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Buscar Empresa
-            </label>
-
-            <input
-              type="text"
-              placeholder="Buscar empresa..."
-              value={searchCompany}
-              onChange={(e) =>
-                setSearchCompany(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-blue-500"
-            />
-          </div>
-
-          {/* COMPANIES */}
-          <div className="max-h-72 overflow-y-auto rounded-2xl border border-gray-200 p-4">
-            <div className="space-y-3">
-              {companies.map(
-                (company: any) => (
-                  <label
-                    key={company.id}
-                    className="flex cursor-pointer items-center gap-3 rounded-xl p-3 hover:bg-gray-50"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedCompanies.includes(
-                        company.company_code
-                      )}
-                      onChange={() =>
-                        toggleCompany(
-                          company.company_code
-                        )
-                      }
-                    />
-
-                    <span className="text-sm text-gray-700">
-                      {
-                        company.company_name
-                      }
-                    </span>
-                  </label>
-                )
-              )}
-            </div>
-          </div>
-
-        </div>
-
-        {/* BUTTON */}
-        <button
-          onClick={onSubmit}
-          className="mt-8 w-full rounded-2xl bg-blue-600 py-4 text-sm font-semibold text-white shadow-lg hover:scale-[1.02]"
-        >
-          {buttonText}
-        </button>
-
-      </div>
     </div>
   );
 }
