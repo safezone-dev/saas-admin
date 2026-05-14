@@ -2,207 +2,350 @@
 
 import { useEffect, useState } from "react";
 
+import { supabase } from "@/lib/supabase";
+
 import {
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  LogOut,
+  User,
+  ClipboardList,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function CompanyDashboard() {
-  const [company, setCompany] =
+
+  const [pendingOrders,
+    setPendingOrders] =
+    useState<any[]>([]);
+
+  const [completedOrders,
+    setCompletedOrders] =
+    useState<any[]>([]);
+
+  const [technician,
+    setTechnician] =
     useState<any>(null);
 
   useEffect(() => {
-    const data =
-      localStorage.getItem("company");
-
-    if (!data) {
-      window.location.href =
-        "/company-login";
-
-      return;
-    }
-
-    setCompany(JSON.parse(data));
+    loadDashboard();
   }, []);
 
-  function logout() {
-    localStorage.removeItem("company");
+  async function loadDashboard() {
 
-    window.location.href =
-      "/company-login";
-  }
+    const technicianData =
+      localStorage.getItem(
+        "technician"
+      );
 
-  if (!company) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5f7fb]">
-        Cargando...
-      </div>
+    if (!technicianData) return;
+
+    const technicianParsed =
+      JSON.parse(
+        technicianData
+      );
+
+    setTechnician(
+      technicianParsed
+    );
+
+    const { data } =
+      await supabase
+        .from("work_orders")
+        .select(`
+          *,
+          companies (
+            company_name
+          ),
+          service_types (
+            name
+          )
+        `)
+        .eq(
+          "technician_id",
+          technicianParsed.id
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          }
+        );
+
+    if (!data) return;
+
+    setPendingOrders(
+      data.filter(
+        (o) =>
+          o.status !==
+          "completed"
+      )
+    );
+
+    setCompletedOrders(
+      data.filter(
+        (o) =>
+          o.status ===
+          "completed"
+      )
     );
   }
 
+  const totalOrders =
+    pendingOrders.length +
+    completedOrders.length;
+
+  const completedPercent =
+    totalOrders > 0
+      ? Math.round(
+          (
+            completedOrders.length /
+            totalOrders
+          ) * 100
+        )
+      : 0;
+
+  const pendingPercent =
+    totalOrders > 0
+      ? Math.round(
+          (
+            pendingOrders.length /
+            totalOrders
+          ) * 100
+        )
+      : 0;
+
   return (
-    <div className="min-h-screen bg-[#f5f7fb] p-6">
-      {/* TOPBAR */}
-      <div className="mb-8 flex items-center justify-between rounded-3xl bg-white px-8 py-5 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
-            <Building2 size={30} />
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 lg:p-6">
+
+      {/* HEADER */}
+      <div className="mb-5 rounded-[24px] bg-white p-4 shadow-sm sm:p-5">
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+          {/* USER */}
+          <div className="flex items-center gap-3 sm:gap-4">
+
+            <div className="rounded-2xl bg-blue-100 p-3 sm:p-4">
+
+              <User
+                size={20}
+                className="text-blue-600"
+              />
+
+            </div>
+
+            <div className="min-w-0">
+
+              <h1 className="truncate text-lg font-bold text-gray-900 sm:text-xl">
+                {
+                  technician?.name
+                }
+              </h1>
+
+              <p className="truncate text-[11px] text-gray-500 sm:text-xs">
+                {
+                  technician?.email
+                }
+              </p>
+
+            </div>
+
           </div>
 
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              {company.company_name}
-            </h1>
-
-            <p className="text-gray-500">
-              Workspace Dashboard
-            </p>
-          </div>
         </div>
 
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 rounded-2xl bg-red-500 px-5 py-3 font-medium text-white transition hover:bg-red-600"
-        >
-          <LogOut size={20} />
+      </div>
 
-          Salir
-        </button>
+      {/* STATS */}
+      <div className="mb-5 grid grid-cols-4 gap-3">
+
+        <StatCard
+          title="Pendientes"
+          value={
+            pendingOrders.length
+          }
+          subtitle={`${pendingPercent}%`}
+          color="yellow"
+        />
+
+        <StatCard
+          title="Respondidas"
+          value={
+            completedOrders.length
+          }
+          subtitle={`${completedPercent}%`}
+          color="green"
+        />
+
+        <StatCard
+          title="Actividades"
+          value={totalOrders}
+          subtitle="Total"
+          color="blue"
+        />
+
+        <StatCard
+          title="Efectividad"
+          value={`${completedPercent}%`}
+          subtitle="Cumplimiento"
+          color="purple"
+        />
+
+      </div>
+
+      {/* RESUMEN */}
+      <div className="grid gap-4 xl:grid-cols-2">
+
+        {/* PENDIENTES */}
+        <ActivityCard
+          title="Últimas Pendientes"
+          icon={
+            <ClipboardList
+              size={16}
+            />
+          }
+          data={pendingOrders.slice(
+            0,
+            5
+          )}
+          completed={false}
+        />
+
+        {/* RESPONDIDAS */}
+        <ActivityCard
+          title="Últimas Respondidas"
+          icon={
+            <CheckCircle2
+              size={16}
+            />
+          }
+          data={completedOrders.slice(
+            0,
+            5
+          )}
+          completed={true}
+        />
+
+      </div>
+
+    </div>
+  );
+}
+
+function ActivityCard({
+  title,
+  icon,
+  data,
+  completed,
+}: any) {
+
+  return (
+    <div className="rounded-[24px] bg-white p-4 shadow-sm sm:p-5">
+
+      {/* TITLE */}
+      <div className="mb-4 flex items-center gap-2">
+
+        <div className="text-blue-600">
+          {icon}
+        </div>
+
+        <h2 className="text-sm font-bold text-gray-900">
+          {title}
+        </h2>
+
       </div>
 
       {/* CONTENT */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* MAIN CARD */}
-        <div className="rounded-3xl bg-white p-8 shadow-sm lg:col-span-2">
-          <div className="mb-8 flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-600">
-              <Building2 size={28} />
-            </div>
+      <div className="space-y-3">
 
-            <div>
-              <h2 className="text-3xl font-bold text-gray-800">
-                Información Empresa
-              </h2>
-
-              <p className="text-gray-500">
-                Datos registrados en el sistema
-              </p>
-            </div>
+        {data.length === 0 && (
+          <div className="text-xs text-gray-500">
+            Sin registros
           </div>
+        )}
 
-          <div className="grid gap-5">
-            {/* CODE */}
-            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
-              <p className="mb-2 text-sm font-medium text-gray-500">
-                Código Empresa
-              </p>
+        {data.map(
+          (item: any) => (
+            <div
+              key={item.id}
+              className="flex flex-col gap-3 rounded-2xl bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+            >
 
-              <h3 className="text-2xl font-bold text-gray-800">
-                {company.company_code}
-              </h3>
-            </div>
+              <div className="min-w-0">
 
-            {/* EMAIL */}
-            <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
-              <div className="rounded-xl bg-white p-3 shadow-sm">
-                <Mail
-                  size={22}
-                  className="text-blue-600"
-                />
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500">
-                  Correo Empresa
+                <p className="truncate text-sm font-semibold text-gray-900">
+                  {
+                    item.companies
+                      ?.company_name
+                  }
                 </p>
 
-                <h3 className="font-semibold text-gray-800">
-                  {company.company_email}
-                </h3>
-              </div>
-            </div>
-
-            {/* PHONE */}
-            <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
-              <div className="rounded-xl bg-white p-3 shadow-sm">
-                <Phone
-                  size={22}
-                  className="text-green-600"
-                />
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500">
-                  Teléfono
+                <p className="truncate text-[11px] text-gray-500 sm:text-xs">
+                  {
+                    item.service_types
+                      ?.name
+                  }
                 </p>
 
-                <h3 className="font-semibold text-gray-800">
-                  {company.company_phone}
-                </h3>
               </div>
+
+              <span
+                className={`w-fit rounded-full px-2 py-1 text-[10px] font-semibold ${
+                  completed
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+
+                {completed
+                  ? "Respondido"
+                  : "Pendiente"}
+
+              </span>
+
             </div>
+          )
+        )}
 
-            {/* ADDRESS */}
-            <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
-              <div className="rounded-xl bg-white p-3 shadow-sm">
-                <MapPin
-                  size={22}
-                  className="text-red-500"
-                />
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500">
-                  Dirección
-                </p>
-
-                <h3 className="font-semibold text-gray-800">
-                  {company.address}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* SIDE CARD */}
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-xl">
-          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
-            <Building2 size={32} />
-          </div>
-
-          <h2 className="text-3xl font-bold">
-            Bienvenido
-          </h2>
-
-          <p className="mt-3 text-white/80">
-            Tu empresa está conectada
-            correctamente al sistema SaaS.
-          </p>
-
-          <div className="mt-10 rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <p className="text-sm text-white/70">
-              Administrador
-            </p>
-
-            <h3 className="mt-2 text-xl font-semibold">
-              {company.manager_name}
-            </h3>
-          </div>
-
-          <div className="mt-5 rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <p className="text-sm text-white/70">
-              Estado Plataforma
-            </p>
-
-            <h3 className="mt-2 text-xl font-semibold">
-              Activa 🚀
-            </h3>
-          </div>
-        </div>
       </div>
+
+    </div>
+  );
+}
+
+function StatCard({
+  title,
+  value,
+  subtitle,
+  color,
+}: any) {
+
+  const styles =
+    color === "green"
+      ? "bg-green-50 text-green-900"
+      : color === "yellow"
+      ? "bg-yellow-50 text-yellow-900"
+      : color === "purple"
+      ? "bg-purple-50 text-purple-900"
+      : "bg-blue-50 text-blue-900";
+
+  return (
+    <div className={`rounded-[22px] p-4 sm:p-5 ${styles}`}>
+
+      <p className="text-[10px] font-semibold uppercase tracking-wide sm:text-[11px]">
+        {title}
+      </p>
+
+      <div className="mt-3 flex items-end justify-between gap-2">
+
+        <h2 className="text-2xl font-bold sm:text-3xl">
+          {value}
+        </h2>
+
+        <p className="text-[10px] font-semibold opacity-70 sm:text-xs">
+          {subtitle}
+        </p>
+
+      </div>
+
     </div>
   );
 }
