@@ -1,11 +1,19 @@
 "use client";
 
+import {
+  useState,
+} from "react";
+
 import Link from "next/link";
 
 import {
   LayoutDashboard,
-  ClipboardCheck,
+  ClipboardList,
+  CheckCircle2,
+  BarChart3,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function CompanyLayout({
@@ -13,6 +21,10 @@ export default function CompanyLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+  const [open,
+    setOpen] =
+    useState(false);
 
   function logout() {
 
@@ -25,82 +37,128 @@ export default function CompanyLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
 
-      {/* SIDEBAR */}
-      <aside className="fixed left-0 top-0 flex h-screen w-[250px] flex-col bg-[#111827] p-5 text-white shadow-xl">
+      {/* MOBILE TOPBAR */}
+      <div className="fixed left-0 right-0 top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-4 lg:hidden">
 
-        {/* LOGO */}
-        <div className="mb-10">
+        <div>
 
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-lg font-bold text-gray-900">
             Técnico
           </h1>
 
-          <p className="mt-1 text-sm text-gray-400">
-            Panel operativo
-          </p>
+        </div>
+
+        <button
+          onClick={() =>
+            setOpen(!open)
+          }
+          className="rounded-xl bg-gray-100 p-2"
+        >
+
+          {open ? (
+            <X size={22} />
+          ) : (
+            <Menu size={22} />
+          )}
+
+        </button>
+
+      </div>
+
+      {/* MOBILE OVERLAY */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          onClick={() =>
+            setOpen(false)
+          }
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <aside
+        className={`fixed left-0 top-0 z-40 flex h-screen w-[260px] flex-col bg-[#111827] p-5 text-white shadow-xl transition-all duration-300
+        ${
+          open
+            ? "translate-x-0"
+            : "-translate-x-full"
+        }
+        lg:translate-x-0`}
+      >
+
+        {/* LOGO */}
+        <div className="mb-10 flex items-center justify-between">
+
+          <div>
+
+            <h1 className="text-2xl font-bold">
+              Técnico
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-400">
+              Panel operativo
+            </p>
+
+          </div>
+
+          {/* CLOSE MOBILE */}
+          <button
+            onClick={() =>
+              setOpen(false)
+            }
+            className="lg:hidden"
+          >
+
+            <X size={22} />
+
+          </button>
 
         </div>
 
         {/* MENU */}
         <nav className="flex flex-1 flex-col gap-2">
 
-          <Link
+          <MenuItem
             href="/company-dashboard"
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-gray-200 transition hover:bg-white/10"
-          >
+            icon={
+              <LayoutDashboard
+                size={18}
+              />
+            }
+            label="Dashboard"
+          />
 
-            <LayoutDashboard size={18} />
-
-            Dashboard
-
-          </Link>
-
-          <Link
-            href="/company-dashboard"
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-gray-200 transition hover:bg-white/10"
-          >
-
-            <ClipboardCheck size={18} />
-
-            Servicios
-
-          </Link>
-
-          <Link
+          <MenuItem
             href="/company-dashboard/pending-orders"
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-gray-200 transition hover:bg-white/10"
-          >
+            icon={
+              <ClipboardList
+                size={18}
+              />
+            }
+            label="Órdenes Pendientes"
+          />
 
-            <ClipboardCheck size={18} />
-
-            Pendientes
-
-          </Link>
-
-          <Link
+          <MenuItem
             href="/company-dashboard/completed-orders"
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-gray-200 transition hover:bg-white/10"
-          >
+            icon={
+              <CheckCircle2
+                size={18}
+              />
+            }
+            label="Órdenes Respondidas"
+          />
 
-            <ClipboardCheck size={18} />
-
-            Resueltas
-
-          </Link>
-
-          <Link
+          <MenuItem
             href="/company-dashboard/reports"
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-gray-200 transition hover:bg-white/10"
-          >
-
-            <ClipboardCheck size={18} />
-
-            Reportes
-
-          </Link>
-
+            icon={
+              <BarChart3
+                size={18}
+              />
+            }
+            label="Reportes"
+          />
 
         </nav>
 
@@ -119,12 +177,36 @@ export default function CompanyLayout({
       </aside>
 
       {/* CONTENT */}
-      <main className="ml-[250px] min-h-screen flex-1 p-6">
+      <main className="min-h-screen pt-[80px] transition-all lg:ml-[260px] lg:pt-0">
 
-        {children}
+        <div className="w-full">
+
+          {children}
+
+        </div>
 
       </main>
 
     </div>
+  );
+}
+
+function MenuItem({
+  href,
+  icon,
+  label,
+}: any) {
+
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-gray-200 transition hover:bg-white/10"
+    >
+
+      {icon}
+
+      {label}
+
+    </Link>
   );
 }
