@@ -59,9 +59,9 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h3 className="mb-6 text-5xl font-bold leading-tight">
-            Panel de control MJR
-          </h3>
+          <h5 className="mb-6 text-5xl font-bold leading-tight">
+            Panel de control
+          </h5>
 
           <p className="text-lg text-gray-300">
             Sistema moderno desarrollado por wiledwardmunoz
@@ -79,13 +79,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <h1 className="text-4xl font-bold text-gray-900">
-              Bienvenido
-            </h1>
-
-            <p className="mt-2 text-gray-500">
-              Inicia sesión en el panel administrativo
-            </p>
+      <center><img
+    src="https://mjr-fumigaciones.com/wp-content/uploads/2026/02/logo_colorm.png"
+    alt="Logo"
+    className="h-auto w-[110px] sm:w-[150px]"
+  />
+  </center>
           </div>
 
           {/* Email */}
@@ -156,7 +155,8 @@ export default function LoginPage() {
           </button>
 
           <div className="mt-8 text-center text-sm text-gray-500">
-            Sistema Administrativo SaaS © 2026
+            Sistema Administrativo SaaS © 2026.
+            Development by wiledwardmunoz
           </div>
         </div>
       </div>
