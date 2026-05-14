@@ -50,7 +50,7 @@ export default function LoginPage() {
 
             <div>
               <h1 className="text-3xl font-bold">
-                SaaS Admin
+                Admin MJR Ingeniería
               </h1>
 
               <p className="text-gray-300">
@@ -59,13 +59,12 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h2 className="mb-6 text-5xl font-bold leading-tight">
-            Administra múltiples empresas desde un solo panel
-          </h2>
+          <h3 className="mb-6 text-5xl font-bold leading-tight">
+            Panel de control MJR
+          </h3>
 
           <p className="text-lg text-gray-300">
-            Sistema moderno desarrollado con
-            Next.js y Supabase.
+            Sistema moderno desarrollado por wiledwardmunoz
           </p>
         </div>
       </div>
