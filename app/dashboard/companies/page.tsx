@@ -120,7 +120,6 @@ export default function CompaniesPage() {
         return;
       }
 
-      // COMPANY CODE
       const companyCode =
         companyName
           .trim()
@@ -254,18 +253,18 @@ export default function CompaniesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-6xl">
 
         {/* HEADER */}
-        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
 
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
 
-              <Building2 size={26} />
+              <Building2 size={22} />
 
             </div>
 
@@ -291,10 +290,10 @@ export default function CompaniesPage() {
             onClick={() =>
               setOpenModal(true)
             }
-            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
 
-            <Plus size={18} />
+            <Plus size={16} />
 
             Nueva empresa
 
@@ -303,7 +302,7 @@ export default function CompaniesPage() {
         </div>
 
         {/* TABLE */}
-        <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
           <div className="overflow-x-auto">
 
@@ -313,31 +312,23 @@ export default function CompaniesPage() {
 
                 <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
-                  <th className="min-w-[220px] p-5">
+                  <th className="min-w-[220px] px-4 py-3">
                     Empresa
                   </th>
 
-                  <th className="min-w-[180px] p-5">
-                    Encargado
+                  <th className="min-w-[240px] px-4 py-3">
+                    Email
                   </th>
 
-                  <th className="min-w-[240px] p-5">
-                    Email empresa
-                  </th>
-
-                  <th className="min-w-[170px] p-5">
+                  <th className="min-w-[150px] px-4 py-3">
                     Teléfono
                   </th>
 
-                  <th className="min-w-[160px] p-5">
-                    Código
-                  </th>
-
-                  <th className="min-w-[120px] p-5">
+                  <th className="min-w-[100px] px-4 py-3">
                     Estado
                   </th>
 
-                  <th className="min-w-[150px] p-5 text-center">
+                  <th className="min-w-[140px] px-4 py-3 text-center">
                     Acciones
                   </th>
 
@@ -356,7 +347,7 @@ export default function CompaniesPage() {
                     >
 
                       {/* EMPRESA */}
-                      <td className="p-5 align-top">
+                      <td className="px-4 py-4 align-top">
 
                         <div className="font-semibold text-gray-900">
 
@@ -372,15 +363,8 @@ export default function CompaniesPage() {
 
                       </td>
 
-                      {/* ENCARGADO */}
-                      <td className="p-5 align-top text-gray-700">
-
-                        {company.manager_name}
-
-                      </td>
-
                       {/* EMAIL */}
-                      <td className="p-5 align-top">
+                      <td className="px-4 py-4 align-top">
 
                         <div className="break-words text-gray-700">
 
@@ -391,27 +375,16 @@ export default function CompaniesPage() {
                       </td>
 
                       {/* PHONE */}
-                      <td className="p-5 align-top text-gray-700">
+                      <td className="px-4 py-4 align-top text-gray-700">
 
                         {company.phone}
 
                       </td>
 
-                      {/* CODE */}
-                      <td className="p-5 align-top">
-
-                        <span className="rounded-xl bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-
-                          {company.company_code}
-
-                        </span>
-
-                      </td>
-
                       {/* STATUS */}
-                      <td className="p-5 align-top">
+                      <td className="px-4 py-4 align-top">
 
-                        <span className="rounded-xl bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                        <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
 
                           Activa
 
@@ -420,7 +393,7 @@ export default function CompaniesPage() {
                       </td>
 
                       {/* ACTIONS */}
-                      <td className="p-5 align-top text-center">
+                      <td className="px-4 py-4 align-top text-center">
 
                         <button
                           onClick={() =>
@@ -428,10 +401,10 @@ export default function CompaniesPage() {
                               company.id
                             )
                           }
-                          className="inline-flex items-center gap-2 rounded-xl bg-red-100 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
+                          className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
                         >
 
-                          <Trash2 size={14} />
+                          <Trash2 size={12} />
 
                           Eliminar
 
@@ -458,14 +431,14 @@ export default function CompaniesPage() {
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
 
-          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-xl rounded-[24px] bg-white p-6 shadow-2xl">
 
             {/* HEADER */}
-            <div className="mb-8 flex items-center gap-4">
+            <div className="mb-6 flex items-center gap-3">
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white">
 
-                <Building2 size={22} />
+                <Building2 size={19} />
 
               </div>
 
@@ -479,7 +452,7 @@ export default function CompaniesPage() {
 
                 <p className="text-sm text-gray-500">
 
-                  Registro de nueva empresa
+                  Registro de empresa
 
                 </p>
 
@@ -488,7 +461,7 @@ export default function CompaniesPage() {
             </div>
 
             {/* FORM */}
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
 
               {/* EMPRESA */}
               <div>
@@ -507,7 +480,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -529,7 +502,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -551,7 +524,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -573,7 +546,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -595,7 +568,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -617,7 +590,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -639,7 +612,7 @@ export default function CompaniesPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -647,13 +620,13 @@ export default function CompaniesPage() {
             </div>
 
             {/* ACTIONS */}
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
 
               <button
                 onClick={() =>
                   setOpenModal(false)
                 }
-                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold transition hover:bg-gray-100"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold transition hover:bg-gray-100"
               >
 
                 Cancelar
@@ -665,7 +638,7 @@ export default function CompaniesPage() {
                   handleCreateCompany
                 }
                 disabled={loading}
-                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                className="flex-1 rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
               >
 
                 {loading

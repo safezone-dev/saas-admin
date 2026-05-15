@@ -196,18 +196,18 @@ export default function WorkOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-6xl">
 
         {/* HEADER */}
-        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
 
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
 
-              <ClipboardList size={26} />
+              <ClipboardList size={22} />
 
             </div>
 
@@ -233,10 +233,10 @@ export default function WorkOrdersPage() {
             onClick={() =>
               setShowModal(true)
             }
-            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
 
-            <Plus size={18} />
+            <Plus size={16} />
 
             Nueva Orden
 
@@ -245,7 +245,7 @@ export default function WorkOrdersPage() {
         </div>
 
         {/* TABLE */}
-        <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
           <div className="overflow-x-auto">
 
@@ -253,7 +253,7 @@ export default function WorkOrdersPage() {
 
               <thead className="bg-gray-50">
 
-                <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
+                <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
                   <th className="min-w-[220px] px-4 py-3">
 
@@ -295,11 +295,11 @@ export default function WorkOrdersPage() {
 
                   <tr
                     key={order.id}
-                    className="border-t border-gray-100 text-[11px] transition hover:bg-gray-50"
+                    className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
                   >
 
                     {/* EMPRESA */}
-                    <td className="px-4 py-3 align-top">
+                    <td className="px-4 py-4 align-top">
 
                       <div className="font-semibold text-gray-900">
 
@@ -313,7 +313,7 @@ export default function WorkOrdersPage() {
                     </td>
 
                     {/* TECNICO */}
-                    <td className="px-4 py-3 align-top text-gray-700">
+                    <td className="px-4 py-4 align-top text-gray-700">
 
                       {
                         order.technicians
@@ -323,7 +323,7 @@ export default function WorkOrdersPage() {
                     </td>
 
                     {/* SERVICIO */}
-                    <td className="px-4 py-3 align-top text-gray-700">
+                    <td className="px-4 py-4 align-top text-gray-700">
 
                       {
                         order.service_types
@@ -333,7 +333,7 @@ export default function WorkOrdersPage() {
                     </td>
 
                     {/* FECHA */}
-                    <td className="px-4 py-3 align-top text-gray-700">
+                    <td className="px-4 py-4 align-top text-gray-700">
 
                       {
                         order.scheduled_date
@@ -342,12 +342,12 @@ export default function WorkOrdersPage() {
                     </td>
 
                     {/* STATUS */}
-                    <td className="px-4 py-3 align-top">
+                    <td className="px-4 py-4 align-top">
 
                       {order.status ===
                       "completed" ? (
 
-                        <span className="rounded-lg bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
+                        <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
 
                           Completada
 
@@ -355,7 +355,7 @@ export default function WorkOrdersPage() {
 
                       ) : (
 
-                        <span className="rounded-lg bg-yellow-100 px-2 py-1 text-[10px] font-semibold text-yellow-700">
+                        <span className="rounded-lg bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
 
                           Pendiente
 
@@ -383,16 +383,16 @@ export default function WorkOrdersPage() {
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
 
-          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-xl rounded-[24px] bg-white p-6 shadow-2xl">
 
             {/* HEADER */}
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-6 flex items-center justify-between">
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white">
 
-                  <ClipboardList size={22} />
+                  <ClipboardList size={19} />
 
                 </div>
 
@@ -428,7 +428,7 @@ export default function WorkOrdersPage() {
             </div>
 
             {/* FORM */}
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
 
               {/* EMPRESA */}
               <div>
@@ -446,7 +446,7 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 >
 
                   <option value="">
@@ -489,7 +489,7 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 >
 
                   <option value="">
@@ -530,7 +530,7 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 >
 
                   <option value="">
@@ -572,7 +572,7 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -580,13 +580,13 @@ export default function WorkOrdersPage() {
             </div>
 
             {/* BUTTONS */}
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
 
               <button
                 onClick={() =>
                   setShowModal(false)
                 }
-                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold transition hover:bg-gray-100"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold transition hover:bg-gray-100"
               >
 
                 Cancelar
@@ -595,7 +595,7 @@ export default function WorkOrdersPage() {
 
               <button
                 onClick={createOrder}
-                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+                className="flex-1 rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
               >
 
                 Crear Orden

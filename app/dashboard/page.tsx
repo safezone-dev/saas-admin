@@ -1,254 +1,145 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 import {
   Building2,
   Users,
-  UserCog,
+  ShieldCheck,
   ClipboardList,
+  ArrowRight,
 } from "lucide-react";
 
 export default function DashboardPage() {
 
-  const [companies,
-    setCompanies] =
-    useState(0);
+  const cards = [
 
-  const [technicians,
-    setTechnicians] =
-    useState(0);
+    {
+      title: "Empresas",
+      description:
+        "Administración y gestión de empresas",
+      icon: Building2,
+      href: "/dashboard/companies",
+    },
 
-  const [admins,
-    setAdmins] =
-    useState(0);
+    {
+      title: "Técnicos",
+      description:
+        "Administración de técnicos",
+      icon: Users,
+      href: "/dashboard/technicians",
+    },
 
-  const [services,
-    setServices] =
-    useState(0);
+    {
+      title: "Administradores",
+      description:
+        "Gestión de administradores",
+      icon: ShieldCheck,
+      href: "/dashboard/administrators",
+    },
 
-  const [adminName,
-    setAdminName] =
-    useState("");
+    {
+      title: "Órdenes",
+      description:
+        "Gestión de órdenes de trabajo",
+      icon: ClipboardList,
+      href: "/dashboard/work-orders",
+    },
 
-  useEffect(() => {
-
-    loadDashboard();
-
-    // GET ADMIN SESSION
-    const adminData =
-      localStorage.getItem(
-        "admin"
-      );
-
-    if (adminData) {
-
-      const admin =
-        JSON.parse(
-          adminData
-        );
-
-      setAdminName(
-        admin.name || ""
-      );
-    }
-
-  }, []);
-
-  async function loadDashboard() {
-
-    // COMPANIES
-    const {
-      count: companiesCount,
-    } = await supabase
-      .from("companies")
-      .select("*", {
-        count: "exact",
-        head: true,
-      });
-
-    // TECHNICIANS
-    const {
-      count: techniciansCount,
-    } = await supabase
-      .from("technicians")
-      .select("*", {
-        count: "exact",
-        head: true,
-      });
-
-    // ADMINS
-    const {
-      count: adminsCount,
-    } = await supabase
-      .from("administrators")
-      .select("*", {
-        count: "exact",
-        head: true,
-      });
-
-    // SERVICES
-    const {
-      count: servicesCount,
-    } = await supabase
-      .from("work_orders")
-      .select("*", {
-        count: "exact",
-        head: true,
-      });
-
-    setCompanies(
-      companiesCount || 0
-    );
-
-    setTechnicians(
-      techniciansCount || 0
-    );
-
-    setAdmins(
-      adminsCount || 0
-    );
-
-    setServices(
-      servicesCount || 0
-    );
-  }
+  ];
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      {/* CONTENT */}
-      <div className="flex-1">
+      <div className="mx-auto max-w-6xl">
 
         {/* HEADER */}
-        <div className="mb-6 rounded-[28px] bg-white p-5 shadow-sm sm:p-6">
+        <div className="mb-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-            Dashboard Administrativo
-          </h1>
+          <div>
+
+            <h1 className="text-3xl font-bold text-gray-900">
+
+              Dashboard
+
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+
+              Panel principal del sistema
+
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* GRID */}
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
+          {cards.map((card, index) => {
+
+            const Icon = card.icon;
+
+            return (
+              <Link
+                key={index}
+                href={card.href}
+                className="group overflow-hidden rounded-[24px] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
+
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+
+                  <Icon size={22} />
+
+                </div>
+
+                <h2 className="text-lg font-bold text-gray-900">
+
+                  {card.title}
+
+                </h2>
+
+                <p className="mt-2 text-sm text-gray-500">
+
+                  {card.description}
+
+                </p>
+
+                <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-black">
+
+                  Ver módulo
+
+                  <ArrowRight
+                    size={16}
+                    className="transition group-hover:translate-x-1"
+                  />
+
+                </div>
+
+              </Link>
+            );
+          })}
+
+        </div>
+
+        {/* PANEL */}
+        <div className="mt-8 rounded-[24px] bg-white p-6 shadow-sm">
+
+          <h2 className="text-xl font-bold text-gray-900">
+
+            Bienvenido al sistema
+
+          </h2>
 
           <p className="mt-2 text-sm text-gray-500">
-            Bienvenido{" "}
-            <span className="font-semibold text-gray-800">
-              {adminName}
-            </span>
+
+            Desde este panel puedes administrar empresas,
+            técnicos, administradores y órdenes de trabajo.
+
           </p>
 
         </div>
-
-        {/* STATS */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-          <DashboardCard
-            title="Empresas"
-            value={companies}
-            icon={
-              <Building2
-                size={22}
-              />
-            }
-            color="blue"
-          />
-
-          <DashboardCard
-            title="Técnicos"
-            value={technicians}
-            icon={
-              <Users
-                size={22}
-              />
-            }
-            color="green"
-          />
-
-          <DashboardCard
-            title="Administradores"
-            value={admins}
-            icon={
-              <UserCog
-                size={22}
-              />
-            }
-            color="purple"
-          />
-
-          <DashboardCard
-            title="Servicios"
-            value={services}
-            icon={
-              <ClipboardList
-                size={22}
-              />
-            }
-            color="yellow"
-          />
-
-        </div>
-
-      </div>
-
-      {/* FOOTER */}
-      <footer className="mt-10 border-t border-gray-200 py-5 text-center">
-
-        <p className="text-xs text-gray-500">
-          Desarrollado por wiledwardmunoz
-        </p>
-
-      </footer>
-
-    </div>
-  );
-}
-
-function DashboardCard({
-  title,
-  value,
-  icon,
-  color,
-}: any) {
-
-  const styles =
-    color === "green"
-      ? "bg-green-50 text-green-900"
-      : color === "purple"
-      ? "bg-purple-50 text-purple-900"
-      : color === "yellow"
-      ? "bg-yellow-50 text-yellow-900"
-      : "bg-blue-50 text-blue-900";
-
-  return (
-    <div className={`rounded-[28px] p-5 shadow-sm ${styles}`}>
-
-      {/* TOP */}
-      <div className="flex items-center justify-between">
-
-        <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
-
-          {title}
-
-        </p>
-
-        <div>
-
-          {icon}
-
-        </div>
-
-      </div>
-
-      {/* VALUE */}
-      <div className="mt-6">
-
-        <h2 className="text-4xl font-bold">
-
-          {value}
-
-        </h2>
 
       </div>
 

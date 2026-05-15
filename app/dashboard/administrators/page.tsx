@@ -71,8 +71,6 @@ export default function AdministratorsPage() {
         return;
       }
 
-      console.log(data);
-
       setAdministrators(
         data || []
       );
@@ -125,28 +123,21 @@ export default function AdministratorsPage() {
 
             {
 
-              // NOMBRE
               name: name,
 
-              // FULL NAME
               full_name:
                 name,
 
-              // USERNAME
               username:
                 generatedUsername,
 
-              // EMAIL
               email: email,
 
-              // PHONE
               phone: phone,
 
-              // PASSWORD
               password:
                 password,
 
-              // STATUS
               status: true,
 
             },
@@ -238,18 +229,18 @@ export default function AdministratorsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-6xl">
 
         {/* HEADER */}
-        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
 
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
 
-              <ShieldCheck size={26} />
+              <ShieldCheck size={22} />
 
             </div>
 
@@ -263,7 +254,7 @@ export default function AdministratorsPage() {
 
               <p className="text-sm text-gray-500">
 
-                Administración y gestión de administradores
+                Administración de administradores
 
               </p>
 
@@ -275,10 +266,10 @@ export default function AdministratorsPage() {
             onClick={() =>
               setOpenModal(true)
             }
-            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
 
-            <Plus size={18} />
+            <Plus size={16} />
 
             Nuevo administrador
 
@@ -287,7 +278,7 @@ export default function AdministratorsPage() {
         </div>
 
         {/* TABLE */}
-        <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
           <div className="overflow-x-auto">
 
@@ -295,30 +286,30 @@ export default function AdministratorsPage() {
 
               <thead className="bg-gray-50">
 
-                <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
+                <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
                   <th className="min-w-[220px] px-4 py-3">
-                    Nombre
-                  </th>
 
-                  <th className="min-w-[180px] px-4 py-3">
                     Usuario
+
                   </th>
 
-                  <th className="min-w-[220px] px-4 py-3">
+                  <th className="min-w-[260px] px-4 py-3">
+
                     Email
+
                   </th>
 
-                  <th className="min-w-[150px] px-4 py-3">
-                    Teléfono
-                  </th>
+                  <th className="min-w-[100px] px-4 py-3">
 
-                  <th className="min-w-[110px] px-4 py-3">
                     Estado
+
                   </th>
 
-                  <th className="min-w-[130px] px-4 py-3 text-center">
+                  <th className="min-w-[140px] px-4 py-3 text-center">
+
                     Acciones
+
                   </th>
 
                 </tr>
@@ -332,32 +323,23 @@ export default function AdministratorsPage() {
 
                     <tr
                       key={admin.id}
-                      className="border-t border-gray-100 text-[11px] transition hover:bg-gray-50"
+                      className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
                     >
 
-                      {/* NAME */}
-                      <td className="px-4 py-3 align-top">
+                      {/* USERNAME */}
+                      <td className="px-4 py-4 align-top">
 
                         <div className="font-semibold text-gray-900">
 
-                          {admin.name ||
-                            admin.full_name ||
-                            "Sin nombre"}
+                          {admin.username ||
+                            "Sin usuario"}
 
                         </div>
 
                       </td>
 
-                      {/* USERNAME */}
-                      <td className="px-4 py-3 align-top text-gray-700">
-
-                        {admin.username ||
-                          "Sin usuario"}
-
-                      </td>
-
                       {/* EMAIL */}
-                      <td className="px-4 py-3 align-top">
+                      <td className="px-4 py-4 align-top">
 
                         <div className="break-words text-gray-700">
 
@@ -367,17 +349,10 @@ export default function AdministratorsPage() {
 
                       </td>
 
-                      {/* PHONE */}
-                      <td className="px-4 py-3 align-top text-gray-700">
-
-                        {admin.phone}
-
-                      </td>
-
                       {/* STATUS */}
-                      <td className="px-4 py-3 align-top">
+                      <td className="px-4 py-4 align-top">
 
-                        <span className="rounded-lg bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
+                        <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
 
                           Activo
 
@@ -386,7 +361,7 @@ export default function AdministratorsPage() {
                       </td>
 
                       {/* ACTIONS */}
-                      <td className="px-4 py-3 align-top text-center">
+                      <td className="px-4 py-4 align-top text-center">
 
                         <button
                           onClick={() =>
@@ -394,7 +369,7 @@ export default function AdministratorsPage() {
                               admin.id
                             )
                           }
-                          className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-2 text-[10px] font-semibold text-red-700 transition hover:bg-red-200"
+                          className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
                         >
 
                           <Trash2 size={12} />
@@ -424,14 +399,14 @@ export default function AdministratorsPage() {
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
 
-          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-xl rounded-[24px] bg-white p-6 shadow-2xl">
 
             {/* HEADER */}
-            <div className="mb-8 flex items-center gap-4">
+            <div className="mb-6 flex items-center gap-3">
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white">
 
-                <ShieldCheck size={22} />
+                <ShieldCheck size={19} />
 
               </div>
 
@@ -445,7 +420,7 @@ export default function AdministratorsPage() {
 
                 <p className="text-sm text-gray-500">
 
-                  Registro de nuevo administrador
+                  Registro de administrador
 
                 </p>
 
@@ -454,7 +429,7 @@ export default function AdministratorsPage() {
             </div>
 
             {/* FORM */}
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
 
               {/* NAME */}
               <div>
@@ -473,7 +448,7 @@ export default function AdministratorsPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -495,7 +470,7 @@ export default function AdministratorsPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -517,7 +492,7 @@ export default function AdministratorsPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -539,7 +514,7 @@ export default function AdministratorsPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
@@ -547,13 +522,13 @@ export default function AdministratorsPage() {
             </div>
 
             {/* ACTIONS */}
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
 
               <button
                 onClick={() =>
                   setOpenModal(false)
                 }
-                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold transition hover:bg-gray-100"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold transition hover:bg-gray-100"
               >
 
                 Cancelar
@@ -565,12 +540,12 @@ export default function AdministratorsPage() {
                   handleCreateAdministrator
                 }
                 disabled={loading}
-                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                className="flex-1 rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
               >
 
                 {loading
                   ? "Guardando..."
-                  : "Guardar administrador"}
+                  : "Guardar"}
 
               </button>
 
