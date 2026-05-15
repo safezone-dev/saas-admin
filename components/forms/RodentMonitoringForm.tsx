@@ -1,56 +1,197 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useState,
+} from "react";
 
-import { useRouter } from "next/navigation";
+import {
+  useRouter,
+} from "next/navigation";
 
-import { supabase } from "@/lib/supabase";
+import { supabase }
+from "@/lib/supabase";
+
+import {
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 export default function RodentMonitoringForm({
   order,
 }: any) {
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
   const [loading,
     setLoading] =
     useState(false);
 
   const [form,
-    setForm] = useState({
+    setForm] =
+    useState({
 
-      station_number: "",
+      register_date: "",
 
-      rodent_present: false,
+      start_time: "",
 
-      rodent_not_present: false,
+      end_time: "",
 
-      rodenticide_applied: false,
+      no_activity:
+        false,
 
-      rodenticide_not_applied: false,
+      activity_detected:
+        false,
 
-      consumption_total: false,
+      stations: [
 
-      consumption_partial: false,
+        {
 
-      damage: false,
+          station_number:
+            "",
 
-      without_findings: false,
+          rodent_present:
+            false,
 
-      device_functional: false,
+          rodent_not_present:
+            false,
 
-      device_damaged: false,
+          bait_applied:
+            false,
 
-      adhesive_functional: false,
+          bait_not_applied:
+            false,
 
-      replacement: false,
+          total_consumption:
+            false,
 
-      cleaning: false,
+          partial_consumption:
+            false,
 
-      observations: "",
+          deterioration:
+            false,
 
+          no_findings:
+            false,
+
+          adhesive_functional:
+            false,
+
+          adhesive_replaced:
+            false,
+
+          cleaning:
+            false,
+
+          observations:
+            "",
+        },
+
+      ],
     });
 
+  // ADD STATION
+  function addStation() {
+
+    setForm({
+
+      ...form,
+
+      stations: [
+
+        ...form.stations,
+
+        {
+
+          station_number:
+            "",
+
+          rodent_present:
+            false,
+
+          rodent_not_present:
+            false,
+
+          bait_applied:
+            false,
+
+          bait_not_applied:
+            false,
+
+          total_consumption:
+            false,
+
+          partial_consumption:
+            false,
+
+          deterioration:
+            false,
+
+          no_findings:
+            false,
+
+          adhesive_functional:
+            false,
+
+          adhesive_replaced:
+            false,
+
+          cleaning:
+            false,
+
+          observations:
+            "",
+        },
+
+      ],
+    });
+  }
+
+  // DELETE
+  function removeStation(
+    index: number
+  ) {
+
+    const updated =
+      [...form.stations];
+
+    updated.splice(
+      index,
+      1
+    );
+
+    setForm({
+      ...form,
+      stations:
+        updated,
+    });
+  }
+
+  // UPDATE
+  function updateStation(
+    index: number,
+    field: string,
+    value: any
+  ) {
+
+    const updated =
+      [...form.stations];
+
+    updated[index] = {
+
+      ...updated[index],
+
+      [field]: value,
+    };
+
+    setForm({
+      ...form,
+      stations:
+        updated,
+    });
+  }
+
+  // SAVE
   async function saveForm() {
 
     try {
@@ -59,13 +200,31 @@ export default function RodentMonitoringForm({
 
       const { error } =
         await supabase
-          .from("rodent_forms")
+          .from(
+            "rodent_monitoring_forms"
+          )
           .insert({
 
             work_order_id:
               order.id,
 
-            ...form,
+            register_date:
+              form.register_date,
+
+            start_time:
+              form.start_time,
+
+            end_time:
+              form.end_time,
+
+            stations:
+              form.stations,
+
+            no_activity:
+              form.no_activity,
+
+            activity_detected:
+              form.activity_detected,
 
           });
 
@@ -74,15 +233,17 @@ export default function RodentMonitoringForm({
         console.log(error);
 
         alert(
-          "Error guardando formulario"
+          error.message
         );
 
         return;
       }
 
-      // COMPLETAR ORDEN
+      // COMPLETE ORDER
       await supabase
-        .from("work_orders")
+        .from(
+          "work_orders"
+        )
         .update({
           status:
             "completed",
@@ -105,7 +266,7 @@ export default function RodentMonitoringForm({
       console.log(error);
 
       alert(
-        "Error general"
+        "Error guardando formulario"
       );
 
     } finally {
@@ -115,21 +276,10 @@ export default function RodentMonitoringForm({
     }
   }
 
-  function toggleField(
-    field: string,
-    value: boolean
-  ) {
-
-    setForm({
-      ...form,
-      [field]: value,
-    });
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      <div className="mx-auto max-w-6xl rounded-[28px] bg-white p-6 shadow-sm">
+      <div className="mx-auto max-w-7xl rounded-[24px] bg-white p-6 shadow-sm">
 
         {/* HEADER */}
         <div className="mb-8">
@@ -140,264 +290,456 @@ export default function RodentMonitoringForm({
 
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500">
 
-            Registro técnico del servicio
+            Registro técnico operativo
 
           </p>
 
         </div>
 
-        {/* ESTACION */}
-        <div className="mb-6">
+        {/* GENERAL */}
+        <div className="grid gap-4 md:grid-cols-3">
 
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-            Número estación
-
-          </label>
-
-          <input
-            type="text"
+          <InputField
+            label="Fecha de registro"
+            type="date"
             value={
-              form.station_number
+              form.register_date
             }
-            onChange={(e) =>
+            onChange={(
+              value: string
+            ) =>
               setForm({
                 ...form,
-                station_number:
-                  e.target.value,
+                register_date:
+                  value,
               })
             }
-            className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
           />
 
-        </div>
-
-        {/* GRID */}
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-
-          <CheckCard
-            title="Captura"
-            fields={[
-              {
-                label:
-                  "Presente",
-                value:
-                  form.rodent_present,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "rodent_present",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "No presente",
-                value:
-                  form.rodent_not_present,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "rodent_not_present",
-                      value
-                    ),
-              },
-            ]}
-          />
-
-          <CheckCard
-            title="Rodenticida"
-            fields={[
-              {
-                label:
-                  "Aplicado",
-                value:
-                  form.rodenticide_applied,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "rodenticide_applied",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "No aplicado",
-                value:
-                  form.rodenticide_not_applied,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "rodenticide_not_applied",
-                      value
-                    ),
-              },
-            ]}
-          />
-
-          <CheckCard
-            title="Evidencia"
-            fields={[
-              {
-                label:
-                  "Consumo total",
-                value:
-                  form.consumption_total,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "consumption_total",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "Consumo parcial",
-                value:
-                  form.consumption_partial,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "consumption_partial",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "Deterioro",
-                value:
-                  form.damage,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "damage",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "Sin hallazgo",
-                value:
-                  form.without_findings,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "without_findings",
-                      value
-                    ),
-              },
-            ]}
-          />
-
-          <CheckCard
-            title="Dispositivo"
-            fields={[
-              {
-                label:
-                  "Funcional",
-                value:
-                  form.device_functional,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "device_functional",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "Dañado",
-                value:
-                  form.device_damaged,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "device_damaged",
-                      value
-                    ),
-              },
-            ]}
-          />
-
-          <CheckCard
-            title="Adhesivo"
-            fields={[
-              {
-                label:
-                  "Funcional",
-                value:
-                  form.adhesive_functional,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "adhesive_functional",
-                      value
-                    ),
-              },
-              {
-                label:
-                  "Reemplazo",
-                value:
-                  form.replacement,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "replacement",
-                      value
-                    ),
-              },
-            ]}
-          />
-
-          <CheckCard
-            title="Mantenimiento"
-            fields={[
-              {
-                label:
-                  "Limpieza",
-                value:
-                  form.cleaning,
-                onChange:
-                  (value: boolean) =>
-                    toggleField(
-                      "cleaning",
-                      value
-                    ),
-              },
-            ]}
-          />
-
-        </div>
-
-        {/* OBSERVACIONES */}
-        <div className="mt-8">
-
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-            Observaciones
-
-          </label>
-
-          <textarea
-            rows={5}
+          <InputField
+            label="Hora inicio"
+            type="time"
             value={
-              form.observations
+              form.start_time
             }
-            onChange={(e) =>
+            onChange={(
+              value: string
+            ) =>
               setForm({
                 ...form,
-                observations:
-                  e.target.value,
+                start_time:
+                  value,
               })
             }
-            className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
+          />
+
+          <InputField
+            label="Hora final"
+            type="time"
+            value={
+              form.end_time
+            }
+            onChange={(
+              value: string
+            ) =>
+              setForm({
+                ...form,
+                end_time:
+                  value,
+              })
+            }
           />
 
         </div>
 
-        {/* BUTTON */}
+        {/* STATIONS */}
+        <div className="mt-8 space-y-6">
+
+          {form.stations.map(
+            (
+              station,
+              index
+            ) => (
+
+              <div
+                key={index}
+                className="rounded-[24px] border border-gray-200 p-5"
+              >
+
+                {/* TOP */}
+                <div className="mb-5 flex items-center justify-between">
+
+                  <h2 className="text-lg font-bold text-gray-900">
+
+                    Estación #{index + 1}
+
+                  </h2>
+
+                  {form.stations
+                    .length >
+                    1 && (
+
+                    <button
+                      onClick={() =>
+                        removeStation(
+                          index
+                        )
+                      }
+                      className="rounded-xl bg-red-100 p-2 text-red-700"
+                    >
+
+                      <Trash2
+                        size={18}
+                      />
+
+                    </button>
+                  )}
+
+                </div>
+
+                {/* GRID */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+                  <InputField
+                    label="Número estación"
+                    value={
+                      station.station_number
+                    }
+                    onChange={(
+                      value: string
+                    ) =>
+                      updateStation(
+                        index,
+                        "station_number",
+                        value
+                      )
+                    }
+                  />
+
+                </div>
+
+                {/* CHECKBOXES */}
+                <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+                  {/* ROEDOR */}
+                  <CheckboxGroup
+                    title="Captura roedor"
+                    items={[
+
+                      {
+                        label:
+                          "Presente",
+
+                        checked:
+                          station.rodent_present,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "rodent_present",
+                              value
+                            ),
+                      },
+
+                      {
+                        label:
+                          "No presente",
+
+                        checked:
+                          station.rodent_not_present,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "rodent_not_present",
+                              value
+                            ),
+                      },
+
+                    ]}
+                  />
+
+                  {/* RODENTICIDA */}
+                  <CheckboxGroup
+                    title="Reposición rodenticida"
+                    items={[
+
+                      {
+                        label:
+                          "Aplicado",
+
+                        checked:
+                          station.bait_applied,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "bait_applied",
+                              value
+                            ),
+                      },
+
+                      {
+                        label:
+                          "No aplicado",
+
+                        checked:
+                          station.bait_not_applied,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "bait_not_applied",
+                              value
+                            ),
+                      },
+
+                    ]}
+                  />
+
+                  {/* EVIDENCIA */}
+                  <CheckboxGroup
+                    title="Tipo evidencia"
+                    items={[
+
+                      {
+                        label:
+                          "Consumo total",
+
+                        checked:
+                          station.total_consumption,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "total_consumption",
+                              value
+                            ),
+                      },
+
+                      {
+                        label:
+                          "Consumo parcial",
+
+                        checked:
+                          station.partial_consumption,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "partial_consumption",
+                              value
+                            ),
+                      },
+
+                      {
+                        label:
+                          "Deterioro",
+
+                        checked:
+                          station.deterioration,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "deterioration",
+                              value
+                            ),
+                      },
+
+                      {
+                        label:
+                          "Sin hallazgo",
+
+                        checked:
+                          station.no_findings,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "no_findings",
+                              value
+                            ),
+                      },
+
+                    ]}
+                  />
+
+                  {/* ADHESIVO */}
+                  <CheckboxGroup
+                    title="Estado adhesivo"
+                    items={[
+
+                      {
+                        label:
+                          "Funcional",
+
+                        checked:
+                          station.adhesive_functional,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "adhesive_functional",
+                              value
+                            ),
+                      },
+
+                      {
+                        label:
+                          "Reemplazo",
+
+                        checked:
+                          station.adhesive_replaced,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "adhesive_replaced",
+                              value
+                            ),
+                      },
+
+                    ]}
+                  />
+
+                  {/* LIMPIEZA */}
+                  <CheckboxGroup
+                    title="Mantenimiento"
+                    items={[
+
+                      {
+                        label:
+                          "Limpieza",
+
+                        checked:
+                          station.cleaning,
+
+                        onChange:
+                          (
+                            value: boolean
+                          ) =>
+                            updateStation(
+                              index,
+                              "cleaning",
+                              value
+                            ),
+                      },
+
+                    ]}
+                  />
+
+                </div>
+
+                {/* OBSERVACIONES */}
+                <div className="mt-6">
+
+                  <InputField
+                    label="Observaciones"
+                    value={
+                      station.observations
+                    }
+                    onChange={(
+                      value: string
+                    ) =>
+                      updateStation(
+                        index,
+                        "observations",
+                        value
+                      )
+                    }
+                  />
+
+                </div>
+
+              </div>
+            )
+          )}
+
+        </div>
+
+        {/* ADD */}
+        <button
+          onClick={addStation}
+          className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+        >
+
+          <Plus size={16} />
+
+          Agregar estación
+
+        </button>
+
+        {/* FINAL */}
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+
+          <CheckboxField
+            label="No se registró actividad durante la inspección"
+            checked={
+              form.no_activity
+            }
+            onChange={(
+              value: boolean
+            ) =>
+              setForm({
+                ...form,
+                no_activity:
+                  value,
+              })
+            }
+          />
+
+          <CheckboxField
+            label="Se registró actividad durante la inspección"
+            checked={
+              form.activity_detected
+            }
+            onChange={(
+              value: boolean
+            ) =>
+              setForm({
+                ...form,
+                activity_detected:
+                  value,
+              })
+            }
+          />
+
+        </div>
+
+        {/* SAVE */}
         <button
           onClick={saveForm}
           disabled={loading}
@@ -416,68 +758,105 @@ export default function RodentMonitoringForm({
   );
 }
 
-type CheckField = {
-
-  label: string;
-
-  value: boolean;
-
-  onChange: (
-    value: boolean
-  ) => void;
-
-};
-
-function CheckCard({
-  title,
-  fields,
-}: {
-  title: string;
-  fields: CheckField[];
-}) {
+// INPUT
+function InputField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: any) {
 
   return (
-    <div className="rounded-2xl border border-gray-200 p-5">
 
-      <h3 className="mb-4 text-sm font-bold">
+    <div>
+
+      <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+        {label}
+
+      </label>
+
+      <input
+        type={type}
+        value={value}
+        onChange={(e) =>
+          onChange(
+            e.target.value
+          )
+        }
+        className="w-full rounded-2xl border border-gray-200 p-3 text-sm"
+      />
+
+    </div>
+  );
+}
+
+// CHECKBOX GROUP
+function CheckboxGroup({
+  title,
+  items,
+}: any) {
+
+  return (
+
+    <div>
+
+      <h3 className="mb-3 text-sm font-bold text-gray-900">
 
         {title}
 
       </h3>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
 
-        {fields.map(
+        {items.map(
           (
-            field,
-            index
+            item: any,
+            index: number
           ) => (
 
-            <label
+            <CheckboxField
               key={index}
-              className="flex items-center gap-3 text-sm"
-            >
-
-              <input
-                type="checkbox"
-                checked={
-                  field.value
-                }
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.checked
-                  )
-                }
-              />
-
-              {field.label}
-
-            </label>
+              label={item.label}
+              checked={
+                item.checked
+              }
+              onChange={
+                item.onChange
+              }
+            />
           )
         )}
 
       </div>
 
     </div>
+  );
+}
+
+// CHECKBOX
+function CheckboxField({
+  label,
+  checked,
+  onChange,
+}: any) {
+
+  return (
+
+    <label className="flex items-center gap-3 text-sm">
+
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) =>
+          onChange(
+            e.target.checked
+          )
+        }
+      />
+
+      {label}
+
+    </label>
   );
 }

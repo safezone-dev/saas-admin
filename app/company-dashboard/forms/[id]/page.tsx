@@ -2,26 +2,40 @@
 
 import { useEffect, useState } from "react";
 
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+} from "next/navigation";
 
-import { supabase } from "@/lib/supabase";
+import { supabase }
+from "@/lib/supabase";
 
 // FORMULARIOS
-import RodentMonitoringForm from "@/components/forms/RodentMonitoringForm";
+import RodentMonitoringForm
+from "@/components/forms/RodentMonitoringForm";
 
-import MothMonitoringForm from "@/components/forms/MothMonitoringForm";
+import MothMonitoringForm
+from "@/components/forms/MothMonitoringForm";
 
-import FlyingInsectsMonitoringForm from "@/components/forms/FlyingInsectsMonitoringForm";
+import FlyingInsectsMonitoringForm
+from "@/components/forms/FlyingInsectsMonitoringForm";
 
-import FlyMonitoringForm from "@/components/forms/FlyMonitoringForm";
+import FlyMonitoringForm
+from "@/components/forms/FlyMonitoringForm";
 
-import CrawlingInsectsMonitoringForm from "@/components/forms/CrawlingInsectsMonitoringForm";
+import CrawlingInsectsMonitoringForm
+from "@/components/forms/CrawlingInsectsMonitoringForm";
+
+import TechnicalServiceReportForm
+from "@/components/forms/TechnicalServiceReportForm";
 
 export default function DynamicFormPage() {
 
-  const params = useParams();
+  const params =
+    useParams();
 
-  const router = useRouter();
+  const router =
+    useRouter();
 
   const orderId =
     params.id as string;
@@ -54,9 +68,11 @@ export default function DynamicFormPage() {
 
       setLoading(true);
 
-      const { data, error } =
-        await supabase
-          .from("work_orders")
+      const { data, error }
+        = await supabase
+          .from(
+            "work_orders"
+          )
           .select(`
             *,
             companies (
@@ -66,7 +82,10 @@ export default function DynamicFormPage() {
               name
             )
           `)
-          .eq("id", orderId)
+          .eq(
+            "id",
+            orderId
+          )
           .single();
 
       if (error) {
@@ -144,7 +163,7 @@ export default function DynamicFormPage() {
       }
 
       // =========================
-      // MONITOREO MOSCAS
+      // MOSCAS
       // =========================
       else if (
         serviceName ===
@@ -157,7 +176,7 @@ export default function DynamicFormPage() {
       }
 
       // =========================
-      // INSECTOS RASTREROS
+      // RASTREROS
       // =========================
       else if (
         serviceName ===
@@ -170,7 +189,20 @@ export default function DynamicFormPage() {
       }
 
       // =========================
-      // SERVICIO NO CONFIGURADO
+      // REPORTE TECNICO
+      // =========================
+      else if (
+        serviceName ===
+        "reporte de servicio técnico"
+      ) {
+
+        setServiceType(
+          "reporte_tecnico"
+        );
+      }
+
+      // =========================
+      // DEFAULT
       // =========================
       else {
 
@@ -214,7 +246,7 @@ export default function DynamicFormPage() {
   }
 
   // =========================
-  // SIN ORDEN
+  // NOT FOUND
   // =========================
   if (!order) {
 
@@ -233,7 +265,7 @@ export default function DynamicFormPage() {
   }
 
   // =========================
-  // FORM POLILLEROS
+  // POLILLEROS
   // =========================
   if (
     serviceType ===
@@ -241,16 +273,14 @@ export default function DynamicFormPage() {
   ) {
 
     return (
-
       <MothMonitoringForm
         order={order}
       />
-
     );
   }
 
   // =========================
-  // FORM ROEDORES
+  // ROEDORES
   // =========================
   if (
     serviceType ===
@@ -258,16 +288,14 @@ export default function DynamicFormPage() {
   ) {
 
     return (
-
       <RodentMonitoringForm
         order={order}
       />
-
     );
   }
 
   // =========================
-  // FORM INSECTOS VOLADORES
+  // INSECTOS VOLADORES
   // =========================
   if (
     serviceType ===
@@ -275,16 +303,14 @@ export default function DynamicFormPage() {
   ) {
 
     return (
-
       <FlyingInsectsMonitoringForm
         order={order}
       />
-
     );
   }
 
   // =========================
-  // FORM MOSCAS
+  // MOSCAS
   // =========================
   if (
     serviceType ===
@@ -292,16 +318,14 @@ export default function DynamicFormPage() {
   ) {
 
     return (
-
       <FlyMonitoringForm
         order={order}
       />
-
     );
   }
 
   // =========================
-  // FORM RASTREROS
+  // RASTREROS
   // =========================
   if (
     serviceType ===
@@ -309,11 +333,24 @@ export default function DynamicFormPage() {
   ) {
 
     return (
-
       <CrawlingInsectsMonitoringForm
         order={order}
       />
+    );
+  }
 
+  // =========================
+  // REPORTE TECNICO
+  // =========================
+  if (
+    serviceType ===
+    "reporte_tecnico"
+  ) {
+
+    return (
+      <TechnicalServiceReportForm
+        order={order}
+      />
     );
   }
 
