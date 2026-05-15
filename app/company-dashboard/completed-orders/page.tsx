@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 
+import Link from "next/link";
+
 import { supabase } from "@/lib/supabase";
 
 import {
   CheckCircle2,
   ArrowLeft,
+  Eye,
 } from "lucide-react";
 
 export default function CompletedOrdersPage() {
@@ -20,7 +23,9 @@ export default function CompletedOrdersPage() {
     useState(true);
 
   useEffect(() => {
+
     loadOrders();
+
   }, []);
 
   async function loadOrders() {
@@ -31,7 +36,9 @@ export default function CompletedOrdersPage() {
       );
 
     if (!technicianData) {
+
       setLoading(false);
+
       return;
     }
 
@@ -40,7 +47,7 @@ export default function CompletedOrdersPage() {
         technicianData
       );
 
-    const { data } =
+    const { data, error } =
       await supabase
         .from("work_orders")
         .select(`
@@ -67,180 +74,203 @@ export default function CompletedOrdersPage() {
           }
         );
 
+    if (error) {
+
+      console.log(error);
+
+    }
+
     if (data) {
+
       setOrders(data);
+
     }
 
     setLoading(false);
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      {/* HEADER */}
-      <div className="mb-6 rounded-[24px] bg-white p-5 shadow-sm">
+      <div className="mx-auto max-w-7xl">
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        {/* HEADER */}
+        <div className="mb-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 
           {/* LEFT */}
-          <div className="flex items-center gap-4">
+          <div>
 
-            <div className="rounded-2xl bg-green-100 p-4">
+            <h1 className="text-3xl font-bold text-gray-900">
 
-              <CheckCircle2
-                size={22}
-                className="text-green-700"
-              />
+              Órdenes Respondidas
 
-            </div>
+            </h1>
 
-            <div>
+            <p className="mt-1 text-sm text-gray-500">
 
-              <h1 className="text-xl font-bold text-gray-900">
-                Órdenes Respondidas
-              </h1>
+              Historial de actividades completadas
 
-              <p className="mt-1 text-xs text-gray-500">
-                Historial de actividades completadas
-              </p>
-
-            </div>
+            </p>
 
           </div>
 
-          {/* BACK */}
-          <a
+          {/* BUTTON */}
+          <Link
             href="/company-dashboard"
-            className="inline-flex items-center gap-2 rounded-2xl bg-gray-100 px-4 py-3 text-xs font-semibold text-gray-700 transition hover:bg-gray-200"
+            className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
           >
 
             <ArrowLeft size={16} />
 
             Regresar Dashboard
 
-          </a>
+          </Link>
 
         </div>
 
-      </div>
+        {/* TABLE */}
+        <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
-      {/* TABLE */}
-      <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
+          <div className="overflow-x-auto">
 
-        <div className="overflow-x-auto">
+            <table className="w-full table-auto">
 
-          <table className="w-full min-w-[900px]">
+              {/* HEAD */}
+              <thead className="bg-gray-50">
 
-            {/* HEAD */}
-            <thead className="bg-gray-50">
+                <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
-              <tr className="border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="min-w-[240px] px-4 py-3">
 
-                <th className="px-4 py-3">
-                  Empresa
-                </th>
+                    Empresa
 
-                <th className="px-4 py-3">
-                  Servicio
-                </th>
+                  </th>
 
-                <th className="px-4 py-3">
-                  Fecha
-                </th>
+                  <th className="min-w-[240px] px-4 py-3">
 
-                <th className="px-4 py-3">
-                  Estado
-                </th>
+                    Servicio
 
-                <th className="px-4 py-3 text-center">
-                  Acción
-                </th>
+                  </th>
 
-              </tr>
+                  <th className="min-w-[160px] px-4 py-3">
 
-            </thead>
+                    Fecha
 
-            {/* BODY */}
-            <tbody>
+                  </th>
 
-              {!loading &&
-                orders.length === 0 && (
-                <tr>
+                  <th className="min-w-[120px] px-4 py-3">
 
-                  <td
-                    colSpan={5}
-                    className="p-8 text-center text-xs text-gray-500"
-                  >
-                    No hay órdenes respondidas
-                  </td>
+                    Estado
+
+                  </th>
+
+                  <th className="min-w-[180px] px-4 py-3 text-center">
+
+                    Acción
+
+                  </th>
 
                 </tr>
-              )}
 
-              {orders.map(
-                (order: any) => (
-                  <tr
-                    key={order.id}
-                    className="border-b border-gray-100 text-sm hover:bg-gray-50"
-                  >
+              </thead>
 
-                    {/* EMPRESA */}
-                    <td className="px-4 py-4 font-medium text-gray-900">
+              {/* BODY */}
+              <tbody>
 
-                      {
-                        order.companies
-                          ?.company_name
-                      }
+                {!loading &&
+                  orders.length === 0 && (
 
-                    </td>
+                  <tr>
 
-                    {/* SERVICIO */}
-                    <td className="px-4 py-4 text-gray-600">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-10 text-center text-sm text-gray-500"
+                    >
 
-                      {
-                        order.service_types
-                          ?.name
-                      }
-
-                    </td>
-
-                    {/* FECHA */}
-                    <td className="px-4 py-4 text-gray-600">
-
-                      {
-                        order.scheduled_date
-                      }
-
-                    </td>
-
-                    {/* STATUS */}
-                    <td className="px-4 py-4">
-
-                      <span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
-                        Respondido
-                      </span>
-
-                    </td>
-
-                    {/* ACTION */}
-                    <td className="px-4 py-4 text-center">
-
-                      <a
-                        href={`/company-dashboard/review/${order.id}`}
-                        className="inline-flex rounded-xl bg-green-600 px-3 py-2 text-xs font-semibold text-white"
-                      >
-                        Revisar
-                      </a>
+                      No hay órdenes respondidas
 
                     </td>
 
                   </tr>
-                )
-              )}
+                )}
 
-            </tbody>
+                {orders.map(
+                  (order: any) => (
 
-          </table>
+                    <tr
+                      key={order.id}
+                      className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
+                    >
+
+                      {/* EMPRESA */}
+                      <td className="px-4 py-4 align-top">
+
+                        <div className="font-semibold text-gray-900">
+
+                          {
+                            order.companies
+                              ?.company_name
+                          }
+
+                        </div>
+
+                      </td>
+
+                      {/* SERVICIO */}
+                      <td className="px-4 py-4 align-top text-gray-700">
+
+                        {
+                          order.service_types
+                            ?.name
+                        }
+
+                      </td>
+
+                      {/* FECHA */}
+                      <td className="px-4 py-4 align-top text-gray-700">
+
+                        {
+                          order.scheduled_date
+                        }
+
+                      </td>
+
+                      {/* STATUS */}
+                      <td className="px-4 py-4 align-top">
+
+                        <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+
+                          Respondido
+
+                        </span>
+
+                      </td>
+
+                      {/* ACTION */}
+                      <td className="px-4 py-4 align-top text-center">
+
+                        <Link
+                          href={`/company-dashboard/review/${order.id}`}
+                          className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                        >
+
+                          <Eye size={14} />
+
+                          Revisar
+
+                        </Link>
+
+                      </td>
+
+                    </tr>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
 
         </div>
 

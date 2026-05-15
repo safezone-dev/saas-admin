@@ -1,348 +1,319 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 
 import {
-  User,
-  ClipboardList,
+  Clock3,
   CheckCircle2,
+  Building2,
+  TrendingUp,
+  ArrowRight,
 } from "lucide-react";
 
-export default function CompanyDashboard() {
+export default function CompanyDashboardPage() {
 
-  const [pendingOrders,
-    setPendingOrders] =
-    useState<any[]>([]);
+  const [pendingCount,
+    setPendingCount] =
+    useState(0);
 
-  const [completedOrders,
-    setCompletedOrders] =
-    useState<any[]>([]);
+  const [completedCount,
+    setCompletedCount] =
+    useState(0);
 
-  const [technician,
-    setTechnician] =
-    useState<any>(null);
+  const [companiesCount,
+    setCompaniesCount] =
+    useState(0);
+
+  const [effectiveness,
+    setEffectiveness] =
+    useState(0);
 
   useEffect(() => {
+
     loadDashboard();
+
   }, []);
 
   async function loadDashboard() {
 
-    const technicianData =
-      localStorage.getItem(
-        "technician"
-      );
+    try {
 
-    if (!technicianData) return;
-
-    const technicianParsed =
-      JSON.parse(
-        technicianData
-      );
-
-    setTechnician(
-      technicianParsed
-    );
-
-    const { data } =
-      await supabase
-        .from("work_orders")
-        .select(`
-          *,
-          companies (
-            company_name
-          ),
-          service_types (
-            name
-          )
-        `)
-        .eq(
-          "technician_id",
-          technicianParsed.id
-        )
-        .order(
-          "created_at",
-          {
-            ascending: false,
-          }
+      const technicianData =
+        localStorage.getItem(
+          "technician"
         );
 
-    if (!data) return;
+      if (!technicianData)
+        return;
 
-    setPendingOrders(
-      data.filter(
-        (o) =>
-          o.status !==
-          "completed"
-      )
-    );
+      const technician =
+        JSON.parse(
+          technicianData
+        );
 
-    setCompletedOrders(
-      data.filter(
-        (o) =>
-          o.status ===
+      // PENDIENTES
+      const {
+        count:
+          pendingOrders,
+      } = await supabase
+        .from("work_orders")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq(
+          "technician_id",
+          technician.id
+        )
+        .neq(
+          "status",
           "completed"
-      )
-    );
+        );
+
+      // COMPLETADAS
+      const {
+        count:
+          completedOrders,
+      } = await supabase
+        .from("work_orders")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq(
+          "technician_id",
+          technician.id
+        )
+        .eq(
+          "status",
+          "completed"
+        );
+
+      // EMPRESAS
+      const { data: companies }
+        = await supabase
+          .from(
+            "work_orders"
+          )
+          .select(
+            "company_id"
+          )
+          .eq(
+            "technician_id",
+            technician.id
+          );
+
+      const uniqueCompanies =
+        [
+          ...new Set(
+            companies?.map(
+              (c: any) =>
+                c.company_id
+            )
+          ),
+        ];
+
+      const totalPending =
+        pendingOrders || 0;
+
+      const totalCompleted =
+        completedOrders || 0;
+
+      const totalOrders =
+        totalPending +
+        totalCompleted;
+
+      // EFECTIVIDAD
+      const efficiency =
+        totalOrders > 0
+          ? Math.round(
+              (totalCompleted /
+                totalOrders) *
+                100
+            )
+          : 0;
+
+      setPendingCount(
+        totalPending
+      );
+
+      setCompletedCount(
+        totalCompleted
+      );
+
+      setCompaniesCount(
+        uniqueCompanies.length
+      );
+
+      setEffectiveness(
+        efficiency
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
   }
 
-  const totalOrders =
-    pendingOrders.length +
-    completedOrders.length;
+  const cards = [
 
-  const completedPercent =
-    totalOrders > 0
-      ? Math.round(
-          (
-            completedOrders.length /
-            totalOrders
-          ) * 100
-        )
-      : 0;
+    {
+      title:
+        "Órdenes pendientes",
 
-  const pendingPercent =
-    totalOrders > 0
-      ? Math.round(
-          (
-            pendingOrders.length /
-            totalOrders
-          ) * 100
-        )
-      : 0;
+      description:
+        "Servicios pendientes por responder",
+
+      value:
+        pendingCount,
+
+      icon: Clock3,
+
+      href:
+        "/company-dashboard/pending-orders",
+    },
+
+    {
+      title:
+        "Órdenes completadas",
+
+      description:
+        "Historial de órdenes respondidas",
+
+      value:
+        completedCount,
+
+      icon: CheckCircle2,
+
+      href:
+        "/company-dashboard/completed-orders",
+    },
+
+    {
+      title:
+        "Empresas asignadas",
+
+      description:
+        "Cantidad de empresas asignadas",
+
+      value:
+        companiesCount,
+
+      icon: Building2,
+
+      href:
+        "#",
+    },
+
+    {
+      title:
+        "Efectividad",
+
+      description:
+        "Porcentaje de efectividad técnica",
+
+      value:
+        `${effectiveness}%`,
+
+      icon: TrendingUp,
+
+      href:
+        "#",
+    },
+
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      {/* HEADER */}
-      <div className="mb-5 rounded-[24px] bg-white p-4 shadow-sm sm:p-5">
+      <div className="mx-auto max-w-7xl">
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* WELCOME */}
+        <div className="mb-8 rounded-[24px] bg-white p-6 shadow-sm">
 
-          {/* USER */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <h1 className="text-3xl font-bold text-gray-900">
 
-            <div className="rounded-2xl bg-blue-100 p-3 sm:p-4">
+            Dashboard Técnico
 
-              <User
-                size={20}
-                className="text-blue-600"
-              />
+          </h1>
 
-            </div>
+          <p className="mt-2 text-sm text-gray-500">
 
-            <div className="min-w-0">
+            Bienvenido al sistema técnico.
+            Desde este panel puedes responder órdenes,
+            visualizar estadísticas y consultar
+            el historial operativo de servicios.
 
-              <h1 className="truncate text-lg font-bold text-gray-900 sm:text-xl">
-                {
-                  technician?.name
-                }
-              </h1>
-
-              <p className="truncate text-[11px] text-gray-500 sm:text-xs">
-                {
-                  technician?.email
-                }
-              </p>
-
-            </div>
-
-          </div>
+          </p>
 
         </div>
 
-      </div>
+        {/* GRID */}
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
-      {/* STATS */}
-      <div className="mb-5 grid grid-cols-4 gap-3">
+          {cards.map((card, index) => {
 
-        <StatCard
-          title="Pendientes"
-          value={
-            pendingOrders.length
-          }
-          subtitle={`${pendingPercent}%`}
-          color="yellow"
-        />
+            const Icon = card.icon;
 
-        <StatCard
-          title="Respondidas"
-          value={
-            completedOrders.length
-          }
-          subtitle={`${completedPercent}%`}
-          color="green"
-        />
-
-        <StatCard
-          title="Actividades"
-          value={totalOrders}
-          subtitle="Total"
-          color="blue"
-        />
-
-        <StatCard
-          title="Efectividad"
-          value={`${completedPercent}%`}
-          subtitle="Cumplimiento"
-          color="purple"
-        />
-
-      </div>
-
-      {/* RESUMEN */}
-      <div className="grid gap-4 xl:grid-cols-2">
-
-        {/* PENDIENTES */}
-        <ActivityCard
-          title="Últimas Pendientes"
-          icon={
-            <ClipboardList
-              size={16}
-            />
-          }
-          data={pendingOrders.slice(
-            0,
-            5
-          )}
-          completed={false}
-        />
-
-        {/* RESPONDIDAS */}
-        <ActivityCard
-          title="Últimas Respondidas"
-          icon={
-            <CheckCircle2
-              size={16}
-            />
-          }
-          data={completedOrders.slice(
-            0,
-            5
-          )}
-          completed={true}
-        />
-
-      </div>
-
-    </div>
-  );
-}
-
-function ActivityCard({
-  title,
-  icon,
-  data,
-  completed,
-}: any) {
-
-  return (
-    <div className="rounded-[24px] bg-white p-4 shadow-sm sm:p-5">
-
-      {/* TITLE */}
-      <div className="mb-4 flex items-center gap-2">
-
-        <div className="text-blue-600">
-          {icon}
-        </div>
-
-        <h2 className="text-sm font-bold text-gray-900">
-          {title}
-        </h2>
-
-      </div>
-
-      {/* CONTENT */}
-      <div className="space-y-3">
-
-        {data.length === 0 && (
-          <div className="text-xs text-gray-500">
-            Sin registros
-          </div>
-        )}
-
-        {data.map(
-          (item: any) => (
-            <div
-              key={item.id}
-              className="flex flex-col gap-3 rounded-2xl bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-
-              <div className="min-w-0">
-
-                <p className="truncate text-sm font-semibold text-gray-900">
-                  {
-                    item.companies
-                      ?.company_name
-                  }
-                </p>
-
-                <p className="truncate text-[11px] text-gray-500 sm:text-xs">
-                  {
-                    item.service_types
-                      ?.name
-                  }
-                </p>
-
-              </div>
-
-              <span
-                className={`w-fit rounded-full px-2 py-1 text-[10px] font-semibold ${
-                  completed
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
-                }`}
+            return (
+              <Link
+                key={index}
+                href={card.href}
+                className="group overflow-hidden rounded-[24px] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
 
-                {completed
-                  ? "Respondido"
-                  : "Pendiente"}
+                {/* TOP */}
+                <div className="mb-5 flex items-center justify-between">
 
-              </span>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
 
-            </div>
-          )
-        )}
+                    <Icon size={22} />
 
-      </div>
+                  </div>
 
-    </div>
-  );
-}
+                  <div className="text-3xl font-bold text-gray-900">
 
-function StatCard({
-  title,
-  value,
-  subtitle,
-  color,
-}: any) {
+                    {card.value}
 
-  const styles =
-    color === "green"
-      ? "bg-green-50 text-green-900"
-      : color === "yellow"
-      ? "bg-yellow-50 text-yellow-900"
-      : color === "purple"
-      ? "bg-purple-50 text-purple-900"
-      : "bg-blue-50 text-blue-900";
+                  </div>
 
-  return (
-    <div className={`rounded-[22px] p-4 sm:p-5 ${styles}`}>
+                </div>
 
-      <p className="text-[10px] font-semibold uppercase tracking-wide sm:text-[11px]">
-        {title}
-      </p>
+                {/* TEXT */}
+                <h2 className="text-lg font-bold text-gray-900">
 
-      <div className="mt-3 flex items-end justify-between gap-2">
+                  {card.title}
 
-        <h2 className="text-2xl font-bold sm:text-3xl">
-          {value}
-        </h2>
+                </h2>
 
-        <p className="text-[10px] font-semibold opacity-70 sm:text-xs">
-          {subtitle}
-        </p>
+                <p className="mt-2 text-sm text-gray-500">
+
+                  {card.description}
+
+                </p>
+
+                {/* LINK */}
+                <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-black">
+
+                  Ver módulo
+
+                  <ArrowRight
+                    size={16}
+                    className="transition group-hover:translate-x-1"
+                  />
+
+                </div>
+
+              </Link>
+            );
+          })}
+
+        </div>
 
       </div>
 

@@ -2,9 +2,10 @@
 
 import {
   useEffect,
-  useRef,
   useState,
 } from "react";
+
+import Link from "next/link";
 
 import { supabase } from "@/lib/supabase";
 
@@ -15,20 +16,12 @@ import {
   ClipboardList,
   TrendingUp,
   Building2,
-  Printer,
-  Download,
+  User,
+  Mail,
+  Briefcase,
 } from "lucide-react";
 
-import jsPDF from "jspdf";
-
-import html2canvas from "html2canvas";
-
 export default function ReportsPage() {
-
-  const reportRef =
-    useRef<HTMLDivElement>(
-      null
-    );
 
   const [technician,
     setTechnician] =
@@ -47,7 +40,9 @@ export default function ReportsPage() {
     useState<string[]>([]);
 
   useEffect(() => {
+
     loadReport();
+
   }, []);
 
   async function loadReport() {
@@ -144,186 +139,140 @@ export default function ReportsPage() {
         )
       : 0;
 
-  async function downloadPDF() {
-
-    if (!reportRef.current)
-      return;
-
-    const canvas =
-      await html2canvas(
-        reportRef.current,
-        {
-          scale: 2,
-        }
-      );
-
-    const imgData =
-      canvas.toDataURL(
-        "image/png"
-      );
-
-    const pdf =
-      new jsPDF(
-        "p",
-        "mm",
-        "a4"
-      );
-
-    const pdfWidth =
-      pdf.internal.pageSize.getWidth();
-
-    const pdfHeight =
-      (canvas.height *
-        pdfWidth) /
-      canvas.width;
-
-    pdf.addImage(
-      imgData,
-      "PNG",
-      0,
-      0,
-      pdfWidth,
-      pdfHeight
-    );
-
-    pdf.save(
-      "reporte-tecnico.pdf"
-    );
-  }
-
-  function printReport() {
-    window.print();
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      {/* ACTIONS */}
-      <div className="mb-6 flex flex-wrap gap-3">
-
-        <button
-          onClick={downloadPDF}
-          className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-xs font-semibold text-white"
-        >
-
-          <Download size={16} />
-
-          Descargar PDF
-
-        </button>
-
-        <button
-          onClick={printReport}
-          className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-5 py-3 text-xs font-semibold text-white"
-        >
-
-          <Printer size={16} />
-
-          Imprimir
-
-        </button>
-
-        <a
-          href="/company-dashboard"
-          className="inline-flex items-center gap-2 rounded-2xl bg-gray-200 px-5 py-3 text-xs font-semibold text-gray-700"
-        >
-
-          <ArrowLeft size={16} />
-
-          Regresar
-
-        </a>
-
-      </div>
-
-      {/* REPORT */}
-      <div ref={reportRef}>
+      <div className="mx-auto max-w-7xl">
 
         {/* HEADER */}
-        <div className="mb-6 rounded-[24px] bg-white p-5 shadow-sm">
+        <div className="mb-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 
-          <div className="flex items-center gap-4">
+          <div>
 
-            <div className="rounded-2xl bg-blue-100 p-4">
+            <h1 className="text-3xl font-bold text-gray-900">
 
-              <BarChart3
-                size={22}
-                className="text-blue-700"
-              />
+              Reportes Técnicos
+
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+
+              Métricas y rendimiento operativo del técnico
+
+            </p>
+
+          </div>
+
+          <Link
+            href="/company-dashboard"
+            className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
+          >
+
+            <ArrowLeft size={16} />
+
+            Regresar Dashboard
+
+          </Link>
+
+        </div>
+
+        {/* TECHNICIAN INFO */}
+        <div className="mb-8 rounded-[24px] bg-white p-6 shadow-sm">
+
+          <div className="mb-6 flex items-center gap-4">
+
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
+
+              <BarChart3 size={24} />
 
             </div>
 
             <div>
 
-              <h1 className="text-xl font-bold text-gray-900">
-                Reporte General Técnico
-              </h1>
+              <h2 className="text-2xl font-bold text-gray-900">
 
-              <p className="mt-1 text-xs text-gray-500">
-                Resumen operativo general
+                Resumen General Técnico
+
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+
+                Información operativa y desempeño general
+
               </p>
 
             </div>
 
           </div>
 
-        </div>
+          {/* INFO GRID */}
+          <div className="grid gap-4 md:grid-cols-3">
 
-        {/* INFO */}
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
+            <InfoCard
+              title="Técnico"
+              value={
+                technician
+                  ?.full_name ||
+                technician?.name ||
+                "-"
+              }
+              icon={
+                <User size={18} />
+              }
+            />
 
-          <InfoCard
-            title="Técnico"
-            value={
-              technician?.name ||
-              "-"
-            }
-          />
+            <InfoCard
+              title="Correo"
+              value={
+                technician?.email ||
+                "-"
+              }
+              icon={
+                <Mail size={18} />
+              }
+            />
 
-          <InfoCard
-            title="Correo"
-            value={
-              technician?.email ||
-              "-"
-            }
-          />
+            <InfoCard
+              title="Empresas asignadas"
+              value={
+                companies.length
+              }
+              icon={
+                <Briefcase
+                  size={18}
+                />
+              }
+            />
 
-          <InfoCard
-            title="Empresas"
-            value={
-              companies.length
-            }
-          />
+          </div>
 
         </div>
 
         {/* METRICS */}
-        <div className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <div className="mb-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
 
           <MetricCard
-            title="Pendientes"
+            title="Órdenes pendientes"
             value={
               pendingOrders.length
             }
             icon={
               <ClipboardList
-                size={18}
+                size={22}
               />
             }
-            color="yellow"
           />
 
           <MetricCard
-            title="Respondidas"
+            title="Órdenes respondidas"
             value={
               completedOrders.length
             }
             icon={
               <CheckCircle2
-                size={18}
+                size={22}
               />
             }
-            color="green"
           />
 
           <MetricCard
@@ -333,10 +282,19 @@ export default function ReportsPage() {
             }
             icon={
               <Building2
-                size={18}
+                size={22}
               />
             }
-            color="blue"
+          />
+
+          <MetricCard
+            title="Total órdenes"
+            value={totalOrders}
+            icon={
+              <BarChart3
+                size={22}
+              />
+            }
           />
 
           <MetricCard
@@ -344,52 +302,77 @@ export default function ReportsPage() {
             value={`${effectiveness}%`}
             icon={
               <TrendingUp
-                size={18}
+                size={22}
               />
             }
-            color="purple"
           />
 
         </div>
 
         {/* TABLE */}
-        <div className="rounded-[24px] bg-white p-5 shadow-sm">
+        <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
-          <div className="mb-4 flex items-center gap-2">
+          {/* TABLE HEADER */}
+          <div className="border-b border-gray-100 p-5">
 
-            <CheckCircle2
-              size={18}
-              className="text-green-600"
-            />
+            <div className="flex items-center gap-3">
 
-            <h2 className="text-sm font-bold text-gray-900">
-              Últimas Actividades Respondidas
-            </h2>
+              <CheckCircle2
+                size={20}
+                className="text-green-600"
+              />
+
+              <div>
+
+                <h2 className="text-lg font-bold text-gray-900">
+
+                  Últimas Actividades Respondidas
+
+                </h2>
+
+                <p className="text-sm text-gray-500">
+
+                  Historial reciente de servicios completados
+
+                </p>
+
+              </div>
+
+            </div>
 
           </div>
 
+          {/* TABLE */}
           <div className="overflow-x-auto">
 
-            <table className="w-full min-w-[800px]">
+            <table className="w-full table-auto">
 
               <thead className="bg-gray-50">
 
-                <tr className="border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
-                  <th className="px-4 py-3">
+                  <th className="min-w-[240px] px-4 py-3">
+
                     Empresa
+
                   </th>
 
-                  <th className="px-4 py-3">
+                  <th className="min-w-[240px] px-4 py-3">
+
                     Servicio
+
                   </th>
 
-                  <th className="px-4 py-3">
+                  <th className="min-w-[160px] px-4 py-3">
+
                     Fecha
+
                   </th>
 
-                  <th className="px-4 py-3">
+                  <th className="min-w-[120px] px-4 py-3">
+
                     Estado
+
                   </th>
 
                 </tr>
@@ -404,14 +387,16 @@ export default function ReportsPage() {
                     (
                       order: any
                     ) => (
+
                       <tr
                         key={
                           order.id
                         }
-                        className="border-b border-gray-100 text-sm"
+                        className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
                       >
 
-                        <td className="px-4 py-4 font-medium text-gray-900">
+                        {/* EMPRESA */}
+                        <td className="px-4 py-4 font-semibold text-gray-900">
 
                           {
                             order
@@ -421,7 +406,8 @@ export default function ReportsPage() {
 
                         </td>
 
-                        <td className="px-4 py-4 text-gray-600">
+                        {/* SERVICIO */}
+                        <td className="px-4 py-4 text-gray-700">
 
                           {
                             order
@@ -431,7 +417,8 @@ export default function ReportsPage() {
 
                         </td>
 
-                        <td className="px-4 py-4 text-gray-600">
+                        {/* FECHA */}
+                        <td className="px-4 py-4 text-gray-700">
 
                           {
                             order.scheduled_date
@@ -439,10 +426,13 @@ export default function ReportsPage() {
 
                         </td>
 
+                        {/* STATUS */}
                         <td className="px-4 py-4">
 
-                          <span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
+                          <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+
                             Respondido
+
                           </span>
 
                         </td>
@@ -469,34 +459,32 @@ function MetricCard({
   title,
   value,
   icon,
-  color,
 }: any) {
 
-  const styles =
-    color === "green"
-      ? "bg-green-50 text-green-900"
-      : color === "yellow"
-      ? "bg-yellow-50 text-yellow-900"
-      : color === "purple"
-      ? "bg-purple-50 text-purple-900"
-      : "bg-blue-50 text-blue-900";
-
   return (
-    <div className={`rounded-[24px] p-5 ${styles}`}>
+    <div className="rounded-[24px] bg-white p-5 shadow-sm">
 
       <div className="flex items-center justify-between">
 
-        <p className="text-[11px] font-semibold uppercase tracking-wide">
-          {title}
-        </p>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
 
-        {icon}
+          {icon}
+
+        </div>
 
       </div>
 
-      <h2 className="mt-4 text-3xl font-bold">
+      <h2 className="mt-6 text-3xl font-bold text-gray-900">
+
         {value}
+
       </h2>
+
+      <p className="mt-2 text-sm text-gray-500">
+
+        {title}
+
+      </p>
 
     </div>
   );
@@ -505,18 +493,37 @@ function MetricCard({
 function InfoCard({
   title,
   value,
+  icon,
 }: any) {
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <div className="rounded-[24px] bg-gray-50 p-5">
 
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {title}
-      </p>
+      <div className="flex items-center gap-3">
 
-      <h2 className="mt-2 text-sm font-bold text-gray-900">
-        {value}
-      </h2>
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white">
+
+          {icon}
+
+        </div>
+
+        <div>
+
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+
+            {title}
+
+          </p>
+
+          <h2 className="mt-1 text-sm font-bold text-gray-900">
+
+            {value}
+
+          </h2>
+
+        </div>
+
+      </div>
 
     </div>
   );

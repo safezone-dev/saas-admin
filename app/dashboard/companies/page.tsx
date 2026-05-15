@@ -8,6 +8,7 @@ import {
   Building2,
   Plus,
   Trash2,
+  Pencil,
 } from "lucide-react";
 
 export default function CompaniesPage() {
@@ -24,6 +25,12 @@ export default function CompaniesPage() {
     setOpenModal] =
     useState(false);
 
+  const [editingId,
+    setEditingId] =
+    useState<string | null>(
+      null
+    );
+
   // FORM
   const [companyName,
     setCompanyName] =
@@ -33,16 +40,12 @@ export default function CompaniesPage() {
     setManagerName] =
     useState("");
 
-  const [email,
-    setEmail] =
-    useState("");
-
   const [companyEmail,
     setCompanyEmail] =
     useState("");
 
-  const [phone,
-    setPhone] =
+  const [companyPhone,
+    setCompanyPhone] =
     useState("");
 
   const [address,
@@ -94,8 +97,8 @@ export default function CompaniesPage() {
     }
   }
 
-  // CREATE
-  async function handleCreateCompany() {
+  // SAVE COMPANY
+  async function handleSaveCompany() {
 
     try {
 
@@ -104,11 +107,9 @@ export default function CompaniesPage() {
       if (
         !companyName ||
         !managerName ||
-        !email ||
         !companyEmail ||
-        !phone ||
-        !address ||
-        !password
+        !companyPhone ||
+        !address
       ) {
 
         alert(
@@ -130,12 +131,13 @@ export default function CompaniesPage() {
             ""
           );
 
-      const { error } =
-        await supabase
-          .from("companies")
-          .insert([
+      // EDITAR
+      if (editingId) {
 
-            {
+        const { error } =
+          await supabase
+            .from("companies")
+            .update({
 
               company_name:
                 companyName,
@@ -143,54 +145,94 @@ export default function CompaniesPage() {
               manager_name:
                 managerName,
 
-              email: email,
-
               company_email:
                 companyEmail,
 
-              phone: phone,
+              company_phone:
+                companyPhone,
 
               address: address,
-
-              password:
-                password,
 
               company_code:
                 companyCode,
 
-            },
+              ...(password && {
+                password:
+                  password,
+              }),
 
-          ]);
+            })
+            .eq(
+              "id",
+              editingId
+            );
 
-      if (error) {
+        if (error) {
 
-        console.log(error);
+          console.log(error);
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
 
         alert(
-          error.message
+          "Empresa actualizada"
         );
 
-        return;
+      } else {
+
+        // CREAR
+        const { error } =
+          await supabase
+            .from("companies")
+            .insert([
+
+              {
+
+                company_name:
+                  companyName,
+
+                manager_name:
+                  managerName,
+
+                company_email:
+                  companyEmail,
+
+                company_phone:
+                  companyPhone,
+
+                address: address,
+
+                password:
+                  password,
+
+                company_code:
+                  companyCode,
+
+              },
+
+            ]);
+
+        if (error) {
+
+          console.log(error);
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        alert(
+          "Empresa creada correctamente"
+        );
       }
 
-      alert(
-        "Empresa creada correctamente"
-      );
-
-      // RESET
-      setCompanyName("");
-
-      setManagerName("");
-
-      setEmail("");
-
-      setCompanyEmail("");
-
-      setPhone("");
-
-      setAddress("");
-
-      setPassword("");
+      resetForm();
 
       setOpenModal(false);
 
@@ -201,7 +243,7 @@ export default function CompaniesPage() {
       console.log(error);
 
       alert(
-        "Error creando empresa"
+        "Error guardando empresa"
       );
 
     } finally {
@@ -209,6 +251,58 @@ export default function CompaniesPage() {
       setLoading(false);
 
     }
+  }
+
+  // EDIT
+  function handleEdit(
+    company: any
+  ) {
+
+    setEditingId(
+      company.id
+    );
+
+    setCompanyName(
+      company.company_name || ""
+    );
+
+    setManagerName(
+      company.manager_name || ""
+    );
+
+    setCompanyEmail(
+      company.company_email || ""
+    );
+
+    setCompanyPhone(
+      company.company_phone || ""
+    );
+
+    setAddress(
+      company.address || ""
+    );
+
+    setPassword("");
+
+    setOpenModal(true);
+  }
+
+  // RESET
+  function resetForm() {
+
+    setEditingId(null);
+
+    setCompanyName("");
+
+    setManagerName("");
+
+    setCompanyEmail("");
+
+    setCompanyPhone("");
+
+    setAddress("");
+
+    setPassword("");
   }
 
   // DELETE
@@ -237,17 +331,25 @@ export default function CompaniesPage() {
         console.log(error);
 
         alert(
-          "Error eliminando empresa"
+          error.message
         );
 
         return;
       }
+
+      alert(
+        "Empresa eliminada"
+      );
 
       loadCompanies();
 
     } catch (error) {
 
       console.log(error);
+
+      alert(
+        "Error eliminando empresa"
+      );
 
     }
   }
@@ -287,9 +389,13 @@ export default function CompaniesPage() {
           </div>
 
           <button
-            onClick={() =>
-              setOpenModal(true)
-            }
+            onClick={() => {
+
+              resetForm();
+
+              setOpenModal(true);
+
+            }}
             className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
 
@@ -313,23 +419,39 @@ export default function CompaniesPage() {
                 <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
                   <th className="min-w-[220px] px-4 py-3">
+
                     Empresa
+
                   </th>
 
                   <th className="min-w-[240px] px-4 py-3">
+
                     Email
+
                   </th>
 
-                  <th className="min-w-[150px] px-4 py-3">
+                  <th className="min-w-[160px] px-4 py-3">
+
                     Teléfono
-                  </th>
 
-                  <th className="min-w-[100px] px-4 py-3">
-                    Estado
                   </th>
 
                   <th className="min-w-[140px] px-4 py-3 text-center">
+
+                    Editar
+
+                  </th>
+
+                  <th className="min-w-[100px] px-4 py-3">
+
+                    Estado
+
+                  </th>
+
+                  <th className="min-w-[140px] px-4 py-3 text-center">
+
                     Acciones
+
                   </th>
 
                 </tr>
@@ -351,7 +473,9 @@ export default function CompaniesPage() {
 
                         <div className="font-semibold text-gray-900">
 
-                          {company.company_name}
+                          {
+                            company.company_name
+                          }
 
                         </div>
 
@@ -368,7 +492,9 @@ export default function CompaniesPage() {
 
                         <div className="break-words text-gray-700">
 
-                          {company.company_email}
+                          {
+                            company.company_email
+                          }
 
                         </div>
 
@@ -377,7 +503,29 @@ export default function CompaniesPage() {
                       {/* PHONE */}
                       <td className="px-4 py-4 align-top text-gray-700">
 
-                        {company.phone}
+                        {
+                          company.company_phone
+                        }
+
+                      </td>
+
+                      {/* EDIT */}
+                      <td className="px-4 py-4 align-top text-center">
+
+                        <button
+                          onClick={() =>
+                            handleEdit(
+                              company
+                            )
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
+                        >
+
+                          <Pencil size={12} />
+
+                          Editar
+
+                        </button>
 
                       </td>
 
@@ -392,7 +540,7 @@ export default function CompaniesPage() {
 
                       </td>
 
-                      {/* ACTIONS */}
+                      {/* DELETE */}
                       <td className="px-4 py-4 align-top text-center">
 
                         <button
@@ -446,13 +594,15 @@ export default function CompaniesPage() {
 
                 <h2 className="text-xl font-bold text-gray-900">
 
-                  Nueva empresa
+                  {editingId
+                    ? "Editar empresa"
+                    : "Nueva empresa"}
 
                 </h2>
 
                 <p className="text-sm text-gray-500">
 
-                  Registro de empresa
+                  Gestión de empresas
 
                 </p>
 
@@ -463,159 +613,43 @@ export default function CompaniesPage() {
             {/* FORM */}
             <div className="grid gap-4 md:grid-cols-2">
 
-              {/* EMPRESA */}
-              <div>
+              <InputField
+                label="Nombre empresa"
+                value={companyName}
+                onChange={setCompanyName}
+              />
 
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+              <InputField
+                label="Encargado"
+                value={managerName}
+                onChange={setManagerName}
+              />
 
-                  Nombre empresa
+              <InputField
+                label="Email empresa"
+                value={companyEmail}
+                onChange={setCompanyEmail}
+                type="email"
+              />
 
-                </label>
+              <InputField
+                label="Teléfono empresa"
+                value={companyPhone}
+                onChange={setCompanyPhone}
+              />
 
-                <input
-                  type="text"
-                  value={companyName}
-                  onChange={(e) =>
-                    setCompanyName(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
+              <InputField
+                label="Dirección"
+                value={address}
+                onChange={setAddress}
+              />
 
-              </div>
-
-              {/* ENCARGADO */}
-              <div>
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-                  Encargado
-
-                </label>
-
-                <input
-                  type="text"
-                  value={managerName}
-                  onChange={(e) =>
-                    setManagerName(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
-
-              </div>
-
-              {/* EMAIL */}
-              <div>
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-                  Email encargado
-
-                </label>
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
-
-              </div>
-
-              {/* EMAIL EMPRESA */}
-              <div>
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-                  Email empresa
-
-                </label>
-
-                <input
-                  type="email"
-                  value={companyEmail}
-                  onChange={(e) =>
-                    setCompanyEmail(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
-
-              </div>
-
-              {/* PHONE */}
-              <div>
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-                  Teléfono
-
-                </label>
-
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) =>
-                    setPhone(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
-
-              </div>
-
-              {/* ADDRESS */}
-              <div>
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-                  Dirección
-
-                </label>
-
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) =>
-                    setAddress(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
-
-              </div>
-
-              {/* PASSWORD */}
-              <div className="md:col-span-2">
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-                  Contraseña
-
-                </label>
-
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
-                />
-
-              </div>
+              <InputField
+                label="Contraseña"
+                value={password}
+                onChange={setPassword}
+                type="password"
+              />
 
             </div>
 
@@ -635,7 +669,7 @@ export default function CompaniesPage() {
 
               <button
                 onClick={
-                  handleCreateCompany
+                  handleSaveCompany
                 }
                 disabled={loading}
                 className="flex-1 rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
@@ -643,6 +677,8 @@ export default function CompaniesPage() {
 
                 {loading
                   ? "Guardando..."
+                  : editingId
+                  ? "Actualizar"
                   : "Guardar empresa"}
 
               </button>
@@ -653,6 +689,37 @@ export default function CompaniesPage() {
 
         </div>
       )}
+
+    </div>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: any) {
+
+  return (
+    <div>
+
+      <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+        {label}
+
+      </label>
+
+      <input
+        type={type}
+        value={value}
+        onChange={(e) =>
+          onChange(
+            e.target.value
+          )
+        }
+        className="w-full rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-black"
+      />
 
     </div>
   );
