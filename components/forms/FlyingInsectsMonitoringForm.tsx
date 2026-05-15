@@ -1,149 +1,100 @@
 "use client";
 
-import {
-  useState,
-} from "react";
+import { useState } from "react";
 
-import {
-  useRouter,
-} from "next/navigation";
+import { useRouter } from "next/navigation";
 
-import { supabase }
-from "@/lib/supabase";
-
-import {
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function FlyingInsectsMonitoringForm({
   order,
 }: any) {
 
-  const router =
-    useRouter();
+  const router = useRouter();
 
   const [loading,
     setLoading] =
     useState(false);
 
-  const [form,
-    setForm] =
+  // DATOS GENERALES
+  const [general,
+    setGeneral] =
     useState({
 
-      register_date: "",
+      fecha_aplicacion: "",
 
-      start_time: "",
+      hora_inicio: "",
 
-      end_time: "",
+      hora_final: "",
 
-      no_activity:
-        false,
+      frecuencia: "",
 
-      activity_detected:
-        false,
+      limpieza_equipo: false,
 
-      stations: [
+      funcionamiento: false,
 
-        {
+      estado_bulbo: "",
 
-          station_number:
-            "",
+      cambio_adhesivo: false,
 
-          insects_count:
-            "",
+      conexion_electrica: "",
 
-          pheromone_applied:
-            false,
-
-          pheromone_not_applied:
-            false,
-
-          device_functional:
-            false,
-
-          device_damaged:
-            false,
-
-          connected:
-            false,
-
-          disconnected:
-            false,
-
-          observations:
-            "",
-        },
-
-      ],
     });
 
-  // ADD STATION
+  // MULTIPLES ESTACIONES
+  const [stations,
+    setStations] =
+    useState([
+      {
+        numero_estacion: "",
+
+        palomilla: 0,
+
+        mosca_metalica: 0,
+
+        mosca_domestica: 0,
+
+        mosca_fruta: 0,
+
+        mosquitos: 0,
+
+        escarabajos: 0,
+
+        hormigas_alas: 0,
+
+        observaciones: "",
+      },
+    ]);
+
+  // AGREGAR ESTACION
   function addStation() {
 
-    setForm({
+    setStations([
+      ...stations,
 
-      ...form,
+      {
+        numero_estacion: "",
 
-      stations: [
+        palomilla: 0,
 
-        ...form.stations,
+        mosca_metalica: 0,
 
-        {
+        mosca_domestica: 0,
 
-          station_number:
-            "",
+        mosca_fruta: 0,
 
-          insects_count:
-            "",
+        mosquitos: 0,
 
-          pheromone_applied:
-            false,
+        escarabajos: 0,
 
-          pheromone_not_applied:
-            false,
+        hormigas_alas: 0,
 
-          device_functional:
-            false,
-
-          device_damaged:
-            false,
-
-          connected:
-            false,
-
-          disconnected:
-            false,
-
-          observations:
-            "",
-        },
-
-      ],
-    });
+        observaciones: "",
+      },
+    ]);
   }
 
-  // DELETE
-  function removeStation(
-    index: number
-  ) {
-
-    const updated =
-      [...form.stations];
-
-    updated.splice(
-      index,
-      1
-    );
-
-    setForm({
-      ...form,
-      stations:
-        updated,
-    });
-  }
-
-  // UPDATE
+  // ACTUALIZAR ESTACION
   function updateStation(
     index: number,
     field: string,
@@ -151,75 +102,77 @@ export default function FlyingInsectsMonitoringForm({
   ) {
 
     const updated =
-      [...form.stations];
+      [...stations];
 
     updated[index] = {
 
       ...updated[index],
 
       [field]: value,
+
     };
 
-    setForm({
-      ...form,
-      stations:
-        updated,
-    });
+    setStations(updated);
   }
 
-  // SAVE
   async function saveForm() {
 
     try {
 
       setLoading(true);
 
-      const { error } =
-        await supabase
-          .from(
-            "flying_insects_monitoring_forms"
-          )
-          .insert({
+      // GUARDAR CABECERA
+      const {
+        data: monitorData,
+        error,
+      } = await supabase
+        .from(
+          "monitoreo_insectos_voladores"
+        )
+        .insert({
 
-            work_order_id:
-              order.id,
+          orden_trabajo_id:
+            order.id,
 
-            register_date:
-              form.register_date,
+          ...general,
 
-            start_time:
-              form.start_time,
-
-            end_time:
-              form.end_time,
-
-            stations:
-              form.stations,
-
-            no_activity:
-              form.no_activity,
-
-            activity_detected:
-              form.activity_detected,
-
-          });
+        })
+        .select()
+        .single();
 
       if (error) {
 
         console.log(error);
 
         alert(
-          error.message
+          "Error guardando formulario"
         );
 
         return;
       }
 
-      // COMPLETE ORDER
+      // GUARDAR ESTACIONES
       await supabase
         .from(
-          "work_orders"
+          "monitoreo_insectos_estaciones"
         )
+        .insert(
+
+          stations.map(
+            (station) => ({
+
+              monitoreo_id:
+                monitorData.id,
+
+              ...station,
+
+            })
+          )
+        );
+
+      // COMPLETAR ORDEN
+      await supabase
+        .from("work_orders")
         .update({
           status:
             "completed",
@@ -242,7 +195,7 @@ export default function FlyingInsectsMonitoringForm({
       console.log(error);
 
       alert(
-        "Error guardando formulario"
+        "Error general"
       );
 
     } finally {
@@ -253,9 +206,9 @@ export default function FlyingInsectsMonitoringForm({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
+    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
 
-      <div className="mx-auto max-w-7xl rounded-[24px] bg-white p-6 shadow-sm">
+      <div className="mx-auto max-w-7xl rounded-[28px] bg-white p-6 shadow-sm">
 
         {/* HEADER */}
         <div className="mb-8">
@@ -266,29 +219,21 @@ export default function FlyingInsectsMonitoringForm({
 
           </h1>
 
-          <p className="mt-1 text-sm text-gray-500">
-
-            Registro técnico operativo
-
-          </p>
-
         </div>
 
-        {/* GENERAL */}
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* DATOS GENERALES */}
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
 
           <InputField
-            label="Fecha de registro"
+            label="Fecha aplicación"
             type="date"
             value={
-              form.register_date
+              general.fecha_aplicacion
             }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                register_date:
+            onChange={(value: any) =>
+              setGeneral({
+                ...general,
+                fecha_aplicacion:
                   value,
               })
             }
@@ -298,14 +243,12 @@ export default function FlyingInsectsMonitoringForm({
             label="Hora inicio"
             type="time"
             value={
-              form.start_time
+              general.hora_inicio
             }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                start_time:
+            onChange={(value: any) =>
+              setGeneral({
+                ...general,
+                hora_inicio:
                   value,
               })
             }
@@ -315,328 +258,353 @@ export default function FlyingInsectsMonitoringForm({
             label="Hora final"
             type="time"
             value={
-              form.end_time
+              general.hora_final
             }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                end_time:
+            onChange={(value: any) =>
+              setGeneral({
+                ...general,
+                hora_final:
                   value,
               })
             }
           />
 
+          <SelectField
+            label="Frecuencia"
+            value={
+              general.frecuencia
+            }
+            onChange={(value: any) =>
+              setGeneral({
+                ...general,
+                frecuencia:
+                  value,
+              })
+            }
+            options={[
+              "Semanal",
+              "Mensual",
+              "Bimensual",
+              "Trimestral",
+              "Semestral",
+              "Anual",
+            ]}
+          />
+
         </div>
 
-        {/* STATIONS */}
-        <div className="mt-8 space-y-6">
+        {/* ESTACIONES */}
+        <div className="mt-10">
 
-          {form.stations.map(
-            (
-              station,
-              index
-            ) => (
+          <div className="mb-6 flex items-center justify-between">
 
-              <div
-                key={index}
-                className="rounded-[24px] border border-gray-200 p-5"
-              >
+            <h2 className="text-lg font-bold text-gray-900">
 
-                {/* TOP */}
-                <div className="mb-5 flex items-center justify-between">
+              Datos por estación
 
-                  <h2 className="text-lg font-bold text-gray-900">
+            </h2>
 
-                    Estación #{index + 1}
+            <button
+              type="button"
+              onClick={addStation}
+              className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+            >
 
-                  </h2>
+              Agregar estación
 
-                  {form.stations.length >
-                    1 && (
+            </button>
 
-                    <button
-                      onClick={() =>
-                        removeStation(
-                          index
+          </div>
+
+          <div className="space-y-6">
+
+            {stations.map(
+              (
+                station,
+                index
+              ) => (
+
+                <div
+                  key={index}
+                  className="rounded-2xl border border-gray-200 p-6"
+                >
+
+                  <h3 className="mb-5 text-sm font-bold text-gray-900">
+
+                    Estación
+                    {" "}
+                    {index + 1}
+
+                  </h3>
+
+                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+
+                    <InputField
+                      label="Número estación"
+                      value={
+                        station.numero_estacion
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "numero_estacion",
+                          value
                         )
                       }
-                      className="rounded-xl bg-red-100 p-2 text-red-700"
-                    >
+                    />
 
-                      <Trash2
-                        size={18}
-                      />
+                    <InputField
+                      label="Palomilla"
+                      type="number"
+                      value={
+                        station.palomilla
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "palomilla",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                    </button>
-                  )}
+                    <InputField
+                      label="Mosca metálica"
+                      type="number"
+                      value={
+                        station.mosca_metalica
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "mosca_metalica",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                </div>
+                    <InputField
+                      label="Mosca doméstica"
+                      type="number"
+                      value={
+                        station.mosca_domestica
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "mosca_domestica",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                {/* GRID */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <InputField
+                      label="Mosca fruta"
+                      type="number"
+                      value={
+                        station.mosca_fruta
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "mosca_fruta",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                  <InputField
-                    label="Número estación"
-                    value={
-                      station.station_number
-                    }
-                    onChange={(
-                      value: string
-                    ) =>
-                      updateStation(
-                        index,
-                        "station_number",
-                        value
-                      )
-                    }
-                  />
+                    <InputField
+                      label="Mosquitos"
+                      type="number"
+                      value={
+                        station.mosquitos
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "mosquitos",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                  <InputField
-                    label="Conteo insectos voladores"
-                    type="number"
-                    value={
-                      station.insects_count
-                    }
-                    onChange={(
-                      value: string
-                    ) =>
-                      updateStation(
-                        index,
-                        "insects_count",
-                        value
-                      )
-                    }
-                  />
+                    <InputField
+                      label="Escarabajos"
+                      type="number"
+                      value={
+                        station.escarabajos
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "escarabajos",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                </div>
+                    <InputField
+                      label="Hormigas con alas"
+                      type="number"
+                      value={
+                        station.hormigas_alas
+                      }
+                      onChange={(value: any) =>
+                        updateStation(
+                          index,
+                          "hormigas_alas",
+                          Number(
+                            value
+                          )
+                        )
+                      }
+                    />
 
-                {/* CHECKBOXES */}
-                <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  </div>
 
-                  {/* FEROMONAS */}
-                  <CheckboxGroup
-                    title="Reposición feromonas"
-                    items={[
+                  <div className="mt-5">
 
-                      {
-                        label:
-                          "Aplicado",
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-                        checked:
-                          station.pheromone_applied,
+                      Observaciones
 
-                        onChange:
-                          (
-                            value: boolean
-                          ) =>
-                            updateStation(
-                              index,
-                              "pheromone_applied",
-                              value
-                            ),
-                      },
+                    </label>
 
-                      {
-                        label:
-                          "No aplicado",
+                    <textarea
+                      rows={4}
+                      value={
+                        station.observaciones
+                      }
+                      onChange={(e) =>
+                        updateStation(
+                          index,
+                          "observaciones",
+                          e.target.value
+                        )
+                      }
+                      className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
+                    />
 
-                        checked:
-                          station.pheromone_not_applied,
-
-                        onChange:
-                          (
-                            value: boolean
-                          ) =>
-                            updateStation(
-                              index,
-                              "pheromone_not_applied",
-                              value
-                            ),
-                      },
-
-                    ]}
-                  />
-
-                  {/* DISPOSITIVO */}
-                  <CheckboxGroup
-                    title="Condición dispositivo"
-                    items={[
-
-                      {
-                        label:
-                          "Funcional",
-
-                        checked:
-                          station.device_functional,
-
-                        onChange:
-                          (
-                            value: boolean
-                          ) =>
-                            updateStation(
-                              index,
-                              "device_functional",
-                              value
-                            ),
-                      },
-
-                      {
-                        label:
-                          "Dañado",
-
-                        checked:
-                          station.device_damaged,
-
-                        onChange:
-                          (
-                            value: boolean
-                          ) =>
-                            updateStation(
-                              index,
-                              "device_damaged",
-                              value
-                            ),
-                      },
-
-                    ]}
-                  />
-
-                  {/* CONEXION */}
-                  <CheckboxGroup
-                    title="Conexión eléctrica"
-                    items={[
-
-                      {
-                        label:
-                          "Conectado",
-
-                        checked:
-                          station.connected,
-
-                        onChange:
-                          (
-                            value: boolean
-                          ) =>
-                            updateStation(
-                              index,
-                              "connected",
-                              value
-                            ),
-                      },
-
-                      {
-                        label:
-                          "Desconectado",
-
-                        checked:
-                          station.disconnected,
-
-                        onChange:
-                          (
-                            value: boolean
-                          ) =>
-                            updateStation(
-                              index,
-                              "disconnected",
-                              value
-                            ),
-                      },
-
-                    ]}
-                  />
+                  </div>
 
                 </div>
+              )
+            )}
 
-                {/* OBSERVACIONES */}
-                <div className="mt-6">
-
-                  <InputField
-                    label="Observaciones"
-                    value={
-                      station.observations
-                    }
-                    onChange={(
-                      value: string
-                    ) =>
-                      updateStation(
-                        index,
-                        "observations",
-                        value
-                      )
-                    }
-                  />
-
-                </div>
-
-                {/* ADD BUTTON */}
-                {index ===
-                  form.stations.length -
-                    1 && (
-
-                  <button
-                    onClick={
-                      addStation
-                    }
-                    className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
-                  >
-
-                    <Plus size={16} />
-
-                    Agregar estación
-
-                  </button>
-                )}
-
-              </div>
-            )
-          )}
+          </div>
 
         </div>
 
-        {/* FINAL */}
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        {/* EQUIPO */}
+        <div className="mt-10 rounded-2xl border border-gray-200 p-6">
 
-          <CheckboxField
-            label="No se registró actividad durante la inspección"
-            checked={
-              form.no_activity
-            }
-            onChange={(
-              value: boolean
-            ) =>
-              setForm({
-                ...form,
-                no_activity:
-                  value,
-              })
-            }
-          />
+          <h2 className="mb-6 text-lg font-bold text-gray-900">
 
-          <CheckboxField
-            label="Se registró actividad durante la inspección"
-            checked={
-              form.activity_detected
-            }
-            onChange={(
-              value: boolean
-            ) =>
-              setForm({
-                ...form,
-                activity_detected:
-                  value,
-              })
-            }
-          />
+            Estado del equipo
+
+          </h2>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+
+            <CheckField
+              label="Limpieza equipo"
+              checked={
+                general.limpieza_equipo
+              }
+              onChange={(value: any) =>
+                setGeneral({
+                  ...general,
+                  limpieza_equipo:
+                    value,
+                })
+              }
+            />
+
+            <CheckField
+              label="Funcionamiento"
+              checked={
+                general.funcionamiento
+              }
+              onChange={(value: any) =>
+                setGeneral({
+                  ...general,
+                  funcionamiento:
+                    value,
+                })
+              }
+            />
+
+            <CheckField
+              label="Cambio adhesivo"
+              checked={
+                general.cambio_adhesivo
+              }
+              onChange={(value: any) =>
+                setGeneral({
+                  ...general,
+                  cambio_adhesivo:
+                    value,
+                })
+              }
+            />
+
+            <SelectField
+              label="Estado bulbo"
+              value={
+                general.estado_bulbo
+              }
+              onChange={(value: any) =>
+                setGeneral({
+                  ...general,
+                  estado_bulbo:
+                    value,
+                })
+              }
+              options={[
+                "Bueno",
+                "Malo",
+              ]}
+            />
+
+            <SelectField
+              label="Conexión eléctrica"
+              value={
+                general.conexion_electrica
+              }
+              onChange={(value: any) =>
+                setGeneral({
+                  ...general,
+                  conexion_electrica:
+                    value,
+                })
+              }
+              options={[
+                "Buena",
+                "Mala",
+              ]}
+            />
+
+          </div>
 
         </div>
 
-        {/* SAVE */}
+        {/* BUTTON */}
         <button
           onClick={saveForm}
           disabled={loading}
-          className="mt-8 w-full rounded-2xl bg-black px-6 py-4 text-sm font-semibold text-white"
+          className="mt-10 w-full rounded-2xl bg-black px-6 py-4 text-sm font-semibold text-white"
         >
 
           {loading
@@ -651,7 +619,6 @@ export default function FlyingInsectsMonitoringForm({
   );
 }
 
-// INPUT
 function InputField({
   label,
   value,
@@ -660,7 +627,6 @@ function InputField({
 }: any) {
 
   return (
-
     <div>
 
       <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -677,66 +643,71 @@ function InputField({
             e.target.value
           )
         }
-        className="w-full rounded-2xl border border-gray-200 p-3 text-sm"
+        className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
       />
 
     </div>
   );
 }
 
-// CHECKBOX GROUP
-function CheckboxGroup({
-  title,
-  items,
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
 }: any) {
 
   return (
-
     <div>
 
-      <h3 className="mb-3 text-sm font-bold text-gray-900">
+      <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-        {title}
+        {label}
 
-      </h3>
+      </label>
 
-      <div className="space-y-2">
+      <select
+        value={value}
+        onChange={(e) =>
+          onChange(
+            e.target.value
+          )
+        }
+        className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
+      >
 
-        {items.map(
-          (
-            item: any,
-            index: number
-          ) => (
+        <option value="">
+          Seleccionar
+        </option>
 
-            <CheckboxField
-              key={index}
-              label={item.label}
-              checked={
-                item.checked
-              }
-              onChange={
-                item.onChange
-              }
-            />
+        {options.map(
+          (option: string) => (
+
+            <option
+              key={option}
+              value={option}
+            >
+
+              {option}
+
+            </option>
           )
         )}
 
-      </div>
+      </select>
 
     </div>
   );
 }
 
-// CHECKBOX
-function CheckboxField({
+function CheckField({
   label,
   checked,
   onChange,
 }: any) {
 
   return (
-
-    <label className="flex items-center gap-3 text-sm">
+    <label className="flex items-center gap-3 rounded-2xl border border-gray-200 p-4 text-sm">
 
       <input
         type="checkbox"
