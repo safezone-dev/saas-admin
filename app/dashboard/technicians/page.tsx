@@ -110,14 +110,14 @@ export default function TechniciansPage() {
 
               {
 
-                // FULL NAME
+                // NOMBRE
                 full_name:
                   name,
 
                 // EMAIL
                 email: email,
 
-                // PHONE
+                // TELEFONO
                 phone: phone,
 
                 // USERNAME
@@ -275,6 +275,12 @@ export default function TechniciansPage() {
 
                   <th className="min-w-[220px] px-4 py-3">
 
+                    Técnico
+
+                  </th>
+
+                  <th className="min-w-[220px] px-4 py-3">
+
                     Usuario
 
                   </th>
@@ -317,14 +323,21 @@ export default function TechniciansPage() {
                       className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
                     >
 
-                      {/* USERNAME */}
+                      {/* NOMBRE */}
                       <td className="px-4 py-4 align-top">
 
                         <div className="font-semibold text-gray-900">
 
-                          {tech.username}
+                          {tech.full_name}
 
                         </div>
+
+                      </td>
+
+                      {/* USERNAME */}
+                      <td className="px-4 py-4 align-top text-gray-700">
+
+                        {tech.username}
 
                       </td>
 
