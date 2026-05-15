@@ -186,7 +186,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.rodent_present,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "rodent_present",
                       value
@@ -198,7 +198,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.rodent_not_present,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "rodent_not_present",
                       value
@@ -216,7 +216,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.rodenticide_applied,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "rodenticide_applied",
                       value
@@ -228,7 +228,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.rodenticide_not_applied,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "rodenticide_not_applied",
                       value
@@ -246,7 +246,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.consumption_total,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "consumption_total",
                       value
@@ -258,7 +258,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.consumption_partial,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "consumption_partial",
                       value
@@ -270,7 +270,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.damage,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "damage",
                       value
@@ -282,7 +282,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.without_findings,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "without_findings",
                       value
@@ -300,7 +300,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.device_functional,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "device_functional",
                       value
@@ -312,7 +312,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.device_damaged,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "device_damaged",
                       value
@@ -330,7 +330,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.adhesive_functional,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "adhesive_functional",
                       value
@@ -342,7 +342,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.replacement,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "replacement",
                       value
@@ -360,7 +360,7 @@ export default function RodentMonitoringForm({
                 value:
                   form.cleaning,
                 onChange:
-                  (value) =>
+                  (value: boolean) =>
                     toggleField(
                       "cleaning",
                       value
@@ -416,10 +416,25 @@ export default function RodentMonitoringForm({
   );
 }
 
+type CheckField = {
+
+  label: string;
+
+  value: boolean;
+
+  onChange: (
+    value: boolean
+  ) => void;
+
+};
+
 function CheckCard({
   title,
   fields,
-}: any) {
+}: {
+  title: string;
+  fields: CheckField[];
+}) {
 
   return (
     <div className="rounded-2xl border border-gray-200 p-5">
@@ -434,8 +449,8 @@ function CheckCard({
 
         {fields.map(
           (
-            field: any,
-            index: number
+            field,
+            index
           ) => (
 
             <label
