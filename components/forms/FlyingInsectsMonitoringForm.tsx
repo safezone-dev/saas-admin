@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 
+import {
+  Plus,
+  Trash2,
+} from "lucide-react";
+
 export default function FlyingInsectsMonitoringForm({
   order,
 }: any) {
@@ -92,6 +97,22 @@ export default function FlyingInsectsMonitoringForm({
         observaciones: "",
       },
     ]);
+  }
+
+  // ELIMINAR ESTACION
+  function removeStation(
+    index: number
+  ) {
+
+    const updated =
+      [...stations];
+
+    updated.splice(
+      index,
+      1
+    );
+
+    setStations(updated);
   }
 
   // ACTUALIZAR ESTACION
@@ -296,26 +317,6 @@ export default function FlyingInsectsMonitoringForm({
         {/* ESTACIONES */}
         <div className="mt-10">
 
-          <div className="mb-6 flex items-center justify-between">
-
-            <h2 className="text-lg font-bold text-gray-900">
-
-              Datos por estación
-
-            </h2>
-
-            <button
-              type="button"
-              onClick={addStation}
-              className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
-            >
-
-              Agregar estación
-
-            </button>
-
-          </div>
-
           <div className="space-y-6">
 
             {stations.map(
@@ -329,14 +330,40 @@ export default function FlyingInsectsMonitoringForm({
                   className="rounded-2xl border border-gray-200 p-6"
                 >
 
-                  <h3 className="mb-5 text-sm font-bold text-gray-900">
+                  {/* TOP */}
+                  <div className="mb-5 flex items-center justify-between">
 
-                    Estación
-                    {" "}
-                    {index + 1}
+                    <h3 className="text-sm font-bold text-gray-900">
 
-                  </h3>
+                      Estación
+                      {" "}
+                      {index + 1}
 
+                    </h3>
+
+                    {stations.length >
+                      1 && (
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          removeStation(
+                            index
+                          )
+                        }
+                        className="rounded-xl bg-red-100 p-2 text-red-700"
+                      >
+
+                        <Trash2
+                          size={18}
+                        />
+
+                      </button>
+                    )}
+
+                  </div>
+
+                  {/* GRID */}
                   <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
 
                     <InputField
@@ -474,7 +501,101 @@ export default function FlyingInsectsMonitoringForm({
 
                   </div>
 
-                  <div className="mt-5">
+                  {/* EQUIPO */}
+                  <div className="mt-8 rounded-2xl border border-gray-200 p-6">
+
+                    <h2 className="mb-6 text-lg font-bold text-gray-900">
+
+                      Estado del equipo
+
+                    </h2>
+
+                    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+
+                      <CheckField
+                        label="Limpieza equipo"
+                        checked={
+                          general.limpieza_equipo
+                        }
+                        onChange={(value: any) =>
+                          setGeneral({
+                            ...general,
+                            limpieza_equipo:
+                              value,
+                          })
+                        }
+                      />
+
+                      <CheckField
+                        label="Funcionamiento"
+                        checked={
+                          general.funcionamiento
+                        }
+                        onChange={(value: any) =>
+                          setGeneral({
+                            ...general,
+                            funcionamiento:
+                              value,
+                          })
+                        }
+                      />
+
+                      <CheckField
+                        label="Cambio adhesivo"
+                        checked={
+                          general.cambio_adhesivo
+                        }
+                        onChange={(value: any) =>
+                          setGeneral({
+                            ...general,
+                            cambio_adhesivo:
+                              value,
+                          })
+                        }
+                      />
+
+                      <SelectField
+                        label="Estado bulbo"
+                        value={
+                          general.estado_bulbo
+                        }
+                        onChange={(value: any) =>
+                          setGeneral({
+                            ...general,
+                            estado_bulbo:
+                              value,
+                          })
+                        }
+                        options={[
+                          "Bueno",
+                          "Malo",
+                        ]}
+                      />
+
+                      <SelectField
+                        label="Conexión eléctrica"
+                        value={
+                          general.conexion_electrica
+                        }
+                        onChange={(value: any) =>
+                          setGeneral({
+                            ...general,
+                            conexion_electrica:
+                              value,
+                          })
+                        }
+                        options={[
+                          "Buena",
+                          "Mala",
+                        ]}
+                      />
+
+                    </div>
+
+                  </div>
+
+                  {/* OBSERVACIONES */}
+                  <div className="mt-6">
 
                     <label className="mb-2 block text-sm font-semibold text-gray-700">
 
@@ -499,102 +620,29 @@ export default function FlyingInsectsMonitoringForm({
 
                   </div>
 
+                  {/* ADD BUTTON */}
+                  {index ===
+                    stations.length -
+                      1 && (
+
+                    <button
+                      type="button"
+                      onClick={
+                        addStation
+                      }
+                      className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+                    >
+
+                      <Plus size={16} />
+
+                      Agregar estación
+
+                    </button>
+                  )}
+
                 </div>
               )
             )}
-
-          </div>
-
-        </div>
-
-        {/* EQUIPO */}
-        <div className="mt-10 rounded-2xl border border-gray-200 p-6">
-
-          <h2 className="mb-6 text-lg font-bold text-gray-900">
-
-            Estado del equipo
-
-          </h2>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-
-            <CheckField
-              label="Limpieza equipo"
-              checked={
-                general.limpieza_equipo
-              }
-              onChange={(value: any) =>
-                setGeneral({
-                  ...general,
-                  limpieza_equipo:
-                    value,
-                })
-              }
-            />
-
-            <CheckField
-              label="Funcionamiento"
-              checked={
-                general.funcionamiento
-              }
-              onChange={(value: any) =>
-                setGeneral({
-                  ...general,
-                  funcionamiento:
-                    value,
-                })
-              }
-            />
-
-            <CheckField
-              label="Cambio adhesivo"
-              checked={
-                general.cambio_adhesivo
-              }
-              onChange={(value: any) =>
-                setGeneral({
-                  ...general,
-                  cambio_adhesivo:
-                    value,
-                })
-              }
-            />
-
-            <SelectField
-              label="Estado bulbo"
-              value={
-                general.estado_bulbo
-              }
-              onChange={(value: any) =>
-                setGeneral({
-                  ...general,
-                  estado_bulbo:
-                    value,
-                })
-              }
-              options={[
-                "Bueno",
-                "Malo",
-              ]}
-            />
-
-            <SelectField
-              label="Conexión eléctrica"
-              value={
-                general.conexion_electrica
-              }
-              onChange={(value: any) =>
-                setGeneral({
-                  ...general,
-                  conexion_electrica:
-                    value,
-                })
-              }
-              options={[
-                "Buena",
-                "Mala",
-              ]}
-            />
 
           </div>
 
