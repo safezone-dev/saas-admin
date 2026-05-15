@@ -55,7 +55,6 @@ export default function WorkOrdersPage() {
 
     loadServices();
 
-    // AUTO REFRESH
     const interval =
       setInterval(() => {
 
@@ -144,7 +143,9 @@ export default function WorkOrdersPage() {
       await supabase
         .from("work_orders")
         .insert([
+
           {
+
             company_id:
               companyId,
 
@@ -159,7 +160,9 @@ export default function WorkOrdersPage() {
 
             status:
               "pending",
+
           },
+
         ]);
 
     if (error) {
@@ -170,7 +173,9 @@ export default function WorkOrdersPage() {
 
     }
 
-    alert("Orden creada");
+    alert(
+      "Orden creada correctamente"
+    );
 
     setShowModal(false);
 
@@ -191,272 +196,221 @@ export default function WorkOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
 
-      {/* HEADER */}
-      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto max-w-7xl">
 
-        <div>
+        {/* HEADER */}
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <h1 className="text-3xl font-bold text-gray-900 lg:text-4xl">
+          <div className="flex items-center gap-4">
 
-            Órdenes de Trabajo
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
 
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500">
-
-            Gestión operativa
-
-          </p>
-
-        </div>
-
-        <button
-          onClick={() =>
-            setShowModal(true)
-          }
-          className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-105"
-        >
-
-          <Plus size={18} />
-
-          Nueva Orden
-
-        </button>
-
-      </div>
-
-      {/* TABLE */}
-      <div className="overflow-hidden rounded-[30px] bg-white shadow-sm">
-
-        {/* HEADER TABLE */}
-        <div className="hidden grid-cols-5 border-b border-gray-200 bg-gray-50 px-6 py-4 text-sm font-semibold text-gray-600 lg:grid">
-
-          <div>Empresa</div>
-
-          <div>Técnico</div>
-
-          <div>Servicio</div>
-
-          <div>Fecha</div>
-
-          <div>Estado</div>
-
-        </div>
-
-        {/* ROWS */}
-        {orders.map((order) => (
-
-          <div
-            key={order.id}
-            className="border-b border-gray-100 px-4 py-5 hover:bg-gray-50 lg:grid lg:grid-cols-5 lg:items-center lg:px-6"
-          >
-
-            {/* MOBILE */}
-            <div className="space-y-2 lg:hidden">
-
-              <div>
-
-                <span className="text-xs font-semibold text-gray-500">
-
-                  Empresa
-
-                </span>
-
-                <p className="font-medium text-gray-900">
-
-                  {
-                    order.companies
-                      ?.company_name
-                  }
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <span className="text-xs font-semibold text-gray-500">
-
-                  Técnico
-
-                </span>
-
-                <p className="text-sm text-gray-700">
-
-                  {
-                    order.technicians
-                      ?.name
-                  }
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <span className="text-xs font-semibold text-gray-500">
-
-                  Servicio
-
-                </span>
-
-                <p className="text-sm text-gray-700">
-
-                  {
-                    order.service_types
-                      ?.name
-                  }
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <span className="text-xs font-semibold text-gray-500">
-
-                  Fecha
-
-                </span>
-
-                <p className="text-sm text-gray-700">
-
-                  {
-                    order.scheduled_date
-                  }
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <span className="text-xs font-semibold text-gray-500">
-
-                  Estado
-
-                </span>
-
-                <div className="mt-1">
-
-                  {order.status ===
-                  "completed" ? (
-
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-
-                      Completada
-
-                    </span>
-
-                  ) : (
-
-                    <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-
-                      Pendiente
-
-                    </span>
-
-                  )}
-
-                </div>
-
-              </div>
+              <ClipboardList size={26} />
 
             </div>
 
-            {/* DESKTOP */}
-            <>
+            <div>
 
-              <div className="hidden font-medium text-gray-900 lg:block">
+              <h1 className="text-2xl font-bold text-gray-900">
 
-                {
-                  order.companies
-                    ?.company_name
-                }
+                Órdenes de Trabajo
 
-              </div>
+              </h1>
 
-              <div className="hidden text-sm text-gray-600 lg:block">
+              <p className="text-sm text-gray-500">
 
-                {
-                  order.technicians
-                    ?.name
-                }
+                Gestión operativa de servicios
 
-              </div>
+              </p>
 
-              <div className="hidden text-sm text-gray-600 lg:block">
-
-                {
-                  order.service_types
-                    ?.name
-                }
-
-              </div>
-
-              <div className="hidden text-sm text-gray-600 lg:block">
-
-                {
-                  order.scheduled_date
-                }
-
-              </div>
-
-              <div className="hidden lg:block">
-
-                {order.status ===
-                "completed" ? (
-
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-
-                    Completada
-
-                  </span>
-
-                ) : (
-
-                  <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-
-                    Pendiente
-
-                  </span>
-
-                )}
-
-              </div>
-
-            </>
+            </div>
 
           </div>
-        ))}
+
+          <button
+            onClick={() =>
+              setShowModal(true)
+            }
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+          >
+
+            <Plus size={18} />
+
+            Nueva Orden
+
+          </button>
+
+        </div>
+
+        {/* TABLE */}
+        <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
+
+          <div className="overflow-x-auto">
+
+            <table className="w-full table-auto">
+
+              <thead className="bg-gray-50">
+
+                <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
+
+                  <th className="min-w-[220px] px-4 py-3">
+
+                    Empresa
+
+                  </th>
+
+                  <th className="min-w-[180px] px-4 py-3">
+
+                    Técnico
+
+                  </th>
+
+                  <th className="min-w-[220px] px-4 py-3">
+
+                    Servicio
+
+                  </th>
+
+                  <th className="min-w-[140px] px-4 py-3">
+
+                    Fecha
+
+                  </th>
+
+                  <th className="min-w-[120px] px-4 py-3">
+
+                    Estado
+
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {orders.map((order) => (
+
+                  <tr
+                    key={order.id}
+                    className="border-t border-gray-100 text-[11px] transition hover:bg-gray-50"
+                  >
+
+                    {/* EMPRESA */}
+                    <td className="px-4 py-3 align-top">
+
+                      <div className="font-semibold text-gray-900">
+
+                        {
+                          order.companies
+                            ?.company_name
+                        }
+
+                      </div>
+
+                    </td>
+
+                    {/* TECNICO */}
+                    <td className="px-4 py-3 align-top text-gray-700">
+
+                      {
+                        order.technicians
+                          ?.name
+                      }
+
+                    </td>
+
+                    {/* SERVICIO */}
+                    <td className="px-4 py-3 align-top text-gray-700">
+
+                      {
+                        order.service_types
+                          ?.name
+                      }
+
+                    </td>
+
+                    {/* FECHA */}
+                    <td className="px-4 py-3 align-top text-gray-700">
+
+                      {
+                        order.scheduled_date
+                      }
+
+                    </td>
+
+                    {/* STATUS */}
+                    <td className="px-4 py-3 align-top">
+
+                      {order.status ===
+                      "completed" ? (
+
+                        <span className="rounded-lg bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
+
+                          Completada
+
+                        </span>
+
+                      ) : (
+
+                        <span className="rounded-lg bg-yellow-100 px-2 py-1 text-[10px] font-semibold text-yellow-700">
+
+                          Pendiente
+
+                        </span>
+
+                      )}
+
+                    </td>
+
+                  </tr>
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
 
       </div>
 
       {/* MODAL */}
       {showModal && (
 
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-5 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
 
-          <div className="mx-auto my-10 w-full max-w-2xl rounded-[30px] bg-white p-6 lg:p-8">
+          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
 
-            {/* TOP */}
+            {/* HEADER */}
             <div className="mb-8 flex items-center justify-between">
 
-              <div>
+              <div className="flex items-center gap-4">
 
-                <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
 
-                  Nueva Orden
+                  <ClipboardList size={22} />
 
-                </h2>
+                </div>
 
-                <p className="mt-2 text-sm text-gray-500">
+                <div>
 
-                  Crear orden operativa
+                  <h2 className="text-xl font-bold text-gray-900">
 
-                </p>
+                    Nueva Orden
+
+                  </h2>
+
+                  <p className="text-sm text-gray-500">
+
+                    Registro de nueva orden
+
+                  </p>
+
+                </div>
 
               </div>
 
@@ -464,17 +418,17 @@ export default function WorkOrdersPage() {
                 onClick={() =>
                   setShowModal(false)
                 }
-                className="rounded-xl bg-gray-100 p-3 hover:bg-gray-200"
+                className="rounded-xl bg-gray-100 p-3 transition hover:bg-gray-200"
               >
 
-                <X size={20} />
+                <X size={18} />
 
               </button>
 
             </div>
 
             {/* FORM */}
-            <div className="space-y-5">
+            <div className="grid gap-5 md:grid-cols-2">
 
               {/* EMPRESA */}
               <div>
@@ -492,11 +446,11 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none"
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
                 >
 
                   <option value="">
-                    Seleccione empresa
+                    Seleccionar empresa
                   </option>
 
                   {companies.map(
@@ -535,11 +489,11 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none"
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
                 >
 
                   <option value="">
-                    Seleccione técnico
+                    Seleccionar técnico
                   </option>
 
                   {technicians.map(
@@ -576,11 +530,11 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none"
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
                 >
 
                   <option value="">
-                    Seleccione servicio
+                    Seleccionar servicio
                   </option>
 
                   {services.map(
@@ -606,7 +560,7 @@ export default function WorkOrdersPage() {
 
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-                  Fecha Programada
+                  Fecha programada
 
                 </label>
 
@@ -618,22 +572,37 @@ export default function WorkOrdersPage() {
                       e.target.value
                     )
                   }
-                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none"
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
                 />
 
               </div>
 
             </div>
 
-            {/* BUTTON */}
-            <button
-              onClick={createOrder}
-              className="mt-8 w-full rounded-2xl bg-blue-600 py-4 text-sm font-semibold text-white shadow-lg transition hover:scale-[1.02]"
-            >
+            {/* BUTTONS */}
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
 
-              Crear Orden
+              <button
+                onClick={() =>
+                  setShowModal(false)
+                }
+                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold transition hover:bg-gray-100"
+              >
 
-            </button>
+                Cancelar
+
+              </button>
+
+              <button
+                onClick={createOrder}
+                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+              >
+
+                Crear Orden
+
+              </button>
+
+            </div>
 
           </div>
 

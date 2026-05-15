@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 
+import {
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react";
+
 export default function TechniciansPage() {
 
   const [technicians,
@@ -18,7 +24,7 @@ export default function TechniciansPage() {
     setOpenModal] =
     useState(false);
 
-  // FORM STATES
+  // FORM
   const [name,
     setName] =
     useState("");
@@ -45,135 +51,142 @@ export default function TechniciansPage() {
   // GET TECHNICIANS
   async function loadTechnicians() {
 
-    const { data, error } =
-      await supabase
-        .from("technicians")
-        .select("*")
-        .order(
-          "created_at",
-          {
-            ascending: false,
-          }
-        );
+    try {
 
-    if (error) {
+      const { data, error } =
+        await supabase
+          .from("technicians")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending: false,
+            }
+          );
+
+      if (error) {
+
+        console.log(error);
+
+        return;
+      }
+
+      setTechnicians(
+        data || []
+      );
+
+    } catch (error) {
 
       console.log(error);
 
-      return;
     }
-
-    setTechnicians(data || []);
   }
 
-  // CREATE TECHNICIAN
-  const handleCreateTechnician =
-    async () => {
+  // CREATE
+  async function handleCreateTechnician() {
 
-      try {
+    try {
 
-        setLoading(true);
+      setLoading(true);
 
-        // VALIDAR CAMPOS
-        if (
-          !name ||
-          !email ||
-          !phone ||
-          !password
-        ) {
-
-          alert(
-            "Complete todos los campos"
-          );
-
-          return;
-        }
-
-        // GENERAR USERNAME
-        const generatedUsername =
-          name
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, "");
-
-        // INSERTAR
-        const { error } =
-          await supabase
-            .from("technicians")
-            .insert([
-
-              {
-
-                // NOMBRE
-                name: name,
-
-                // FULL NAME
-                full_name: name,
-
-                // EMAIL
-                email: email,
-
-                // PHONE
-                phone: phone,
-
-                // USERNAME
-                username:
-                  generatedUsername,
-
-                // PASSWORD
-                password: password,
-
-                // STATUS
-                status: true,
-
-              },
-
-            ]);
-
-        if (error) {
-
-          console.log(error);
-
-          alert(
-            error.message
-          );
-
-          return;
-        }
+      if (
+        !name ||
+        !email ||
+        !phone ||
+        !password
+      ) {
 
         alert(
-          "Técnico registrado correctamente"
+          "Complete todos los campos"
         );
 
-        // LIMPIAR
-        setName("");
+        setLoading(false);
 
-        setEmail("");
+        return;
+      }
 
-        setPhone("");
+      // USERNAME AUTO
+      const generatedUsername =
+        name
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(
+            /[^a-z0-9]/g,
+            ""
+          );
 
-        setPassword("");
+      const {
+        error,
+      } =
+        await supabase
+          .from("technicians")
+          .insert([
 
-        // RECARGAR
-        loadTechnicians();
+            {
 
-        // CERRAR MODAL
-        setOpenModal(false);
+              name,
 
-      } catch (error) {
+              full_name:
+                name,
+
+              email,
+
+              phone,
+
+              username:
+                generatedUsername,
+
+              password,
+
+              status: true,
+
+            },
+
+          ]);
+
+      if (error) {
 
         console.log(error);
 
         alert(
-          "Error registrando técnico"
+          error.message
         );
 
-      } finally {
-
-        setLoading(false);
-
+        return;
       }
-    };
+
+      alert(
+        "Técnico creado correctamente"
+      );
+
+      // RESET
+      setName("");
+
+      setEmail("");
+
+      setPhone("");
+
+      setPassword("");
+
+      setOpenModal(false);
+
+      loadTechnicians();
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Error creando técnico"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  }
 
   // DELETE
   async function deleteTechnician(
@@ -188,24 +201,32 @@ export default function TechniciansPage() {
     if (!confirmDelete)
       return;
 
-    const { error } =
-      await supabase
-        .from("technicians")
-        .delete()
-        .eq("id", id);
+    try {
 
-    if (error) {
+      const { error } =
+        await supabase
+          .from("technicians")
+          .delete()
+          .eq("id", id);
+
+      if (error) {
+
+        console.log(error);
+
+        alert(
+          "Error eliminando técnico"
+        );
+
+        return;
+      }
+
+      loadTechnicians();
+
+    } catch (error) {
 
       console.log(error);
 
-      alert(
-        "Error eliminando técnico"
-      );
-
-      return;
     }
-
-    loadTechnicians();
   }
 
   return (
@@ -216,19 +237,29 @@ export default function TechniciansPage() {
         {/* HEADER */}
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <div>
+          <div className="flex items-center gap-4">
 
-            <h1 className="text-2xl font-bold text-gray-900">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
 
-              Técnicos
+              <Users size={26} />
 
-            </h1>
+            </div>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <div>
 
-              Administración de técnicos
+              <h1 className="text-2xl font-bold text-gray-900">
 
-            </p>
+                Técnicos
+
+              </h1>
+
+              <p className="text-sm text-gray-500">
+
+                Administración y gestión de técnicos
+
+              </p>
+
+            </div>
 
           </div>
 
@@ -236,8 +267,10 @@ export default function TechniciansPage() {
             onClick={() =>
               setOpenModal(true)
             }
-            className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
+
+            <Plus size={18} />
 
             Nuevo técnico
 
@@ -256,27 +289,27 @@ export default function TechniciansPage() {
 
                 <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
-                  <th className="p-4">
+                  <th className="p-5">
                     Nombre
                   </th>
 
-                  <th className="p-4">
+                  <th className="p-5">
                     Usuario
                   </th>
 
-                  <th className="p-4">
+                  <th className="p-5">
                     Email
                   </th>
 
-                  <th className="p-4">
+                  <th className="p-5">
                     Teléfono
                   </th>
 
-                  <th className="p-4">
+                  <th className="p-5">
                     Estado
                   </th>
 
-                  <th className="p-4">
+                  <th className="p-5">
                     Acciones
                   </th>
 
@@ -291,34 +324,34 @@ export default function TechniciansPage() {
 
                     <tr
                       key={tech.id}
-                      className="border-t text-sm"
+                      className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
                     >
 
-                      <td className="p-4 font-medium">
+                      <td className="p-5 font-medium text-gray-900">
 
                         {tech.name}
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-5 text-gray-600">
 
                         {tech.username}
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-5 text-gray-600">
 
                         {tech.email}
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-5 text-gray-600">
 
                         {tech.phone}
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-5">
 
                         <span className="rounded-xl bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
 
@@ -328,7 +361,7 @@ export default function TechniciansPage() {
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-5">
 
                         <button
                           onClick={() =>
@@ -336,8 +369,10 @@ export default function TechniciansPage() {
                               tech.id
                             )
                           }
-                          className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-700"
+                          className="flex items-center gap-2 rounded-xl bg-red-100 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
                         >
+
+                          <Trash2 size={14} />
 
                           Eliminar
 
@@ -362,54 +397,138 @@ export default function TechniciansPage() {
       {/* MODAL */}
       {openModal && (
 
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
 
-          <div className="w-full max-w-lg rounded-[28px] bg-white p-6">
+          <div className="w-full max-w-xl rounded-[28px] bg-white p-6 shadow-2xl">
 
-            <h2 className="mb-6 text-xl font-bold text-gray-900">
+            {/* HEADER */}
+            <div className="mb-8 flex items-center gap-4">
 
-              Nuevo técnico
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
 
-            </h2>
+                <Users size={22} />
 
-            <div className="space-y-5">
+              </div>
 
-              <InputField
-                label="Nombre"
-                value={name}
-                onChange={setName}
-              />
+              <div>
 
-              <InputField
-                label="Email"
-                value={email}
-                onChange={setEmail}
-                type="email"
-              />
+                <h2 className="text-xl font-bold text-gray-900">
 
-              <InputField
-                label="Teléfono"
-                value={phone}
-                onChange={setPhone}
-              />
+                  Nuevo técnico
 
-              <InputField
-                label="Contraseña"
-                value={password}
-                onChange={setPassword}
-                type="password"
-              />
+                </h2>
+
+                <p className="text-sm text-gray-500">
+
+                  Registro de nuevo técnico
+
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* FORM */}
+            <div className="grid gap-5 md:grid-cols-2">
+
+              {/* NAME */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Nombre
+
+                </label>
+
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) =>
+                    setName(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+              {/* EMAIL */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Email
+
+                </label>
+
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) =>
+                    setEmail(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+              {/* PHONE */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Teléfono
+
+                </label>
+
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+              {/* PASSWORD */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Contraseña
+
+                </label>
+
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
 
             </div>
 
             {/* ACTIONS */}
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
 
               <button
                 onClick={() =>
                   setOpenModal(false)
                 }
-                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold"
+                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold transition hover:bg-gray-100"
               >
 
                 Cancelar
@@ -421,12 +540,12 @@ export default function TechniciansPage() {
                   handleCreateTechnician
                 }
                 disabled={loading}
-                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
               >
 
                 {loading
                   ? "Guardando..."
-                  : "Guardar"}
+                  : "Guardar técnico"}
 
               </button>
 
@@ -436,37 +555,6 @@ export default function TechniciansPage() {
 
         </div>
       )}
-
-    </div>
-  );
-}
-
-function InputField({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: any) {
-
-  return (
-    <div>
-
-      <label className="mb-2 block text-sm font-semibold text-gray-700">
-
-        {label}
-
-      </label>
-
-      <input
-        type={type}
-        value={value}
-        onChange={(e) =>
-          onChange(
-            e.target.value
-          )
-        }
-        className="w-full rounded-2xl border border-gray-200 p-4 text-sm"
-      />
 
     </div>
   );

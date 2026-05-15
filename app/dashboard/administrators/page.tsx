@@ -7,386 +7,580 @@ import { supabase } from "@/lib/supabase";
 import {
   ShieldCheck,
   Plus,
-  Pencil,
   Trash2,
-  X,
 } from "lucide-react";
 
 export default function AdministratorsPage() {
-  const [admins, setAdmins] =
+
+  const [administrators,
+    setAdministrators] =
     useState<any[]>([]);
 
-  const [showCreateModal,
-    setShowCreateModal] =
+  const [loading,
+    setLoading] =
     useState(false);
 
-  const [showEditModal,
-    setShowEditModal] =
+  const [openModal,
+    setOpenModal] =
     useState(false);
 
-  const [selectedAdmin,
-    setSelectedAdmin] =
-    useState<any>(null);
-
-  const [fullName,
-    setFullName] =
+  // FORM
+  const [name,
+    setName] =
     useState("");
 
-  const [email, setEmail] =
+  const [email,
+    setEmail] =
+    useState("");
+
+  const [phone,
+    setPhone] =
     useState("");
 
   const [password,
     setPassword] =
     useState("");
 
+  // LOAD
   useEffect(() => {
-    loadAdmins();
+
+    loadAdministrators();
+
   }, []);
 
-  async function loadAdmins() {
-    const { data } = await supabase
-      .from("administrators")
-      .select("*")
-      .order("created_at", {
-        ascending: false,
-      });
+  // GET
+  async function loadAdministrators() {
 
-    if (data) {
-      setAdmins(data);
-    }
-  }
+    try {
 
-  async function createAdmin() {
-    const { error } = await supabase
-      .from("administrators")
-      .insert([
-        {
-          full_name: fullName,
-          email,
-          password,
-        },
-      ]);
+      const { data, error } =
+        await supabase
+          .from("administrators")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending: false,
+            }
+          );
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+      if (error) {
 
-    resetForm();
+        console.log(error);
 
-    setShowCreateModal(false);
+        return;
+      }
 
-    loadAdmins();
-  }
+      console.log(data);
 
-  function openEdit(admin: any) {
-    setSelectedAdmin(admin);
-
-    setFullName(admin.full_name);
-
-    setEmail(admin.email);
-
-    setPassword(admin.password);
-
-    setShowEditModal(true);
-  }
-
-  async function updateAdmin() {
-    const { error } = await supabase
-      .from("administrators")
-      .update({
-        full_name: fullName,
-        email,
-        password,
-      })
-      .eq(
-        "id",
-        selectedAdmin.id
+      setAdministrators(
+        data || []
       );
 
-    if (error) {
-      alert(error.message);
-      return;
+    } catch (error) {
+
+      console.log(error);
+
     }
-
-    resetForm();
-
-    setShowEditModal(false);
-
-    loadAdmins();
   }
 
-  async function deleteAdmin(
+  // CREATE
+  async function handleCreateAdministrator() {
+
+    try {
+
+      setLoading(true);
+
+      if (
+        !name ||
+        !email ||
+        !phone ||
+        !password
+      ) {
+
+        alert(
+          "Complete todos los campos"
+        );
+
+        setLoading(false);
+
+        return;
+      }
+
+      // USERNAME AUTO
+      const generatedUsername =
+        name
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(
+            /[^a-z0-9]/g,
+            ""
+          );
+
+      const { error } =
+        await supabase
+          .from("administrators")
+          .insert([
+
+            {
+
+              // NOMBRE
+              name: name,
+
+              // FULL NAME
+              full_name:
+                name,
+
+              // USERNAME
+              username:
+                generatedUsername,
+
+              // EMAIL
+              email: email,
+
+              // PHONE
+              phone: phone,
+
+              // PASSWORD
+              password:
+                password,
+
+              // STATUS
+              status: true,
+
+            },
+
+          ]);
+
+      if (error) {
+
+        console.log(error);
+
+        alert(
+          error.message
+        );
+
+        return;
+      }
+
+      alert(
+        "Administrador creado correctamente"
+      );
+
+      // RESET
+      setName("");
+
+      setEmail("");
+
+      setPhone("");
+
+      setPassword("");
+
+      setOpenModal(false);
+
+      loadAdministrators();
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Error creando administrador"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  }
+
+  // DELETE
+  async function deleteAdministrator(
     id: string
   ) {
-    const confirmDelete = confirm(
-      "¿Eliminar administrador?"
-    );
 
-    if (!confirmDelete) return;
+    const confirmDelete =
+      confirm(
+        "¿Eliminar administrador?"
+      );
 
-    await supabase
-      .from("administrators")
-      .delete()
-      .eq("id", id);
+    if (!confirmDelete)
+      return;
 
-    loadAdmins();
-  }
+    try {
 
-  function resetForm() {
-    setFullName("");
-    setEmail("");
-    setPassword("");
+      const { error } =
+        await supabase
+          .from("administrators")
+          .delete()
+          .eq("id", id);
+
+      if (error) {
+
+        console.log(error);
+
+        alert(
+          "Error eliminando administrador"
+        );
+
+        return;
+      }
+
+      loadAdministrators();
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-100 p-4 lg:p-8">
 
-      {/* HEADER */}
-      <div className="mb-8 flex items-center justify-between">
-
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900">
-            Administradores
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500">
-            Gestión administrativa
-          </p>
-        </div>
-
-        <button
-          onClick={() =>
-            setShowCreateModal(true)
-          }
-          className="flex items-center gap-2 rounded-2xl bg-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:scale-105"
-        >
-          <Plus size={18} />
-          Agregar Administrador
-        </button>
-
-      </div>
-
-      {/* TABLE */}
-      <div className="overflow-hidden rounded-[30px] bg-white shadow-sm">
-
-        <div className="grid grid-cols-4 border-b border-gray-200 bg-gray-50 px-6 py-4 text-sm font-semibold text-gray-600">
-          <div>Administrador</div>
-          <div>Email</div>
-          <div>Rol</div>
-          <div className="text-center">
-            Acciones
-          </div>
-        </div>
-
-        {admins.map((admin) => (
-          <div
-            key={admin.id}
-            className="grid grid-cols-4 items-center border-b border-gray-100 px-6 py-5 hover:bg-gray-50"
-          >
-
-            <div className="flex items-center gap-3">
-
-              <div className="rounded-xl bg-purple-100 p-3">
-                <ShieldCheck
-                  size={18}
-                  className="text-purple-600"
-                />
-              </div>
-
-              <h3 className="font-medium text-gray-900">
-                {admin.full_name}
-              </h3>
-
-            </div>
-
-            <div className="text-sm text-gray-600">
-              {admin.email}
-            </div>
-
-            <div className="text-sm text-gray-600">
-              Administrador
-            </div>
-
-            <div className="flex justify-center gap-2">
-
-              <button
-                onClick={() =>
-                  openEdit(admin)
-                }
-                className="rounded-xl bg-blue-100 p-3 hover:scale-105"
-              >
-                <Pencil
-                  size={16}
-                  className="text-blue-600"
-                />
-              </button>
-
-              <button
-                onClick={() =>
-                  deleteAdmin(
-                    admin.id
-                  )
-                }
-                className="rounded-xl bg-red-100 p-3 hover:scale-105"
-              >
-                <Trash2
-                  size={16}
-                  className="text-red-600"
-                />
-              </button>
-
-            </div>
-
-          </div>
-        ))}
-
-      </div>
-
-      {/* CREATE */}
-      {showCreateModal && (
-        <AdminModal
-          title="Nuevo Administrador"
-          buttonText="Crear Administrador"
-          fullName={fullName}
-          setFullName={setFullName}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          onClose={() =>
-            setShowCreateModal(false)
-          }
-          onSubmit={createAdmin}
-        />
-      )}
-
-      {/* EDIT */}
-      {showEditModal && (
-        <AdminModal
-          title="Editar Administrador"
-          buttonText="Guardar Cambios"
-          fullName={fullName}
-          setFullName={setFullName}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          onClose={() =>
-            setShowEditModal(false)
-          }
-          onSubmit={updateAdmin}
-        />
-      )}
-
-    </div>
-  );
-}
-
-function AdminModal({
-  title,
-  buttonText,
-  fullName,
-  setFullName,
-  email,
-  setEmail,
-  password,
-  setPassword,
-  onClose,
-  onSubmit,
-}: any) {
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-5 backdrop-blur-sm">
-
-      <div className="mx-auto my-10 w-full max-w-2xl rounded-[30px] bg-white p-8">
+      <div className="mx-auto max-w-7xl">
 
         {/* HEADER */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {title}
-            </h2>
+          <div className="flex items-center gap-4">
 
-            <p className="mt-2 text-sm text-gray-500">
-              Gestión administrativa
-            </p>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white shadow-sm">
+
+              <ShieldCheck size={26} />
+
+            </div>
+
+            <div>
+
+              <h1 className="text-2xl font-bold text-gray-900">
+
+                Administradores
+
+              </h1>
+
+              <p className="text-sm text-gray-500">
+
+                Administración y gestión de administradores
+
+              </p>
+
+            </div>
+
           </div>
 
           <button
-            onClick={onClose}
-            className="rounded-xl bg-gray-100 p-3 hover:bg-gray-200"
+            onClick={() =>
+              setOpenModal(true)
+            }
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
-            <X size={20} />
+
+            <Plus size={18} />
+
+            Nuevo administrador
+
           </button>
 
         </div>
 
-        {/* FORM */}
-        <div className="space-y-5">
+        {/* TABLE */}
+        <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
 
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Nombre Completo
-            </label>
+          <div className="overflow-x-auto">
 
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) =>
-                setFullName(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-purple-500"
-            />
-          </div>
+            <table className="w-full table-auto">
 
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Correo Electrónico
-            </label>
+              <thead className="bg-gray-50">
 
-            <input
-              type="email"
-              value={email}
-              onChange={(e) =>
-                setEmail(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-purple-500"
-            />
-          </div>
+                <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
 
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Contraseña
-            </label>
+                  <th className="min-w-[220px] px-4 py-3">
+                    Nombre
+                  </th>
 
-            <input
-              type="password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-purple-500"
-            />
+                  <th className="min-w-[180px] px-4 py-3">
+                    Usuario
+                  </th>
+
+                  <th className="min-w-[220px] px-4 py-3">
+                    Email
+                  </th>
+
+                  <th className="min-w-[150px] px-4 py-3">
+                    Teléfono
+                  </th>
+
+                  <th className="min-w-[110px] px-4 py-3">
+                    Estado
+                  </th>
+
+                  <th className="min-w-[130px] px-4 py-3 text-center">
+                    Acciones
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {administrators.map(
+                  (admin) => (
+
+                    <tr
+                      key={admin.id}
+                      className="border-t border-gray-100 text-[11px] transition hover:bg-gray-50"
+                    >
+
+                      {/* NAME */}
+                      <td className="px-4 py-3 align-top">
+
+                        <div className="font-semibold text-gray-900">
+
+                          {admin.name ||
+                            admin.full_name ||
+                            "Sin nombre"}
+
+                        </div>
+
+                      </td>
+
+                      {/* USERNAME */}
+                      <td className="px-4 py-3 align-top text-gray-700">
+
+                        {admin.username ||
+                          "Sin usuario"}
+
+                      </td>
+
+                      {/* EMAIL */}
+                      <td className="px-4 py-3 align-top">
+
+                        <div className="break-words text-gray-700">
+
+                          {admin.email}
+
+                        </div>
+
+                      </td>
+
+                      {/* PHONE */}
+                      <td className="px-4 py-3 align-top text-gray-700">
+
+                        {admin.phone}
+
+                      </td>
+
+                      {/* STATUS */}
+                      <td className="px-4 py-3 align-top">
+
+                        <span className="rounded-lg bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-700">
+
+                          Activo
+
+                        </span>
+
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="px-4 py-3 align-top text-center">
+
+                        <button
+                          onClick={() =>
+                            deleteAdministrator(
+                              admin.id
+                            )
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-2 text-[10px] font-semibold text-red-700 transition hover:bg-red-200"
+                        >
+
+                          <Trash2 size={12} />
+
+                          Eliminar
+
+                        </button>
+
+                      </td>
+
+                    </tr>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
           </div>
 
         </div>
 
-        {/* BUTTON */}
-        <button
-          onClick={onSubmit}
-          className="mt-8 w-full rounded-2xl bg-purple-600 py-4 text-sm font-semibold text-white shadow-lg hover:scale-[1.02]"
-        >
-          {buttonText}
-        </button>
-
       </div>
+
+      {/* MODAL */}
+      {openModal && (
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+
+          <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+
+            {/* HEADER */}
+            <div className="mb-8 flex items-center gap-4">
+
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+
+                <ShieldCheck size={22} />
+
+              </div>
+
+              <div>
+
+                <h2 className="text-xl font-bold text-gray-900">
+
+                  Nuevo administrador
+
+                </h2>
+
+                <p className="text-sm text-gray-500">
+
+                  Registro de nuevo administrador
+
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* FORM */}
+            <div className="grid gap-5 md:grid-cols-2">
+
+              {/* NAME */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Nombre
+
+                </label>
+
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) =>
+                    setName(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+              {/* EMAIL */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Email
+
+                </label>
+
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) =>
+                    setEmail(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+              {/* PHONE */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Teléfono
+
+                </label>
+
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+              {/* PASSWORD */}
+              <div>
+
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+                  Contraseña
+
+                </label>
+
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+                />
+
+              </div>
+
+            </div>
+
+            {/* ACTIONS */}
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+
+              <button
+                onClick={() =>
+                  setOpenModal(false)
+                }
+                className="flex-1 rounded-2xl border border-gray-200 px-5 py-3 text-sm font-semibold transition hover:bg-gray-100"
+              >
+
+                Cancelar
+
+              </button>
+
+              <button
+                onClick={
+                  handleCreateAdministrator
+                }
+                disabled={loading}
+                className="flex-1 rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+              >
+
+                {loading
+                  ? "Guardando..."
+                  : "Guardar administrador"}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 }
