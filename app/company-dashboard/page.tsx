@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Building2,
   TrendingUp,
+  FileText,
   ArrowRight,
 } from "lucide-react";
 
@@ -30,6 +31,10 @@ export default function CompanyDashboardPage() {
 
   const [effectiveness,
     setEffectiveness] =
+    useState(0);
+
+  const [serviceSheetsCount,
+    setServiceSheetsCount] =
     useState(0);
 
   useEffect(() => {
@@ -117,6 +122,23 @@ export default function CompanyDashboardPage() {
           ),
         ];
 
+      // HOJAS DE SERVICIO
+      const {
+        count:
+          sheetsCount,
+      } = await supabase
+        .from(
+          "service_sheets"
+        )
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq(
+          "technician_id",
+          technician.id
+        );
+
       const totalPending =
         pendingOrders || 0;
 
@@ -151,6 +173,10 @@ export default function CompanyDashboardPage() {
 
       setEffectiveness(
         efficiency
+      );
+
+      setServiceSheetsCount(
+        sheetsCount || 0
       );
 
     } catch (error) {
@@ -192,6 +218,22 @@ export default function CompanyDashboardPage() {
 
       href:
         "/company-dashboard/completed-orders",
+    },
+
+    {
+      title:
+        "Mis Hojas de Servicio",
+
+      description:
+        "Hojas asignadas para ejecución",
+
+      value:
+        serviceSheetsCount,
+
+      icon: FileText,
+
+      href:
+        "/company-dashboard/service-sheets",
     },
 
     {
@@ -254,7 +296,7 @@ export default function CompanyDashboardPage() {
         </div>
 
         {/* GRID */}
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
 
           {cards.map((card, index) => {
 

@@ -12,6 +12,7 @@ import {
   Users,
   UserCog,
   ClipboardList,
+  FileText,
   Menu,
   X,
   LogOut,
@@ -169,6 +170,17 @@ export default function DashboardLayout({
               />
             }
             label="Servicios"
+          />
+
+          {/* NUEVO MODULO */}
+          <MenuItem
+            href="/dashboard/service-sheets"
+            icon={
+              <FileText
+                size={18}
+              />
+            }
+            label="Hojas de Servicio"
           />
 
         </nav>

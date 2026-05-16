@@ -11,6 +11,7 @@ import {
   ClipboardList,
   CheckCircle2,
   BarChart3,
+  FileText,
   LogOut,
   Menu,
   X,
@@ -128,6 +129,17 @@ export default function CompanyLayout({
               />
             }
             label="Dashboard"
+          />
+
+          {/* NUEVO MODULO */}
+          <MenuItem
+            href="/company-dashboard/service-sheets"
+            icon={
+              <FileText
+                size={18}
+              />
+            }
+            label="Mis Hojas"
           />
 
           <MenuItem

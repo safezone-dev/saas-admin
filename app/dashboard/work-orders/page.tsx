@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
@@ -8,6 +10,7 @@ import {
   ClipboardList,
   Plus,
   X,
+  FileText,
 } from "lucide-react";
 
 export default function WorkOrdersPage() {
@@ -82,6 +85,9 @@ export default function WorkOrdersPage() {
           ),
           service_types (
             name
+          ),
+          technical_service_reports (
+            id
           )
         `)
         .order("created_at", {
@@ -198,7 +204,7 @@ export default function WorkOrdersPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
 
         {/* HEADER */}
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -229,18 +235,34 @@ export default function WorkOrdersPage() {
 
           </div>
 
-          <button
-            onClick={() =>
-              setShowModal(true)
-            }
-            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-          >
+          {/* BUTTONS */}
+          <div className="flex flex-col gap-3 sm:flex-row">
 
-            <Plus size={16} />
+            <Link
+              href="/dashboard/work-orders/create-report"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-black bg-white px-4 py-3 text-sm font-semibold text-black shadow-sm transition hover:bg-black hover:text-white"
+            >
 
-            Nueva Orden
+              <FileText size={16} />
 
-          </button>
+              Crear reporte de servicio
+
+            </Link>
+
+            <button
+              onClick={() =>
+                setShowModal(true)
+              }
+              className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            >
+
+              <Plus size={16} />
+
+              Nueva Orden
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -282,6 +304,12 @@ export default function WorkOrdersPage() {
                   <th className="min-w-[120px] px-4 py-3">
 
                     Estado
+
+                  </th>
+
+                  <th className="min-w-[240px] px-4 py-3">
+
+                    Acciones
 
                   </th>
 
@@ -362,6 +390,39 @@ export default function WorkOrdersPage() {
                         </span>
 
                       )}
+
+                    </td>
+
+                    {/* ACTIONS */}
+                    <td className="px-4 py-4 align-top">
+
+                      <div className="flex flex-wrap gap-2">
+
+                        {order.technical_service_reports
+                          ?.length > 0 ? (
+
+                          <span className="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-xs font-semibold text-green-700">
+
+                            Reporte creado
+
+                          </span>
+
+                        ) : (
+
+                          <Link
+                            href={`/dashboard/work-orders/create-report/${order.id}`}
+                            className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                          >
+
+                            <FileText size={14} />
+
+                            Crear reporte de servicio
+
+                          </Link>
+
+                        )}
+
+                      </div>
 
                     </td>
 
