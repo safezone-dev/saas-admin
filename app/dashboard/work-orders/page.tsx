@@ -10,7 +10,6 @@ import {
   ClipboardList,
   Plus,
   X,
-  FileText,
 } from "lucide-react";
 
 export default function WorkOrdersPage() {
@@ -85,9 +84,6 @@ export default function WorkOrdersPage() {
           ),
           service_types (
             name
-          ),
-          technical_service_reports (
-            id
           )
         `)
         .order("created_at", {
@@ -235,34 +231,19 @@ export default function WorkOrdersPage() {
 
           </div>
 
-          {/* BUTTONS */}
-          <div className="flex flex-col gap-3 sm:flex-row">
+          {/* BUTTON */}
+          <button
+            onClick={() =>
+              setShowModal(true)
+            }
+            className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+          >
 
-            <Link
-              href="/dashboard/work-orders/create-report"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-black bg-white px-4 py-3 text-sm font-semibold text-black shadow-sm transition hover:bg-black hover:text-white"
-            >
+            <Plus size={16} />
 
-              <FileText size={16} />
+            Nueva Orden
 
-              Crear reporte de servicio
-
-            </Link>
-
-            <button
-              onClick={() =>
-                setShowModal(true)
-              }
-              className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-            >
-
-              <Plus size={16} />
-
-              Nueva Orden
-
-            </button>
-
-          </div>
+          </button>
 
         </div>
 
@@ -307,7 +288,7 @@ export default function WorkOrdersPage() {
 
                   </th>
 
-                  <th className="min-w-[240px] px-4 py-3">
+                  <th className="min-w-[180px] px-4 py-3">
 
                     Acciones
 
@@ -396,33 +377,11 @@ export default function WorkOrdersPage() {
                     {/* ACTIONS */}
                     <td className="px-4 py-4 align-top">
 
-                      <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-xl bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-600">
 
-                        {order.technical_service_reports
-                          ?.length > 0 ? (
+                        Sin acciones
 
-                          <span className="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-xs font-semibold text-green-700">
-
-                            Reporte creado
-
-                          </span>
-
-                        ) : (
-
-                          <Link
-                            href={`/dashboard/work-orders/create-report/${order.id}`}
-                            className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
-                          >
-
-                            <FileText size={14} />
-
-                            Crear reporte de servicio
-
-                          </Link>
-
-                        )}
-
-                      </div>
+                      </span>
 
                     </td>
 
