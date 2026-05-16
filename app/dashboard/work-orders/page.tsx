@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
@@ -288,12 +286,6 @@ export default function WorkOrdersPage() {
 
                   </th>
 
-                  <th className="min-w-[180px] px-4 py-3">
-
-                    Acciones
-
-                  </th>
-
                 </tr>
 
               </thead>
@@ -371,17 +363,6 @@ export default function WorkOrdersPage() {
                         </span>
 
                       )}
-
-                    </td>
-
-                    {/* ACTIONS */}
-                    <td className="px-4 py-4 align-top">
-
-                      <span className="inline-flex items-center rounded-xl bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-600">
-
-                        Sin acciones
-
-                      </span>
 
                     </td>
 
@@ -557,19 +538,25 @@ export default function WorkOrdersPage() {
                     Seleccionar servicio
                   </option>
 
-                  {services.map(
-                    (service) => (
-
-                      <option
-                        key={service.id}
-                        value={service.id}
-                      >
-
-                        {service.name}
-
-                      </option>
+                  {services
+                    .filter(
+                      (service) =>
+                        service.name !==
+                        "Reporte de Servicio Técnico"
                     )
-                  )}
+                    .map(
+                      (service) => (
+
+                        <option
+                          key={service.id}
+                          value={service.id}
+                        >
+
+                          {service.name}
+
+                        </option>
+                      )
+                    )}
 
                 </select>
 
