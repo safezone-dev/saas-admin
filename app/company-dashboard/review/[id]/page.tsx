@@ -20,23 +20,29 @@ export default function ReviewPage() {
   const params = useParams();
 
   const workOrderId =
-    params.id;
+    params.id as string;
 
-    const [stations,
-      setStations] =
-      useState<any[]>([]);
-    
-    const [workOrder,
-      setWorkOrder] =
-      useState<any>(null);
-    
-    const [formData,
-      setFormData] =
-      useState<any>(null);
-    
-    const [serviceType,
-      setServiceType] =
-      useState("");
+  const [stations,
+    setStations] =
+    useState<any[]>([]);
+
+  const [workOrder,
+    setWorkOrder] =
+    useState<any>(null);
+
+  const [formData,
+    setFormData] =
+    useState<any>(null);
+
+  const [serviceType,
+    setServiceType] =
+    useState("");
+
+  useEffect(() => {
+
+    loadData();
+
+  }, []);
 
   async function loadData() {
 
@@ -63,158 +69,41 @@ export default function ReviewPage() {
       )
       .single();
 
-      if (orderData) {
+    if (orderData) {
 
-        setWorkOrder(
-          orderData
-        );
-      
-        const serviceName =
-          orderData?.service_types
-            ?.name || "";
-      
-        setServiceType(
-          serviceName
-        );
+      setWorkOrder(
+        orderData
+      );
+
+      const serviceName =
+        orderData?.service_types
+          ?.name || "";
+
+      setServiceType(
+        serviceName
+      );
+
+      // ROEDORES
+      if (
+        serviceName ===
+        "Monitoreo de Roedores"
+      ) {
+
+        const { data } =
+          await supabase
+            .from(
+              "rodent_monitoring_forms"
+            )
+            .select("*")
+            .eq(
+              "work_order_id",
+              workOrderId
+            )
+            .single();
+
+        setFormData(data);
       }
-
-    // STATIONS
-    if (
-      orderData?.service_types
-        ?.name ===
-      "Monitoreo de Roedores"
-    ) {
-    
-      const { data } =
-        await supabase
-          .from(
-            "rodent_monitoring_forms"
-          )
-          .select("*")
-          .eq(
-            "work_order_id",
-            workOrderId
-          )
-          .single();
-    
-      setFormData(data);
     }
-
-  function getCapture(
-    station: any
-  ) {
-
-    if (
-      station.rodent_present
-    ) {
-      return "Presente";
-    }
-
-    if (
-      station.rodent_not_present
-    ) {
-      return "No presente";
-    }
-
-    return "-";
-  }
-
-  function getBait(
-    station: any
-  ) {
-
-    if (
-      station.bait_applied
-    ) {
-      return "Aplicado";
-    }
-
-    if (
-      station.bait_not_applied
-    ) {
-      return "No aplicado";
-    }
-
-    return "-";
-  }
-
-  function getEvidence(
-    station: any
-  ) {
-
-    const values = [];
-
-    if (
-      station.evidence_total
-    ) {
-      values.push(
-        "Total"
-      );
-    }
-
-    if (
-      station.evidence_partial
-    ) {
-      values.push(
-        "Parcial"
-      );
-    }
-
-    if (
-      station.evidence_deterioration
-    ) {
-      values.push(
-        "Deterioro"
-      );
-    }
-
-    if (
-      station.evidence_no_findings
-    ) {
-      values.push(
-        "Sin hallazgo"
-      );
-    }
-
-    return values.join(", ");
-  }
-
-  function getDevice(
-    station: any
-  ) {
-
-    if (
-      station.device_functional
-    ) {
-      return "Funcional";
-    }
-
-    if (
-      station.device_damaged
-    ) {
-      return "Dañado";
-    }
-
-    return "-";
-  }
-
-  function getAdhesive(
-    station: any
-  ) {
-
-    if (
-      station.adhesive_functional
-    ) {
-      return "Funcional";
-    }
-
-    if (
-      station.adhesive_replacement
-    ) {
-      return "Reemplazo";
-    }
-
-    return "-";
   }
 
   return (
@@ -235,9 +124,8 @@ export default function ReviewPage() {
 
         </div>
 
-        {/* BACK */}
         <a
-          href="/company-dashboard"
+          href="/company-dashboard/completed-orders"
           className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-100"
         >
 
@@ -250,147 +138,130 @@ export default function ReviewPage() {
       </div>
 
       {/* HEADER INFO */}
-      <div className="mb-6 rounded-2xl bg-white p-6">
+      <div className="mb-8 grid gap-4 rounded-[30px] bg-white p-6 shadow-sm md:grid-cols-2 lg:grid-cols-5">
 
-<pre>
+        <InfoCard
+          title="Empresa"
+          value={
+            workOrder?.companies
+              ?.company_name ||
+            "-"
+          }
+        />
 
-  {JSON.stringify(
-    formData,
-    null,
-    2
-  )}
+        <InfoCard
+          title="Técnico"
+          value={
+            workOrder?.technicians
+              ?.name || "-"
+          }
+        />
 
-</pre>
+        <InfoCard
+          title="Servicio"
+          value={
+            serviceType || "-"
+          }
+        />
 
-</div>
+        <InfoCard
+          title="Fecha Asignada"
+          value={
+            workOrder
+              ?.scheduled_date ||
+            "-"
+          }
+        />
 
-      {/* TABLE */}
+        <InfoCard
+          title="Estado"
+          value={
+            workOrder?.status ||
+            "-"
+          }
+        />
+
+      </div>
+
+      {/* DATOS DEL FORMULARIO */}
+      <div className="mb-8 rounded-[30px] bg-white p-6 shadow-sm">
+
+        <h2 className="mb-4 text-xl font-bold">
+          Datos registrados por el técnico
+        </h2>
+
+        {!formData ? (
+
+          <div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-700">
+
+            No se encontraron datos registrados.
+
+          </div>
+
+        ) : (
+
+          <pre className="overflow-auto rounded-2xl bg-gray-50 p-4 text-sm">
+
+            {JSON.stringify(
+              formData,
+              null,
+              2
+            )}
+
+          </pre>
+
+        )}
+
+      </div>
+
+      {/* TABLA ORIGINAL */}
       <div className="overflow-hidden rounded-[30px] bg-white shadow-sm">
 
         <div className="overflow-x-auto">
 
           <table className="w-full min-w-[1200px]">
 
-            {/* HEAD */}
             <thead className="bg-gray-50">
 
               <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-600">
 
                 <th className="px-4 py-4">
-                  Estación
+                  Información
                 </th>
 
                 <th className="px-4 py-4">
-                  Captura
-                </th>
-
-                <th className="px-4 py-4">
-                  Rodenticida
-                </th>
-
-                <th className="px-4 py-4">
-                  Evidencia
-                </th>
-
-                <th className="px-4 py-4">
-                  Dispositivo
-                </th>
-
-                <th className="px-4 py-4">
-                  Adhesivo
-                </th>
-
-                <th className="px-4 py-4">
-                  Limpieza
-                </th>
-
-                <th className="px-4 py-4 min-w-[300px]">
-                  Observaciones
+                  Valor
                 </th>
 
               </tr>
 
             </thead>
 
-            {/* BODY */}
             <tbody>
 
-              {stations.length ===
-                0 && (
-                <tr>
+              <tr>
 
-                  <td
-                    colSpan={8}
-                    className="p-10 text-center text-sm text-gray-500"
-                  >
-                    No hay registros
-                  </td>
+                <td className="px-4 py-4">
+                  Tipo Servicio
+                </td>
 
-                </tr>
-              )}
+                <td className="px-4 py-4">
+                  {serviceType}
+                </td>
 
-              {stations.map(
-                (station) => (
+              </tr>
 
-                  <tr
-                    key={station.id}
-                    className="border-b border-gray-100 text-sm hover:bg-gray-50"
-                  >
+              <tr>
 
-                    <td className="px-4 py-5 font-semibold text-gray-900">
-                      {
-                        station.station_number
-                      }
-                    </td>
+                <td className="px-4 py-4">
+                  ID Orden
+                </td>
 
-                    <td className="px-4 py-5 text-gray-700">
-                      {getCapture(
-                        station
-                      )}
-                    </td>
+                <td className="px-4 py-4">
+                  {workOrderId}
+                </td>
 
-                    <td className="px-4 py-5 text-gray-700">
-                      {getBait(
-                        station
-                      )}
-                    </td>
-
-                    <td className="px-4 py-5 text-gray-700">
-                      {getEvidence(
-                        station
-                      ) || "-"}
-                    </td>
-
-                    <td className="px-4 py-5 text-gray-700">
-                      {getDevice(
-                        station
-                      )}
-                    </td>
-
-                    <td className="px-4 py-5 text-gray-700">
-                      {getAdhesive(
-                        station
-                      )}
-                    </td>
-
-                    <td className="px-4 py-5 text-gray-700">
-                      {
-                        station.cleaning
-                          ? "Sí"
-                          : "-"
-                      }
-                    </td>
-
-                    <td className="px-4 py-5 text-gray-600">
-                      {
-                        station.observations ||
-                        "-"
-                      }
-                    </td>
-
-                  </tr>
-                )
-              )}
+              </tr>
 
             </tbody>
 
@@ -422,5 +293,4 @@ function InfoCard({
 
     </div>
   );
-};
 }
