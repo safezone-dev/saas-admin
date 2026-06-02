@@ -27,23 +27,32 @@ export default function MothMonitoringForm({
     setLoading] =
     useState(false);
 
-  const [form,
-    setForm] =
-    useState({
-
-      register_date: "",
-
-      start_time: "",
-
-      end_time: "",
-
-      no_activity:
-        false,
-
-      activity_detected:
-        false,
-
-      stations: [
+    const [form,
+      setForm] =
+      useState({
+    
+        register_date:
+          order?.scheduled_date || "",
+    
+        start_time:
+          new Date()
+            .toLocaleTimeString(
+              "en-GB",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            ),
+    
+        end_time: "",
+    
+        no_activity:
+          false,
+    
+        activity_detected:
+          false,
+    
+        stations: [
 
         {
 
@@ -168,6 +177,16 @@ export default function MothMonitoringForm({
 
       setLoading(true);
 
+      const endTime =
+      new Date()
+    .toLocaleTimeString(
+      "en-GB",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+
       const { error } =
         await supabase
           .from(
@@ -177,25 +196,25 @@ export default function MothMonitoringForm({
 
             work_order_id:
               order.id,
-
+          
             register_date:
               form.register_date,
-
+          
             start_time:
               form.start_time,
-
+          
             end_time:
-              form.end_time,
-
+              endTime,
+          
             stations:
               form.stations,
-
+          
             no_activity:
               form.no_activity,
-
+          
             activity_detected:
               form.activity_detected,
-
+          
           });
 
       if (error) {
@@ -271,59 +290,55 @@ export default function MothMonitoringForm({
         {/* GENERAL */}
         <div className="grid gap-4 md:grid-cols-3">
 
-          <InputField
-            label="Fecha de registro"
-            type="date"
-            value={
-              form.register_date
-            }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                register_date:
-                  value,
-              })
-            }
-          />
+  <div>
 
-          <InputField
-            label="Hora inicio"
-            type="time"
-            value={
-              form.start_time
-            }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                start_time:
-                  value,
-              })
-            }
-          />
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-          <InputField
-            label="Hora final"
-            type="time"
-            value={
-              form.end_time
-            }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                end_time:
-                  value,
-              })
-            }
-          />
+      Fecha asignada
 
-        </div>
+    </label>
 
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-3 text-sm">
+
+      {form.register_date}
+
+    </div>
+
+  </div>
+
+  <div>
+
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+      Hora inicio
+
+    </label>
+
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-3 text-sm">
+
+      {form.start_time}
+
+    </div>
+
+  </div>
+
+  <div>
+
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+      Hora final
+
+    </label>
+
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-3 text-sm">
+
+      Se registrará al guardar
+
+    </div>
+
+  </div>
+
+</div>
         {/* STATIONS */}
         <div className="mt-8 space-y-6">
 

@@ -20,19 +20,28 @@ export default function FlyMonitoringForm({
   const [general,
     setGeneral] =
     useState({
-
-      fecha_registro: "",
-
-      hora_inicio: "",
-
+  
+      fecha_registro:
+        order?.scheduled_date || "",
+  
+      hora_inicio:
+        new Date()
+          .toLocaleTimeString(
+            "en-GB",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          ),
+  
       hora_final: "",
-
+  
       frecuencia: "",
-
+  
       sin_actividad: false,
-
+  
       con_actividad: false,
-
+  
     });
 
   // ESTACIONES
@@ -110,6 +119,15 @@ export default function FlyMonitoringForm({
     try {
 
       setLoading(true);
+      const horaFinal =
+  new Date()
+    .toLocaleTimeString(
+      "en-GB",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
 
       // GUARDAR PRINCIPAL
       const {
@@ -123,9 +141,12 @@ export default function FlyMonitoringForm({
 
           orden_trabajo_id:
             order.id,
-
+        
           ...general,
-
+        
+          hora_final:
+            horaFinal,
+        
         })
         .select()
         .single();
@@ -214,75 +235,78 @@ export default function FlyMonitoringForm({
         {/* GENERALES */}
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
 
-          <InputField
-            label="Fecha registro"
-            type="date"
-            value={
-              general.fecha_registro
-            }
-            onChange={(value: any) =>
-              setGeneral({
-                ...general,
-                fecha_registro:
-                  value,
-              })
-            }
-          />
+  <div>
 
-          <InputField
-            label="Hora inicio"
-            type="time"
-            value={
-              general.hora_inicio
-            }
-            onChange={(value: any) =>
-              setGeneral({
-                ...general,
-                hora_inicio:
-                  value,
-              })
-            }
-          />
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-          <InputField
-            label="Hora final"
-            type="time"
-            value={
-              general.hora_final
-            }
-            onChange={(value: any) =>
-              setGeneral({
-                ...general,
-                hora_final:
-                  value,
-              })
-            }
-          />
+      Fecha asignada
 
-          <SelectField
-            label="Frecuencia"
-            value={
-              general.frecuencia
-            }
-            onChange={(value: any) =>
-              setGeneral({
-                ...general,
-                frecuencia:
-                  value,
-              })
-            }
-            options={[
-              "Semanal",
-              "Quincenal",
-              "Mensual",
-              "Bimensual",
-              "Trimestral",
-              "Semestral",
-              "Anual",
-            ]}
-          />
+    </label>
 
-        </div>
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm">
+
+      {general.fecha_registro}
+
+    </div>
+
+  </div>
+
+  <div>
+
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+      Hora inicio
+
+    </label>
+
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm">
+
+      {general.hora_inicio}
+
+    </div>
+
+  </div>
+
+  <div>
+
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+      Hora final
+
+    </label>
+
+    <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm">
+
+      Se registrará al guardar
+
+    </div>
+
+  </div>
+
+  <SelectField
+    label="Frecuencia"
+    value={
+      general.frecuencia
+    }
+    onChange={(value: any) =>
+      setGeneral({
+        ...general,
+        frecuencia:
+          value,
+      })
+    }
+    options={[
+      "Semanal",
+      "Quincenal",
+      "Mensual",
+      "Bimensual",
+      "Trimestral",
+      "Semestral",
+      "Anual",
+    ]}
+  />
+
+</div>
 
         {/* ESTACIONES */}
         <div className="mt-10">
