@@ -422,4 +422,5 @@ function InfoCard({
 
     </div>
   );
+};
 }
