@@ -22,10 +22,6 @@ export default function ReviewPage() {
   const workOrderId =
     params.id as string;
 
-  const [stations,
-    setStations] =
-    useState<any[]>([]);
-
   const [workOrder,
     setWorkOrder] =
     useState<any>(null);
@@ -46,64 +42,105 @@ export default function ReviewPage() {
 
   async function loadData() {
 
-    // WORK ORDER
-    const {
-      data: orderData,
-    } = await supabase
-      .from("work_orders")
-      .select(`
-        *,
-        companies (
-          company_name
-        ),
-        technicians (
-          name
-        ),
-        service_types (
-          name
+    const { data: orderData } =
+      await supabase
+        .from("work_orders")
+        .select(`
+          *,
+          companies (
+            company_name
+          ),
+          technicians (
+            name
+          ),
+          service_types (
+            name
+          )
+        `)
+        .eq(
+          "id",
+          workOrderId
         )
-      `)
-      .eq(
-        "id",
-        workOrderId
-      )
-      .single();
-
-    if (orderData) {
-
-      setWorkOrder(
-        orderData
-      );
-
-      const serviceName =
-        orderData?.service_types
-          ?.name || "";
-
-      setServiceType(
-        serviceName
-      );
-
-      // ROEDORES
-      if (
-        serviceName ===
-        "Monitoreo de Roedores"
-      ) {
-
-        const { data } =
-          await supabase
-            .from(
-              "rodent_monitoring_forms"
-            )
-            .select("*")
-            .eq(
-              "work_order_id",
-              workOrderId
-            )
-            .single();
-
-        setFormData(data);
-      }
+        .single();
+  
+    if (!orderData) return;
+  
+    setWorkOrder(orderData);
+  
+    const serviceName =
+      orderData?.service_types?.name || "";
+  
+    setServiceType(serviceName);
+  
+    let tableName = "";
+    let fieldName = "";
+  
+    switch (serviceName) {
+  
+      case "Monitoreo de Roedores":
+        tableName =
+          "rodent_monitoring_forms";
+        fieldName =
+          "work_order_id";
+        break;
+  
+      case "Monitoreo de Polilleros":
+        tableName =
+          "monitoreo_polilleros";
+        fieldName =
+          "orden_trabajo_id";
+        break;
+  
+      case "Monitoreo de Insectos Voladores":
+        tableName =
+          "monitoreo_insectos_voladores";
+        fieldName =
+          "orden_trabajo_id";
+        break;
+  
+      case "Monitoreo de Moscas":
+        tableName =
+          "monitoreo_moscas";
+        fieldName =
+          "orden_trabajo_id";
+        break;
+  
+      case "Monitoreo de Insectos Rastreros":
+        tableName =
+          "monitoreo_insectos_rastreros";
+        fieldName =
+          "orden_trabajo_id";
+        break;
+  
+      case "Hoja de Servicio":
+        tableName =
+          "service_sheets";
+        fieldName =
+          "work_order_id";
+        break;
+  
+      default:
+        return;
     }
+  
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(tableName)
+      .select("*")
+      .eq(
+        fieldName,
+        workOrderId
+      );
+  
+    console.log(
+      tableName,
+      data,
+      error
+    );
+  
+    setFormData(data);
   }
 
   return (
@@ -190,68 +227,99 @@ export default function ReviewPage() {
           Datos registrados por el técnico
         </h2>
 
-        {!formData ? (
+        {!formData ||
+formData.length === 0 ? (
 
-<div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-700">
+  <div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-700">
 
-  No se encontraron datos registrados.
+    No se encontraron datos registrados.
 
-</div>
+  </div>
 
 ) : (
 
-<div className="overflow-hidden rounded-2xl border border-gray-200">
+  <div className="space-y-6">
 
-  <table className="w-full">
+    {formData.map(
+      (
+        item: any,
+        index: number
+      ) => (
 
-    <tbody>
+        <div
+          key={index}
+          className="overflow-hidden rounded-2xl border border-gray-200"
+        >
 
-      {Object.entries(formData).map(
-        ([key, value]) => (
+          <div className="border-b bg-gray-50 px-4 py-3 font-semibold">
 
-          <tr
-            key={key}
-            className="border-b border-gray-100"
-          >
+            Registro #{index + 1}
 
-            <td className="w-[300px] bg-gray-50 px-4 py-3 font-semibold capitalize">
+          </div>
 
-              {key
-                .replaceAll("_", " ")}
+          <table className="w-full">
 
-            </td>
+            <tbody>
 
-            <td className="px-4 py-3">
+              {Object.entries(
+                item
+              ).map(
+                ([
+                  key,
+                  value,
+                ]) => (
 
-              {typeof value ===
-              "object"
+                  <tr
+                    key={key}
+                    className="border-b border-gray-100"
+                  >
 
-                ? (
-                  <pre className="whitespace-pre-wrap text-sm">
-                    {JSON.stringify(
-                      value,
-                      null,
-                      2
-                    )}
-                  </pre>
+                    <td className="w-[300px] bg-gray-50 px-4 py-3 font-semibold capitalize">
+
+                      {key.replaceAll(
+                        "_",
+                        " "
+                      )}
+
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      {typeof value ===
+                      "object"
+
+                        ? (
+                          <pre className="whitespace-pre-wrap text-sm">
+                            {JSON.stringify(
+                              value,
+                              null,
+                              2
+                            )}
+                          </pre>
+                        )
+
+                        : String(
+                            value ??
+                              "-"
+                          )}
+
+                    </td>
+
+                  </tr>
+
                 )
+              )}
 
-                : String(
-                    value ?? "-"
-                  )}
+            </tbody>
 
-            </td>
+          </table>
 
-          </tr>
+        </div>
 
-        )
-      )}
+      )
+    )}
 
-    </tbody>
-
-  </table>
-
-</div>
+  </div>
 
 )}
       </div>
