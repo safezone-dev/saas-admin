@@ -200,147 +200,60 @@ export default function ReviewPage() {
 
 ) : (
 
-<>
-  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<div className="overflow-hidden rounded-2xl border border-gray-200">
 
-    <InfoCard
-      title="Fecha Registro"
-      value={
-        formData?.register_date || "-"
-      }
-    />
+  <table className="w-full">
 
-    <InfoCard
-      title="Hora Inicio"
-      value={
-        formData?.start_time || "-"
-      }
-    />
+    <tbody>
 
-    <InfoCard
-      title="Hora Final"
-      value={
-        formData?.end_time || "-"
-      }
-    />
+      {Object.entries(formData).map(
+        ([key, value]) => (
 
-    <InfoCard
-      title="Sin Actividad"
-      value={
-        formData?.no_activity
-          ? "Sí"
-          : "No"
-      }
-    />
+          <tr
+            key={key}
+            className="border-b border-gray-100"
+          >
 
-    <InfoCard
-      title="Actividad Detectada"
-      value={
-        formData?.activity_detected
-          ? "Sí"
-          : "No"
-      }
-    />
+            <td className="w-[300px] bg-gray-50 px-4 py-3 font-semibold capitalize">
 
-    <InfoCard
-      title="Cantidad Estaciones"
-      value={
-        Array.isArray(
-          formData?.stations
-        )
-          ? formData.stations.length
-          : "0"
-      }
-    />
+              {key
+                .replaceAll("_", " ")}
 
-  </div>
+            </td>
 
-  {Array.isArray(
-    formData?.stations
-  ) &&
-    formData.stations.length > 0 && (
+            <td className="px-4 py-3">
 
-      <div className="mt-8 overflow-hidden rounded-[30px] border border-gray-200">
+              {typeof value ===
+              "object"
 
-        <div className="overflow-x-auto">
-
-          <table className="w-full">
-
-            <thead className="bg-gray-50">
-
-              <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-600">
-
-                <th className="px-4 py-4">
-                  Estación
-                </th>
-
-                <th className="px-4 py-4">
-                  Estado
-                </th>
-
-                <th className="px-4 py-4">
-                  Observaciones
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {formData.stations.map(
-                (
-                  station: any,
-                  index: number
-                ) => (
-
-                  <tr
-                    key={index}
-                    className="border-b border-gray-100"
-                  >
-
-                    <td className="px-4 py-4">
-
-                      {station.station_number ||
-                        station.numero_estacion ||
-                        index + 1}
-
-                    </td>
-
-                    <td className="px-4 py-4">
-
-                      {station.status ||
-                        "-"}
-
-                    </td>
-
-                    <td className="px-4 py-4">
-
-                      {station.observations ||
-                        station.observacion ||
-                        "-"}
-
-                    </td>
-
-                  </tr>
-
+                ? (
+                  <pre className="whitespace-pre-wrap text-sm">
+                    {JSON.stringify(
+                      value,
+                      null,
+                      2
+                    )}
+                  </pre>
                 )
-              )}
 
-            </tbody>
+                : String(
+                    value ?? "-"
+                  )}
 
-          </table>
+            </td>
 
-        </div>
+          </tr>
 
-      </div>
+        )
+      )}
 
-    )}
+    </tbody>
 
-</>
+  </table>
+
+</div>
 
 )}
-
       </div>
 
       {/* TABLA ORIGINAL */}
