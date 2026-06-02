@@ -31,11 +31,20 @@ export default function TechnicalServiceReportForm({
     setForm] =
     useState({
 
-      service_date: "",
+      service_date:
+  order?.scheduled_date || "",
 
-      start_time: "",
+start_time:
+  new Date()
+    .toLocaleTimeString(
+      "en-GB",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    ),
 
-      end_time: "",
+end_time: "",
 
       frequency: "",
 
@@ -189,50 +198,60 @@ export default function TechnicalServiceReportForm({
   async function saveForm() {
 
     try {
-
+  
       setLoading(true);
-
+  
+      const endTime =
+        new Date()
+          .toLocaleTimeString(
+            "en-GB",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          );
+  
       const { error } =
         await supabase
           .from(
             "technical_service_reports"
           )
           .insert({
-
+  
             work_order_id:
               order.id,
-
+  
             service_date:
               form.service_date,
-
+  
             start_time:
               form.start_time,
-
+  
             end_time:
-              form.end_time,
-
+              endTime,
+  
             frequency:
               form.frequency,
-
+  
             items:
               form.items,
-
+  
             general_observations:
               form.general_observations,
-
+  
           });
-
+  
       if (error) {
-
+  
         console.log(error);
-
+  
         alert(
           error.message
         );
-
+  
         return;
       }
-
+  
       // COMPLETE ORDER
       await supabase
         .from(
@@ -246,27 +265,27 @@ export default function TechnicalServiceReportForm({
           "id",
           order.id
         );
-
+  
       alert(
         "Reporte guardado correctamente"
       );
-
+  
       router.push(
         "/company-dashboard/pending-orders"
       );
-
+  
     } catch (error) {
-
+  
       console.log(error);
-
+  
       alert(
         "Error guardando reporte"
       );
-
+  
     } finally {
-
+  
       setLoading(false);
-
+  
     }
   }
 

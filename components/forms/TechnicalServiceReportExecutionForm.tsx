@@ -100,42 +100,77 @@ export default function TechnicalServiceReportExecutionForm({
   async function completeService() {
 
     try {
-
+  
       setLoading(true);
-
+  
+      const registerDate =
+        new Date()
+          .toISOString()
+          .split("T")[0];
+  
+      const startTime =
+        report.start_time ||
+        new Date()
+          .toLocaleTimeString(
+            "en-GB",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          );
+  
+      const endTime =
+        new Date()
+          .toLocaleTimeString(
+            "en-GB",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          );
+  
       const { error } =
         await supabase
           .from(
             "technical_service_reports"
           )
           .update({
-
+  
             technician_notes:
               technicianNotes,
-
+  
             service_completed:
               serviceCompleted,
-
+  
+            register_date:
+              registerDate,
+  
+            start_time:
+              startTime,
+  
+            end_time:
+              endTime,
+  
             completed_at:
               new Date(),
-
+  
           })
           .eq(
             "id",
             report.id
           );
-
+  
       if (error) {
-
+  
         console.log(error);
-
+  
         alert(
           error.message
         );
-
+  
         return;
       }
-
+  
       // COMPLETAR ORDEN
       await supabase
         .from(
@@ -149,27 +184,27 @@ export default function TechnicalServiceReportExecutionForm({
           "id",
           order.id
         );
-
+  
       alert(
         "Servicio finalizado correctamente"
       );
-
+  
       router.push(
         "/company-dashboard/pending-orders"
       );
-
+  
     } catch (error) {
-
+  
       console.log(error);
-
+  
       alert(
         "Error finalizando servicio"
       );
-
+  
     } finally {
-
+  
       setLoading(false);
-
+  
     }
   }
 
