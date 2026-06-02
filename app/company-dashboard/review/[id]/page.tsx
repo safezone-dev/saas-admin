@@ -192,25 +192,154 @@ export default function ReviewPage() {
 
         {!formData ? (
 
-          <div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-700">
+<div className="rounded-2xl bg-yellow-50 p-4 text-sm text-yellow-700">
 
-            No se encontraron datos registrados.
+  No se encontraron datos registrados.
 
-          </div>
+</div>
 
-        ) : (
+) : (
 
-          <pre className="overflow-auto rounded-2xl bg-gray-50 p-4 text-sm">
+<>
+  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 
-            {JSON.stringify(
-              formData,
-              null,
-              2
-            )}
+    <InfoCard
+      title="Fecha Registro"
+      value={
+        formData?.register_date || "-"
+      }
+    />
 
-          </pre>
+    <InfoCard
+      title="Hora Inicio"
+      value={
+        formData?.start_time || "-"
+      }
+    />
 
-        )}
+    <InfoCard
+      title="Hora Final"
+      value={
+        formData?.end_time || "-"
+      }
+    />
+
+    <InfoCard
+      title="Sin Actividad"
+      value={
+        formData?.no_activity
+          ? "Sí"
+          : "No"
+      }
+    />
+
+    <InfoCard
+      title="Actividad Detectada"
+      value={
+        formData?.activity_detected
+          ? "Sí"
+          : "No"
+      }
+    />
+
+    <InfoCard
+      title="Cantidad Estaciones"
+      value={
+        Array.isArray(
+          formData?.stations
+        )
+          ? formData.stations.length
+          : "0"
+      }
+    />
+
+  </div>
+
+  {Array.isArray(
+    formData?.stations
+  ) &&
+    formData.stations.length > 0 && (
+
+      <div className="mt-8 overflow-hidden rounded-[30px] border border-gray-200">
+
+        <div className="overflow-x-auto">
+
+          <table className="w-full">
+
+            <thead className="bg-gray-50">
+
+              <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-600">
+
+                <th className="px-4 py-4">
+                  Estación
+                </th>
+
+                <th className="px-4 py-4">
+                  Estado
+                </th>
+
+                <th className="px-4 py-4">
+                  Observaciones
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {formData.stations.map(
+                (
+                  station: any,
+                  index: number
+                ) => (
+
+                  <tr
+                    key={index}
+                    className="border-b border-gray-100"
+                  >
+
+                    <td className="px-4 py-4">
+
+                      {station.station_number ||
+                        station.numero_estacion ||
+                        index + 1}
+
+                    </td>
+
+                    <td className="px-4 py-4">
+
+                      {station.status ||
+                        "-"}
+
+                    </td>
+
+                    <td className="px-4 py-4">
+
+                      {station.observations ||
+                        station.observacion ||
+                        "-"}
+
+                    </td>
+
+                  </tr>
+
+                )
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    )}
+
+</>
+
+)}
 
       </div>
 
