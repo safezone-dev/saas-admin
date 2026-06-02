@@ -31,9 +31,17 @@ export default function RodentMonitoringForm({
     setForm] =
     useState({
 
-      register_date: "",
+      register_date:
+      order?.scheduled_date || "",
 
-      start_time: "",
+      start_time:
+      new Date().toLocaleTimeString(
+      "en-GB",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  ),
 
       end_time: "",
 
@@ -197,6 +205,14 @@ export default function RodentMonitoringForm({
     try {
 
       setLoading(true);
+      const endTime =
+      new Date().toLocaleTimeString(
+    "en-GB",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
 
       const { error } =
         await supabase
@@ -215,7 +231,7 @@ export default function RodentMonitoringForm({
               form.start_time,
 
             end_time:
-              form.end_time,
+              endTime,
 
             stations:
               form.stations,
@@ -298,61 +314,58 @@ export default function RodentMonitoringForm({
 
         </div>
 
-        {/* GENERAL */}
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* INFORMACIÓN AUTOMÁTICA */}
+<div className="grid gap-4 md:grid-cols-3">
 
-          <InputField
-            label="Fecha de registro"
-            type="date"
-            value={
-              form.register_date
-            }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                register_date:
-                  value,
-              })
-            }
-          />
+<div>
 
-          <InputField
-            label="Hora inicio"
-            type="time"
-            value={
-              form.start_time
-            }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                start_time:
-                  value,
-              })
-            }
-          />
+  <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-          <InputField
-            label="Hora final"
-            type="time"
-            value={
-              form.end_time
-            }
-            onChange={(
-              value: string
-            ) =>
-              setForm({
-                ...form,
-                end_time:
-                  value,
-              })
-            }
-          />
+    Fecha asignada
 
-        </div>
+  </label>
+
+  <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-3 text-sm">
+
+    {form.register_date}
+
+  </div>
+
+</div>
+
+<div>
+
+  <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+    Hora inicio
+
+  </label>
+
+  <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-3 text-sm">
+
+    {form.start_time}
+
+  </div>
+
+</div>
+
+<div>
+
+  <label className="mb-2 block text-sm font-semibold text-gray-700">
+
+    Hora final
+
+  </label>
+
+  <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-3 text-sm">
+
+    Se registrará al guardar
+
+  </div>
+
+</div>
+
+</div>
 
         {/* STATIONS */}
         <div className="mt-8 space-y-6">
