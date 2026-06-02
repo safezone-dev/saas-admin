@@ -22,17 +22,21 @@ export default function ReviewPage() {
   const workOrderId =
     params.id;
 
-  const [stations,
-    setStations] =
-    useState<any[]>([]);
-
-  const [workOrder,
-    setWorkOrder] =
-    useState<any>(null);
-
-  useEffect(() => {
-    loadData();
-  }, []);
+    const [stations,
+      setStations] =
+      useState<any[]>([]);
+    
+    const [workOrder,
+      setWorkOrder] =
+      useState<any>(null);
+    
+    const [formData,
+      setFormData] =
+      useState<any>(null);
+    
+    const [serviceType,
+      setServiceType] =
+      useState("");
 
   async function loadData() {
 
@@ -59,35 +63,42 @@ export default function ReviewPage() {
       )
       .single();
 
-    if (orderData) {
-      setWorkOrder(
-        orderData
-      );
-    }
+      if (orderData) {
+
+        setWorkOrder(
+          orderData
+        );
+      
+        const serviceName =
+          orderData?.service_types
+            ?.name || "";
+      
+        setServiceType(
+          serviceName
+        );
+      }
 
     // STATIONS
-    const {
-      data: stationData,
-    } = await supabase
-      .from("rodent_forms")
-      .select("*")
-      .eq(
-        "work_order_id",
-        workOrderId
-      )
-      .order(
-        "created_at",
-        {
-          ascending: true,
-        }
-      );
-
-    if (stationData) {
-      setStations(
-        stationData
-      );
+    if (
+      orderData?.service_types
+        ?.name ===
+      "Monitoreo de Roedores"
+    ) {
+    
+      const { data } =
+        await supabase
+          .from(
+            "rodent_monitoring_forms"
+          )
+          .select("*")
+          .eq(
+            "work_order_id",
+            workOrderId
+          )
+          .single();
+    
+      setFormData(data);
     }
-  }
 
   function getCapture(
     station: any
@@ -239,51 +250,19 @@ export default function ReviewPage() {
       </div>
 
       {/* HEADER INFO */}
-      <div className="mb-8 grid gap-4 rounded-[30px] bg-white p-6 shadow-sm md:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-6 rounded-2xl bg-white p-6">
 
-        <InfoCard
-          title="Empresa"
-          value={
-            workOrder?.companies
-              ?.company_name ||
-            "-"
-          }
-        />
+<pre>
 
-        <InfoCard
-          title="Técnico"
-          value={
-            workOrder?.technicians
-              ?.name || "-"
-          }
-        />
+  {JSON.stringify(
+    formData,
+    null,
+    2
+  )}
 
-        <InfoCard
-          title="Servicio"
-          value={
-            workOrder?.service_types
-              ?.name || "-"
-          }
-        />
+</pre>
 
-        <InfoCard
-          title="Fecha Asignada"
-          value={
-            workOrder
-              ?.scheduled_date ||
-            "-"
-          }
-        />
-
-        <InfoCard
-          title="Estado"
-          value={
-            workOrder?.status ||
-            "-"
-          }
-        />
-
-      </div>
+</div>
 
       {/* TABLE */}
       <div className="overflow-hidden rounded-[30px] bg-white shadow-sm">
