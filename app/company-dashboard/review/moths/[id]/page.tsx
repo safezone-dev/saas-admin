@@ -7,11 +7,14 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft } from "lucide-react";
 
 export default function MothsReviewPage() {
+
   const params = useParams();
 
-  const workOrderId = params.id as string;
+  const workOrderId =
+    params.id as string;
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   const [workOrder, setWorkOrder] =
     useState<any>(null);
@@ -20,11 +23,15 @@ export default function MothsReviewPage() {
     useState<any[]>([]);
 
   useEffect(() => {
+
     loadData();
+
   }, []);
 
   async function loadData() {
+
     try {
+
       const {
         data: orderData,
       } = await supabase
@@ -41,57 +48,80 @@ export default function MothsReviewPage() {
             name
           )
         `)
-        .eq("id", workOrderId)
+        .eq(
+          "id",
+          workOrderId
+        )
         .single();
 
       if (orderData) {
-        setWorkOrder(orderData);
+
+        setWorkOrder(
+          orderData
+        );
+
       }
 
-      const { data, error } =
-  await supabase
-    .from(
-      "monitoreo_polilleros"
-    )
-    .select("*")
-    .eq(
-      "orden_trabajo_id",
-      workOrderId
-    )
-    .order(
-      "numero_estacion",
-      {
-        ascending: true,
-      }
-    );
+      const {
+        data,
+        error,
+      } = await supabase
+        .from(
+          "monitoreo_polilleros"
+        )
+        .select("*")
+        .eq(
+          "orden_trabajo_id",
+          workOrderId
+        )
+        .order(
+          "numero_estacion",
+          {
+            ascending: true,
+          }
+        );
 
-console.log(
-  "WORK ORDER ID:",
-  workOrderId
-);
+      console.log(
+        "WORK ORDER ID:",
+        workOrderId
+      );
 
-console.log(
-  "POLILLEROS:",
-  data
-);
+      console.log(
+        "POLILLEROS:",
+        data
+      );
 
-console.log(
-  "ERROR:",
-  error
-);
+      console.log(
+        "ERROR:",
+        error
+      );
 
-setRecords(data || []);
+      setRecords(
+        data || []
+      );
+
     } catch (error) {
-      console.log(error);
+
+      console.log(
+        error
+      );
+
     } finally {
-      setLoading(false);
+
+      setLoading(
+        false
+      );
+
     }
   }
 
   if (loading) {
+
     return (
       <div className="p-8">
+
         Cargando...
+
       </div>
     );
   }
@@ -101,16 +131,22 @@ setRecords(data || []);
 
       <div className="mx-auto max-w-7xl">
 
+        {/* HEADER */}
+
         <div className="mb-8 flex items-center justify-between">
 
           <div>
 
             <h1 className="text-3xl font-bold">
+
               Monitoreo de Polilleros
+
             </h1>
 
             <p className="text-sm text-gray-500">
-              Información registrada
+
+              Información registrada por el técnico
+
             </p>
 
           </div>
@@ -120,7 +156,9 @@ setRecords(data || []);
             className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm"
           >
 
-            <ArrowLeft size={16} />
+            <ArrowLeft
+              size={16}
+            />
 
             Regresar
 
@@ -128,13 +166,16 @@ setRecords(data || []);
 
         </div>
 
+        {/* DATOS ORDEN */}
+
         <div className="mb-6 grid gap-4 md:grid-cols-5">
 
           <InfoCard
             title="Empresa"
             value={
               workOrder?.companies
-                ?.company_name || "-"
+                ?.company_name ||
+              "-"
             }
           />
 
@@ -142,7 +183,8 @@ setRecords(data || []);
             title="Técnico"
             value={
               workOrder?.technicians
-                ?.name || "-"
+                ?.name ||
+              "-"
             }
           />
 
@@ -150,7 +192,8 @@ setRecords(data || []);
             title="Servicio"
             value={
               workOrder?.service_types
-                ?.name || "-"
+                ?.name ||
+              "-"
             }
           />
 
@@ -165,11 +208,22 @@ setRecords(data || []);
           <InfoCard
             title="Estado"
             value={
-              workOrder?.status || "-"
+              workOrder?.status ||
+              "-"
             }
           />
 
         </div>
+
+        <div className="mb-4 rounded-xl bg-blue-50 p-4">
+
+          Registros encontrados:
+          {" "}
+          {records.length}
+
+        </div>
+
+        {/* TABLA */}
 
         <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
@@ -180,6 +234,10 @@ setRecords(data || []);
               <thead className="bg-gray-50">
 
                 <tr>
+
+                  <th className="px-4 py-3 text-left">
+                    Estación
+                  </th>
 
                   <th className="px-4 py-3 text-left">
                     Fecha
@@ -195,10 +253,6 @@ setRecords(data || []);
 
                   <th className="px-4 py-3 text-left">
                     Frecuencia
-                  </th>
-
-                  <th className="px-4 py-3 text-left">
-                    Estación
                   </th>
 
                   <th className="px-4 py-3 text-left">
@@ -256,53 +310,74 @@ setRecords(data || []);
                     >
 
                       <td className="px-4 py-3">
-                        {item.fecha_registro}
-                      </td>
 
-                      <td className="px-4 py-3">
-                        {item.hora_inicio}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        {item.hora_final}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        {item.frecuencia}
-                      </td>
-
-                      <td className="px-4 py-3">
                         {item.numero_estacion}
+
                       </td>
 
                       <td className="px-4 py-3">
+
+                        {item.fecha_registro}
+
+                      </td>
+
+                      <td className="px-4 py-3">
+
+                        {item.hora_inicio}
+
+                      </td>
+
+                      <td className="px-4 py-3">
+
+                        {item.hora_final}
+
+                      </td>
+
+                      <td className="px-4 py-3">
+
+                        {item.frecuencia}
+
+                      </td>
+
+                      <td className="px-4 py-3">
+
                         {
                           item.conteo_insectos_voladores
                         }
+
                       </td>
 
                       <td className="px-4 py-3">
+
                         {item.feromona_aplica
                           ? "Aplicada"
-                          : "No"}
+                          : "No aplica"}
+
                       </td>
 
                       <td className="px-4 py-3">
+
                         {item.dispositivo_funcional
                           ? "Funcional"
                           : item.dispositivo_danado
                           ? "Dañado"
                           : "-"}
+
                       </td>
 
                       <td className="px-4 py-3">
+
                         {item.mantenimiento_aplica
                           ? "Sí"
                           : "No"}
+
                       </td>
 
                       <td className="px-4 py-3">
-                        {item.observaciones}
+
+                        {item.observaciones ||
+                          "-"}
+
                       </td>
 
                     </tr>
@@ -328,17 +403,24 @@ function InfoCard({
   title,
   value,
 }: any) {
+
   return (
+
     <div className="rounded-xl bg-white p-4 shadow-sm">
 
       <p className="text-xs uppercase text-gray-500">
+
         {title}
+
       </p>
 
       <p className="mt-2 font-semibold">
+
         {value}
+
       </p>
 
     </div>
+
   );
 }
