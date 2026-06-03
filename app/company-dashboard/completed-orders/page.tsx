@@ -140,7 +140,15 @@ export default function CompletedOrdersPage() {
     }
 
     if (
- 
+      service ===
+      "Administración de Plaguicidas"
+      ||
+      service ===
+      "Administracion de Plaguicidas"
+      ||
+      service ===
+      "administración de plaguicidas"
+      ||
       service ===
       "administracion de plaguicidas"
     ) {
