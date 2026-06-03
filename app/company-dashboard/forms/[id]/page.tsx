@@ -29,6 +29,9 @@ from "@/components/forms/CrawlingInsectsMonitoringForm";
 import TechnicalServiceReportExecutionForm
 from "@/components/forms/TechnicalServiceReportExecutionForm";
 
+import PesticideAdministrationForm
+from "@/components/forms/PesticideAdministrationForm";
+
 export default function DynamicFormPage() {
 
   const params =
@@ -187,6 +190,22 @@ export default function DynamicFormPage() {
           "rastreros"
         );
       }
+
+      // =========================
+      // ADMINISTRACION DE PLAGUICIDAS
+      // =========================
+      else if (
+        serviceName ===
+        "administración de plaguicidas"
+      ||
+  serviceName ===
+  "administracion de plaguicidas"
+) {
+
+  setServiceType(
+    "plaguicidas"
+  );
+}
 
       // =========================
       // REPORTE TECNICO
@@ -365,6 +384,23 @@ export default function DynamicFormPage() {
 
     );
   }
+
+  // =========================
+// FORM PLAGUICIDAS
+// =========================
+if (
+  serviceType ===
+  "plaguicidas"
+) {
+
+  return (
+
+    <PesticideAdministrationForm
+      order={order}
+    />
+
+  );
+}
 
   // =========================
   // DEFAULT
