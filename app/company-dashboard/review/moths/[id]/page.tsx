@@ -21,6 +21,9 @@ export default function MothsReviewPage() {
 
   const [records, setRecords] =
     useState<any[]>([]);
+  
+  const [formData, setFormData] =
+    useState<any>(null);
 
   useEffect(() => {
 
@@ -67,38 +70,34 @@ export default function MothsReviewPage() {
         error,
       } = await supabase
         .from(
-          "monitoreo_polilleros"
+          "moth_monitoring_forms"
         )
         .select("*")
         .eq(
-          "orden_trabajo_id",
+          "work_order_id",
           workOrderId
         )
-        .order(
-          "numero_estacion",
-          {
-            ascending: true,
-          }
-        );
-
+        .single();
+      
       console.log(
-        "WORK ORDER ID:",
-        workOrderId
-      );
-
-      console.log(
-        "POLILLEROS:",
+        "MOTH DATA:",
         data
       );
-
+      
       console.log(
         "ERROR:",
         error
       );
-
-      setRecords(
-        data || []
-      );
+      
+      if (data) {
+      
+        setFormData(data);
+      
+        setRecords(
+          data.stations || []
+        );
+      
+      }
 
     } catch (error) {
 
@@ -223,6 +222,49 @@ export default function MothsReviewPage() {
 
         </div>
 
+        <div className="mb-6 grid gap-4 md:grid-cols-5">
+
+  <InfoCard
+    title="Fecha Registro"
+    value={
+      formData?.register_date || "-"
+    }
+  />
+
+  <InfoCard
+    title="Hora Inicio"
+    value={
+      formData?.start_time || "-"
+    }
+  />
+
+  <InfoCard
+    title="Hora Final"
+    value={
+      formData?.end_time || "-"
+    }
+  />
+
+  <InfoCard
+    title="Sin Actividad"
+    value={
+      formData?.no_activity
+        ? "Sí"
+        : "No"
+    }
+  />
+
+  <InfoCard
+    title="Actividad Detectada"
+    value={
+      formData?.activity_detected
+        ? "Sí"
+        : "No"
+    }
+  />
+
+</div>
+
         {/* TABLA */}
 
         <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
@@ -231,161 +273,123 @@ export default function MothsReviewPage() {
 
             <table className="w-full">
 
-              <thead className="bg-gray-50">
+            <thead className="bg-gray-50">
 
-                <tr>
+<tr>
 
-                  <th className="px-4 py-3 text-left">
-                    Estación
-                  </th>
+  <th className="px-4 py-3 text-left">
+    Estación
+  </th>
 
-                  <th className="px-4 py-3 text-left">
-                    Fecha
-                  </th>
+  <th className="px-4 py-3 text-left">
+    Conteo Insectos
+  </th>
 
-                  <th className="px-4 py-3 text-left">
-                    Hora Inicio
-                  </th>
+  <th className="px-4 py-3 text-left">
+    Feromona
+  </th>
 
-                  <th className="px-4 py-3 text-left">
-                    Hora Final
-                  </th>
+  <th className="px-4 py-3 text-left">
+    Dispositivo
+  </th>
 
-                  <th className="px-4 py-3 text-left">
-                    Frecuencia
-                  </th>
+  <th className="px-4 py-3 text-left">
+    Limpieza
+  </th>
 
-                  <th className="px-4 py-3 text-left">
-                    Conteo
-                  </th>
+  <th className="px-4 py-3 text-left">
+    Observaciones
+  </th>
 
-                  <th className="px-4 py-3 text-left">
-                    Feromona
-                  </th>
+</tr>
 
-                  <th className="px-4 py-3 text-left">
-                    Dispositivo
-                  </th>
+</thead>
 
-                  <th className="px-4 py-3 text-left">
-                    Mantenimiento
-                  </th>
+<tbody>
 
-                  <th className="px-4 py-3 text-left">
-                    Observaciones
-                  </th>
+{records.length === 0 && (
 
-                </tr>
+  <tr>
 
-              </thead>
+    <td
+      colSpan={6}
+      className="p-8 text-center"
+    >
 
-              <tbody>
+      No hay registros
 
-                {records.length === 0 && (
+    </td>
 
-                  <tr>
+  </tr>
 
-                    <td
-                      colSpan={10}
-                      className="p-8 text-center"
-                    >
+)}
 
-                      No hay registros
+{records.map(
+  (
+    station: any,
+    index: number
+  ) => (
 
-                    </td>
+    <tr
+      key={index}
+      className="border-t"
+    >
 
-                  </tr>
+      <td className="px-4 py-3">
 
-                )}
+        {station.station_number}
 
-                {records.map(
-                  (
-                    item: any,
-                    index: number
-                  ) => (
+      </td>
 
-                    <tr
-                      key={index}
-                      className="border-t"
-                    >
+      <td className="px-4 py-3">
 
-                      <td className="px-4 py-3">
+        {
+          station.flying_insects_count
+        }
 
-                        {item.numero_estacion}
+      </td>
 
-                      </td>
+      <td className="px-4 py-3">
 
-                      <td className="px-4 py-3">
+        {station.pheromone_applied
+          ? "Aplicada"
+          : station.pheromone_not_applied
+          ? "No aplicada"
+          : "-"}
 
-                        {item.fecha_registro}
+      </td>
 
-                      </td>
+      <td className="px-4 py-3">
 
-                      <td className="px-4 py-3">
+        {station.device_functional
+          ? "Funcional"
+          : station.device_damaged
+          ? "Dañado"
+          : "-"}
 
-                        {item.hora_inicio}
+      </td>
 
-                      </td>
+      <td className="px-4 py-3">
 
-                      <td className="px-4 py-3">
+        {station.cleaning
+          ? "Sí"
+          : "No"}
 
-                        {item.hora_final}
+      </td>
 
-                      </td>
+      <td className="px-4 py-3">
 
-                      <td className="px-4 py-3">
+        {station.observations ||
+          "-"}
 
-                        {item.frecuencia}
+      </td>
 
-                      </td>
+    </tr>
 
-                      <td className="px-4 py-3">
+  )
+)}
 
-                        {
-                          item.conteo_insectos_voladores
-                        }
-
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        {item.feromona_aplica
-                          ? "Aplicada"
-                          : "No aplica"}
-
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        {item.dispositivo_funcional
-                          ? "Funcional"
-                          : item.dispositivo_danado
-                          ? "Dañado"
-                          : "-"}
-
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        {item.mantenimiento_aplica
-                          ? "Sí"
-                          : "No"}
-
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        {item.observaciones ||
-                          "-"}
-
-                      </td>
-
-                    </tr>
-
-                  )
-                )}
-
-              </tbody>
+</tbody>
 
             </table>
 
