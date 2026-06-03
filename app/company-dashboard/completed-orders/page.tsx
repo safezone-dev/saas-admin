@@ -138,6 +138,16 @@ export default function CompletedOrdersPage() {
     ) {
       return `/company-dashboard/review/service-sheet/${order.id}`;
     }
+
+    if (
+      service ===
+      "administración de plaguicidas"
+      ||
+      service ===
+      "administracion de plaguicidas"
+    ) {
+      return `/company-dashboard/review/pesticides/${order.id}`;
+    }
   
     return "#";
   }
