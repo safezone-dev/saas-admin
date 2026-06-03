@@ -89,6 +89,59 @@ export default function CompletedOrdersPage() {
     setLoading(false);
   }
 
+  function getReviewLink(
+    order: any
+  ) {
+  
+    const service =
+      order?.service_types
+        ?.name;
+  
+    if (
+      service ===
+      "Monitoreo de Roedores"
+    ) {
+      return `/company-dashboard/review/rodents/${order.id}`;
+    }
+  
+    if (
+      service ===
+      "Monitoreo de Polilleros"
+    ) {
+      return `/company-dashboard/review/moths/${order.id}`;
+    }
+  
+    if (
+      service ===
+      "Monitoreo de Insectos Voladores"
+    ) {
+      return `/company-dashboard/review/flying/${order.id}`;
+    }
+  
+    if (
+      service ===
+      "Monitoreo de Moscas"
+    ) {
+      return `/company-dashboard/review/flies/${order.id}`;
+    }
+  
+    if (
+      service ===
+      "Monitoreo de Insectos Rastreros"
+    ) {
+      return `/company-dashboard/review/crawling/${order.id}`;
+    }
+  
+    if (
+      service ===
+      "Hoja de Servicio"
+    ) {
+      return `/company-dashboard/review/service-sheet/${order.id}`;
+    }
+  
+    return "#";
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
@@ -249,16 +302,16 @@ export default function CompletedOrdersPage() {
                       {/* ACTION */}
                       <td className="px-4 py-4 align-top text-center">
 
-                        <Link
-                          href={`/company-dashboard/review/${order.id}`}
-                          className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
-                        >
+                      <Link
+  href={getReviewLink(order)}
+  className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+>
 
-                          <Eye size={14} />
+  <Eye size={14} />
 
-                          Revisar
+  Revisar
 
-                        </Link>
+</Link>
 
                       </td>
 
