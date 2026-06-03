@@ -156,6 +156,9 @@ export default function PesticideAdministrationForm({
         .from(
           "administracion_plaguicidas"
         )
+
+
+
         .insert({
 
           orden_trabajo_id:
@@ -170,16 +173,23 @@ export default function PesticideAdministrationForm({
         .select()
         .single();
 
-      if (error) {
+        if (error) {
 
-        console.log(error);
-
-        alert(
-          "Error guardando formulario"
-        );
-
-        return;
-      }
+            console.log(
+              "SUPABASE ERROR:",
+              error
+            );
+          
+            alert(
+              JSON.stringify(
+                error,
+                null,
+                2
+              )
+            );
+          
+            return;
+          }
 
       const {
         error:
