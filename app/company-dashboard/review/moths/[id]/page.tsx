@@ -49,28 +49,38 @@ export default function MothsReviewPage() {
       }
 
       const { data, error } =
-      await supabase
-        .from(
-          "monitoreo_polilleros"
-        )
-        .select("*");
-    
-    console.log(
-      "WORK ORDER ID:",
+  await supabase
+    .from(
+      "monitoreo_polilleros"
+    )
+    .select("*")
+    .eq(
+      "orden_trabajo_id",
       workOrderId
+    )
+    .order(
+      "numero_estacion",
+      {
+        ascending: true,
+      }
     );
-    
-    console.log(
-      "POLILLEROS:",
-      data
-    );
-    
-    console.log(
-      "ERROR:",
-      error
-    );
-    
-    setRecords(data || []);;
+
+console.log(
+  "WORK ORDER ID:",
+  workOrderId
+);
+
+console.log(
+  "POLILLEROS:",
+  data
+);
+
+console.log(
+  "ERROR:",
+  error
+);
+
+setRecords(data || []);
     } catch (error) {
       console.log(error);
     } finally {
