@@ -23,17 +23,6 @@ export default function ServiceSheetsPage() {
 
   async function loadSheets() {
 
-    const technician =
-  JSON.parse(
-    localStorage.getItem(
-      "technician"
-    ) || "{}"
-  );
-
-alert(
-  `ID Técnico: ${technician.id}`
-);
-
     try {
 
       setLoading(true);
@@ -55,21 +44,20 @@ alert(
       }
 
       const { data, error } =
-        await supabase
-          .from(
-            "service_sheets"
-          )
-          .select("*")
-          .eq(
-            "technician_id",
-            technician.id
-          )
-          .order(
-            "created_at",
-            {
-              ascending: false,
-            }
-          );
+      await supabase
+        .from("service_sheets")
+        .select("*")
+        .eq(
+          "technician_id",
+          technician.id
+        );
+    
+    alert(
+      `Registros encontrados: ${data?.length || 0}`
+    );
+    
+    console.log(data);
+    console.log(error);
 
       if (error) {
 
