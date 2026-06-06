@@ -3,17 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import {
+  ClipboardList,
+  ArrowRight,
+} from "lucide-react";
 
-export default function ServiceSheetsPage() {
+export default function TechnicianSheetsPage() {
 
   const [loading, setLoading] =
     useState(true);
 
   const [sheets, setSheets] =
     useState<any[]>([]);
-
-  const [message, setMessage] =
-    useState("");
 
   useEffect(() => {
 
@@ -22,23 +23,6 @@ export default function ServiceSheetsPage() {
   }, []);
 
   async function loadSheets() {
-
-    const {
-      data: sessionData
-    } = await supabase.auth.getSession();
-    
-    console.log(
-      "SESSION:",
-      sessionData
-    );
-    
-    alert(
-      JSON.stringify(
-        sessionData,
-        null,
-        2
-      )
-    );
 
     try {
 
@@ -53,51 +37,92 @@ export default function ServiceSheetsPage() {
 
       if (!technician?.id) {
 
-        setMessage(
-          "No se encontró el técnico en la sesión."
+        console.log(
+          "No technician found"
         );
 
         return;
       }
 
-      const { data, error } =
-      await supabase
-        .from("service_sheets")
+      const {
+        data: sheetsData,
+        error,
+      } = await supabase
+        .from(
+          "service_sheets"
+        )
         .select("*")
         .eq(
           "technician_id",
           technician.id
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          }
         );
-    
-    alert(
-      `Registros encontrados: ${data?.length || 0}`
-    );
-    
-    console.log(data);
-    console.log(error);
 
       if (error) {
 
         console.log(error);
 
-        setMessage(
-          error.message
-        );
+        return;
+      }
+
+      if (
+        !sheetsData ||
+        sheetsData.length === 0
+      ) {
+
+        setSheets([]);
 
         return;
       }
 
+      const companyIds =
+        sheetsData.map(
+          (sheet) =>
+            sheet.company_id
+        );
+
+      const {
+        data: companies,
+      } = await supabase
+        .from("companies")
+        .select(
+          "id, company_name"
+        )
+        .in(
+          "id",
+          companyIds
+        );
+
+      const sheetsWithCompanies =
+        sheetsData.map(
+          (sheet) => ({
+
+            ...sheet,
+
+            company_name:
+              companies?.find(
+                (company) =>
+                  company.id ===
+                  sheet.company_id
+              )?.company_name ||
+
+              "Sin empresa",
+
+          })
+        );
+
       setSheets(
-        data || []
+        sheetsWithCompanies
       );
 
-    } catch (error: any) {
+    } catch (error) {
 
       console.log(error);
-
-      setMessage(
-        error.message
-      );
 
     } finally {
 
@@ -110,9 +135,13 @@ export default function ServiceSheetsPage() {
 
     return (
 
-      <div className="p-8">
+      <div className="min-h-screen bg-gray-100 p-6">
 
-        Cargando hojas de servicio...
+        <div className="mx-auto max-w-7xl">
+
+          Cargando hojas de servicio...
+
+        </div>
 
       </div>
 
@@ -121,143 +150,192 @@ export default function ServiceSheetsPage() {
 
   return (
 
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
       <div className="mx-auto max-w-7xl">
 
-        <div className="mb-8">
+        {/* HEADER */}
 
-          <h1 className="text-3xl font-bold">
+        <div className="mb-8 flex items-center gap-3">
 
-            Mis Hojas de Servicio
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
 
-          </h1>
+            <ClipboardList size={22} />
+
+          </div>
+
+          <div>
+
+            <h1 className="text-3xl font-bold text-gray-900">
+
+              Mis Hojas de Servicio
+
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+
+              Ejecución operativa técnica
+
+            </p>
+
+          </div>
 
         </div>
 
-        {message && (
+        {/* EMPTY */}
 
-          <div className="mb-6 rounded-xl bg-red-50 p-4 text-red-700">
+        {sheets.length === 0 && (
 
-            {message}
+          <div className="rounded-[24px] bg-white p-10 text-center shadow-sm">
+
+            <h2 className="text-xl font-bold text-gray-900">
+
+              No tienes hojas asignadas
+
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+
+              Cuando un administrador te asigne hojas de servicio aparecerán aquí.
+
+            </p>
 
           </div>
 
         )}
 
-        <div className="mb-4">
+        {/* TABLE */}
 
-          Total hojas:
+        {sheets.length > 0 && (
 
-          {" "}
+          <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
-          <strong>
+            <div className="overflow-x-auto">
 
-            {sheets.length}
+              <table className="w-full table-auto">
 
-          </strong>
+                <thead className="bg-gray-50">
 
-        </div>
+                  <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
 
-        {sheets.length === 0 ? (
+                    <th className="px-4 py-3">
 
-          <div className="rounded-xl bg-white p-8 shadow">
+                      Empresa
 
-            No tienes hojas asignadas.
+                    </th>
 
-          </div>
+                    <th className="px-4 py-3">
 
-        ) : (
+                      Fecha
 
-          <div className="overflow-hidden rounded-xl bg-white shadow">
+                    </th>
 
-            <table className="w-full">
+                    <th className="px-4 py-3">
 
-              <thead className="bg-gray-50">
+                      Items
 
-                <tr>
+                    </th>
 
-                  <th className="p-4 text-left">
+                    <th className="px-4 py-3">
 
-                    ID
+                      Estado
 
-                  </th>
+                    </th>
 
-                  <th className="p-4 text-left">
+                    <th className="px-4 py-3">
 
-                    Fecha
+                      Acción
 
-                  </th>
+                    </th>
 
-                  <th className="p-4 text-left">
+                  </tr>
 
-                    Estado
+                </thead>
 
-                  </th>
+                <tbody>
 
-                  <th className="p-4 text-left">
+                  {sheets.map(
+                    (sheet) => (
 
-                    Acción
+                      <tr
+                        key={sheet.id}
+                        className="border-t border-gray-100 text-sm hover:bg-gray-50"
+                      >
 
-                  </th>
+                        <td className="px-4 py-4 font-semibold text-gray-900">
 
-                </tr>
+                          {
+                            sheet.company_name
+                          }
 
-              </thead>
+                        </td>
 
-              <tbody>
+                        <td className="px-4 py-4 text-gray-700">
 
-                {sheets.map(
-                  (sheet) => (
+                          {
+                            sheet.service_date
+                          }
 
-                    <tr
-                      key={sheet.id}
-                      className="border-t"
-                    >
+                        </td>
 
-                      <td className="p-4">
+                        <td className="px-4 py-4 text-gray-700">
 
-                        {sheet.id}
+                          {
+                            sheet.items?.length || 0
+                          }
 
-                      </td>
+                        </td>
 
-                      <td className="p-4">
+                        <td className="px-4 py-4">
 
-                        {
-                          sheet.service_date
-                        }
+                          {sheet.status ===
+                          "completed" ? (
 
-                      </td>
+                            <span className="rounded-xl bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
 
-                      <td className="p-4">
+                              Completada
 
-                        {
-                          sheet.status
-                        }
+                            </span>
 
-                      </td>
+                          ) : (
 
-                      <td className="p-4">
+                            <span className="rounded-xl bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
 
-                        <Link
-                          href={`/company-dashboard/service-sheets/${sheet.id}`}
-                          className="rounded-lg bg-black px-4 py-2 text-white"
-                        >
+                              Pendiente
 
-                          Abrir
+                            </span>
 
-                        </Link>
+                          )}
 
-                      </td>
+                        </td>
 
-                    </tr>
+                        <td className="px-4 py-4">
 
-                  )
-                )}
+                          <Link
+                            href={`/company-dashboard/service-sheets/${sheet.id}`}
+                            className="inline-flex items-center gap-2 rounded-2xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                          >
 
-              </tbody>
+                            Responder hoja
 
-            </table>
+                            <ArrowRight
+                              size={14}
+                            />
+
+                          </Link>
+
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
 
           </div>
 
