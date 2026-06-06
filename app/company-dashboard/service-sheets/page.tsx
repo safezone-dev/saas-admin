@@ -35,12 +35,21 @@ export default function TechnicianSheetsPage() {
           "technician"
         ) || "{}"
       );
-
+  
+    console.log(
+      "TECHNICIAN:",
+      technician
+    );
+  
     if (!technician?.id) {
-
+  
+      console.log(
+        "NO TECHNICIAN ID"
+      );
+  
       return;
     }
-
+  
     const { data, error } =
       await supabase
         .from(
@@ -62,18 +71,28 @@ export default function TechnicianSheetsPage() {
             ascending: false,
           }
         );
-
+  
+    console.log(
+      "DATA:",
+      data
+    );
+  
+    console.log(
+      "ERROR:",
+      error
+    );
+  
     if (error) {
-
+  
       console.log(error);
-
+  
       return;
     }
-
+  
     if (data) {
-
+  
       setSheets(data);
-
+  
     }
   }
 
