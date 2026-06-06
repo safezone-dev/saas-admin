@@ -23,6 +23,17 @@ export default function ServiceSheetsPage() {
 
   async function loadSheets() {
 
+    const technician =
+  JSON.parse(
+    localStorage.getItem(
+      "technician"
+    ) || "{}"
+  );
+
+alert(
+  `ID Técnico: ${technician.id}`
+);
+
     try {
 
       setLoading(true);
