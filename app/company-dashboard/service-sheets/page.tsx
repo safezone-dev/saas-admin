@@ -23,6 +23,23 @@ export default function ServiceSheetsPage() {
 
   async function loadSheets() {
 
+    const {
+      data: sessionData
+    } = await supabase.auth.getSession();
+    
+    console.log(
+      "SESSION:",
+      sessionData
+    );
+    
+    alert(
+      JSON.stringify(
+        sessionData,
+        null,
+        2
+      )
+    );
+
     try {
 
       setLoading(true);
