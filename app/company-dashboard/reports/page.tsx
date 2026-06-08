@@ -309,157 +309,307 @@ export default function ReportsPage() {
 
         </div>
 
-        {/* TABLE */}
-        <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
+        {/* RESUMEN POR EMPRESA */}
 
-          {/* TABLE HEADER */}
-          <div className="border-b border-gray-100 p-5">
+<div className="mb-8 overflow-hidden rounded-[24px] bg-white shadow-sm">
 
-            <div className="flex items-center gap-3">
+<div className="border-b p-5">
 
-              <CheckCircle2
-                size={20}
-                className="text-green-600"
-              />
+  <h2 className="text-lg font-bold">
 
-              <div>
+    Resumen por Empresa
 
-                <h2 className="text-lg font-bold text-gray-900">
+  </h2>
 
-                  Últimas Actividades Respondidas
+</div>
 
-                </h2>
+<div className="overflow-x-auto">
 
-                <p className="text-sm text-gray-500">
+  <table className="w-full">
 
-                  Historial reciente de servicios completados
+    <thead className="bg-gray-50">
 
-                </p>
+      <tr>
 
-              </div>
+        <th className="px-4 py-3 text-left">
 
-            </div>
+          Empresa
 
-          </div>
+        </th>
 
-          {/* TABLE */}
-          <div className="overflow-x-auto">
+        <th className="px-4 py-3 text-left">
 
-            <table className="w-full table-auto">
+          Servicios Respondidos
 
-              <thead className="bg-gray-50">
+        </th>
 
-                <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
+      </tr>
 
-                  <th className="min-w-[240px] px-4 py-3">
+    </thead>
 
-                    Empresa
+    <tbody>
 
-                  </th>
+      {companies.map(
+        (company) => {
 
-                  <th className="min-w-[240px] px-4 py-3">
+          const total =
+            completedOrders.filter(
+              (o) =>
+                o.companies
+                  ?.company_name ===
+                company
+            ).length;
 
-                    Servicio
+          return (
 
-                  </th>
+            <tr
+              key={company}
+              className="border-t"
+            >
 
-                  <th className="min-w-[160px] px-4 py-3">
+              <td className="px-4 py-3">
 
-                    Fecha
+                {company}
 
-                  </th>
+              </td>
 
-                  <th className="min-w-[120px] px-4 py-3">
+              <td className="px-4 py-3">
 
-                    Estado
+                {total}
 
-                  </th>
+              </td>
 
-                </tr>
+            </tr>
 
-              </thead>
+          );
 
-              <tbody>
+        }
+      )}
 
-                {completedOrders
-                  .slice(0, 10)
-                  .map(
-                    (
-                      order: any
-                    ) => (
+    </tbody>
 
-                      <tr
-                        key={
-                          order.id
-                        }
-                        className="border-t border-gray-100 text-sm transition hover:bg-gray-50"
-                      >
+  </table>
 
-                        {/* EMPRESA */}
-                        <td className="px-4 py-4 font-semibold text-gray-900">
+</div>
 
-                          {
-                            order
-                              .companies
-                              ?.company_name
-                          }
+</div>
 
-                        </td>
+{/* RESUMEN POR SERVICIO */}
 
-                        {/* SERVICIO */}
-                        <td className="px-4 py-4 text-gray-700">
+<div className="mb-8 overflow-hidden rounded-[24px] bg-white shadow-sm">
 
-                          {
-                            order
-                              .service_types
-                              ?.name
-                          }
+<div className="border-b p-5">
 
-                        </td>
+  <h2 className="text-lg font-bold">
 
-                        {/* FECHA */}
-                        <td className="px-4 py-4 text-gray-700">
+    Resumen por Servicio
 
-                          {
-                            order.scheduled_date
-                          }
+  </h2>
 
-                        </td>
+</div>
 
-                        {/* STATUS */}
-                        <td className="px-4 py-4">
+<div className="overflow-x-auto">
 
-                          <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+  <table className="w-full">
 
-                            Respondido
+    <thead className="bg-gray-50">
 
-                          </span>
+      <tr>
 
-                        </td>
+        <th className="px-4 py-3 text-left">
 
-                      </tr>
-                    )
-                  )}
+          Servicio
 
-              </tbody>
+        </th>
 
-            </table>
+        <th className="px-4 py-3 text-left">
 
-          </div>
+          Cantidad
 
-        </div>
+        </th>
 
-      </div>
+      </tr>
 
-    </div>
-  );
-}
+    </thead>
+
+    <tbody>
+
+      {Object.entries(
+        serviceSummary
+      ).map(
+        ([name, total]) => (
+
+          <tr
+            key={name}
+            className="border-t"
+          >
+
+            <td className="px-4 py-3">
+
+              {name}
+
+            </td>
+
+            <td className="px-4 py-3">
+
+              {String(total)}
+
+            </td>
+
+          </tr>
+
+        )
+      )}
+
+    </tbody>
+
+  </table>
+
+</div>
+
+</div>
+
+{/* HISTORIAL COMPLETO */}
+
+<div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
+
+<div className="border-b p-5">
+
+  <h2 className="text-lg font-bold">
+
+    Historial Completo
+
+  </h2>
+
+</div>
+
+<div className="overflow-x-auto">
+
+  <table className="w-full">
+
+    <thead className="bg-gray-50">
+
+      <tr>
+
+        <th className="px-4 py-3 text-left">
+
+          Empresa
+
+        </th>
+
+        <th className="px-4 py-3 text-left">
+
+          Servicio
+
+        </th>
+
+        <th className="px-4 py-3 text-left">
+
+          Fecha
+
+        </th>
+
+        <th className="px-4 py-3 text-left">
+
+          Estado
+
+        </th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      {completedOrders.map(
+        (
+          order: any
+        ) => (
+
+          <tr
+            key={order.id}
+            className="border-t"
+          >
+
+            <td className="px-4 py-3">
+
+              {
+                order
+                  .companies
+                  ?.company_name
+              }
+
+            </td>
+
+            <td className="px-4 py-3">
+
+              {
+                order
+                  .service_types
+                  ?.name
+              }
+
+            </td>
+
+            <td className="px-4 py-3">
+
+              {
+                order
+                  .scheduled_date
+              }
+
+            </td>
+
+            <td className="px-4 py-3">
+
+              <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+
+                Respondido
+
+              </span>
+
+            </td>
+
+          </tr>
+
+        )
+      )}
+
+    </tbody>
+
+  </table>
+
+</div>
+
+</div>
 
 function MetricCard({
   title,
   value,
   icon,
 }: any) {
+
+  const serviceSummary =
+  completedOrders.reduce(
+    (
+      acc: any,
+      order: any
+    ) => {
+
+      const service =
+        order
+          .service_types
+          ?.name ||
+        "Sin servicio";
+
+      acc[service] =
+        (acc[service] || 0) + 1;
+
+      return acc;
+
+    },
+    {}
+  );
 
   return (
     <div className="rounded-[24px] bg-white p-5 shadow-sm">
