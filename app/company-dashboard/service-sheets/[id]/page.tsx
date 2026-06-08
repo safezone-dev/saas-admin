@@ -86,13 +86,8 @@ export default function TechnicianSheetExecutionPage() {
         data.execution_start_time ||
       
         new Date()
-          .toLocaleTimeString(
-            "en-GB",
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          )
+        .toTimeString()
+        .slice(0, 5)
       
       );
 
@@ -118,14 +113,10 @@ export default function TechnicianSheetExecutionPage() {
   async function saveExecution() {
 
     const automaticEndTime =
-  new Date()
-    .toLocaleTimeString(
-      "en-GB",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    );
+    new Date()
+      .toTimeString()
+      .slice(0, 5);
+      
 
     const { error } =
       await supabase
