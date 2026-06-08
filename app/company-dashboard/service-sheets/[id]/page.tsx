@@ -78,11 +78,22 @@ export default function TechnicianSheetExecutionPage() {
       setSheet(data);
 
       setRegisterDate(
-        data.register_date || ""
+        data.service_date || ""
       );
 
       setStartTime(
-        data.execution_start_time || ""
+
+        data.execution_start_time ||
+      
+        new Date()
+          .toLocaleTimeString(
+            "en-GB",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          )
+      
       );
 
       setEndTime(
@@ -106,6 +117,16 @@ export default function TechnicianSheetExecutionPage() {
 
   async function saveExecution() {
 
+    const automaticEndTime =
+  new Date()
+    .toLocaleTimeString(
+      "en-GB",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+
     const { error } =
       await supabase
         .from(
@@ -119,8 +140,8 @@ export default function TechnicianSheetExecutionPage() {
           execution_start_time:
             startTime,
 
-          execution_end_time:
-            endTime,
+            execution_end_time:
+            automaticEndTime,
 
           frequency,
 
@@ -313,16 +334,9 @@ export default function TechnicianSheetExecutionPage() {
 
               </label>
 
-              <input
-                type="date"
-                value={registerDate}
-                onChange={(e) =>
-                  setRegisterDate(
-                    e.target.value
-                  )
-                }
-                className="w-full rounded-xl border border-gray-200 p-3 text-sm"
-              />
+              <div className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
+  {registerDate}
+</div>
 
             </div>
 
@@ -335,16 +349,9 @@ export default function TechnicianSheetExecutionPage() {
 
               </label>
 
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) =>
-                  setStartTime(
-                    e.target.value
-                  )
-                }
-                className="w-full rounded-xl border border-gray-200 p-3 text-sm"
-              />
+              <div className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
+  {registerDate}
+</div>
 
             </div>
 
@@ -357,16 +364,9 @@ export default function TechnicianSheetExecutionPage() {
 
               </label>
 
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) =>
-                  setEndTime(
-                    e.target.value
-                  )
-                }
-                className="w-full rounded-xl border border-gray-200 p-3 text-sm"
-              />
+              <div className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-500">
+  Se registrará automáticamente al guardar
+</div>
 
             </div>
 
