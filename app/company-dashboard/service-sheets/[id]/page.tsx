@@ -332,19 +332,9 @@ export default function TechnicianSheetExecutionPage() {
             </div>
 
             {/* HORA INICIO */}
-            <div>
-
-              <label className="mb-2 block text-sm font-semibold">
-
-                Hora inicio
-
-              </label>
-
-              <div className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
-  {registerDate}
+            <div className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm">
+  {startTime || "--:--"}
 </div>
-
-            </div>
 
             {/* HORA FINAL */}
             <div>
