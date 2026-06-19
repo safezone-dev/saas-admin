@@ -2,11 +2,18 @@
 
 import { useState } from "react";
 
-import { supabase } from "@/lib/supabase";
-
 import { useRouter } from "next/navigation";
 
+import {
+  Eye,
+  EyeOff,
+  ShieldCheck,
+} from "lucide-react";
+
+import { supabase } from "@/lib/supabase";
+
 export default function TechnicianLogin() {
+
   const router = useRouter();
 
   const [email, setEmail] =
@@ -15,9 +22,25 @@ export default function TechnicianLogin() {
   const [password, setPassword] =
     useState("");
 
+  const [showPassword,
+    setShowPassword] =
+    useState(false);
+
   async function login() {
 
-    const { data, error } =
+    if (!email || !password) {
+
+      alert(
+        "Completa todos los campos"
+      );
+
+      return;
+    }
+
+    const {
+      data,
+      error,
+    } =
       await supabase
         .from("technicians")
         .select("*")
@@ -26,11 +49,15 @@ export default function TechnicianLogin() {
         .single();
 
     if (error || !data) {
-      alert("Credenciales inválidas");
+
+      alert(
+        "Credenciales inválidas"
+      );
+
       return;
     }
 
-    // GUARDAR SESION
+    // GUARDAR SESIÓN
     localStorage.setItem(
       "technician",
       JSON.stringify(data)
@@ -43,73 +70,223 @@ export default function TechnicianLogin() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-5">
 
-      <div className="w-full max-w-md rounded-[30px] bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen bg-gray-100">
 
-        {/* TOP */}
-        <div className="mb-8 text-center">
+      {/* LEFT */}
+      <div className="relative hidden lg:flex lg:w-1/2 items-center justify-center overflow-hidden bg-black text-white">
 
-          <h1 className="text-3xl font-bold text-gray-900">
-            Técnico
-          </h1>
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
 
-          <p className="mt-2 text-sm text-gray-500">
-            Iniciar sesión
+        <div className="relative z-10 max-w-lg px-10">
+
+          <div className="mb-8 flex items-center gap-4">
+
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+
+              <ShieldCheck size={34} />
+
+            </div>
+
+            <div>
+
+              <h1 className="text-3xl font-bold">
+
+                Portal Técnico MJR
+
+              </h1>
+
+              <p className="text-gray-300">
+
+                Plataforma operativa
+
+              </p>
+
+            </div>
+
+          </div>
+
+          <h2 className="mb-6 text-5xl font-bold leading-tight">
+
+            Gestión técnica de servicios
+
+          </h2>
+
+          <p className="text-lg text-gray-300">
+
+            Accede a tus órdenes de trabajo,
+            hojas de servicio y reportes operativos.
+
           </p>
 
         </div>
 
-        {/* FORM */}
-        <div className="space-y-5">
+      </div>
+
+      {/* RIGHT */}
+      <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
+
+        <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+
+          <div className="mb-8 text-center">
+
+            {/* MOBILE ICON */}
+            <div className="mb-5 flex justify-center lg:hidden">
+
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-black text-white">
+
+                <ShieldCheck size={30} />
+
+              </div>
+
+            </div>
+
+            {/* LOGO */}
+            <center>
+
+              <img
+                src="https://mjr-fumigaciones.com/wp-content/uploads/2026/02/logo_colorm.png"
+                alt="Logo"
+                className="h-auto w-[110px] sm:w-[150px]"
+              />
+
+            </center>
+
+            <h2 className="mt-6 text-2xl font-bold text-gray-900">
+
+              Acceso Técnico
+
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+
+              Inicia sesión para continuar
+
+            </p>
+
+          </div>
 
           {/* EMAIL */}
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-              Correo
+          <div className="mb-5">
+
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+
+              Correo electrónico
+
             </label>
 
             <input
               type="email"
+              placeholder="tecnico@empresa.com"
               value={email}
               onChange={(e) =>
                 setEmail(
                   e.target.value
                 )
               }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-blue-500"
+              onKeyDown={(e) => {
+
+                if (
+                  e.key === "Enter"
+                ) {
+
+                  login();
+
+                }
+
+              }}
+              className="w-full rounded-xl border border-gray-300 p-4 outline-none transition focus:border-black"
             />
+
           </div>
 
           {/* PASSWORD */}
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+          <div className="mb-6">
+
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+
               Contraseña
+
             </label>
 
-            <input
-              type="password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none focus:border-blue-500"
-            />
+            <div className="relative">
+
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
+                onKeyDown={(e) => {
+
+                  if (
+                    e.key === "Enter"
+                  ) {
+
+                    login();
+
+                  }
+
+                }}
+                className="w-full rounded-xl border border-gray-300 p-4 pr-14 outline-none transition focus:border-black"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword(
+                    !showPassword
+                  )
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+
+                {showPassword ? (
+
+                  <EyeOff size={20} />
+
+                ) : (
+
+                  <Eye size={20} />
+
+                )}
+
+              </button>
+
+            </div>
+
+          </div>
+
+          {/* BUTTON */}
+          <button
+            onClick={login}
+            className="w-full rounded-xl bg-black p-4 text-lg font-semibold text-white transition hover:opacity-90"
+          >
+
+            Ingresar
+
+          </button>
+
+          {/* FOOTER */}
+          <div className="mt-8 text-center text-sm text-gray-500">
+
+            Sistema Técnico SaaS © 2026.
+            Development by wiledwardmunoz
+
           </div>
 
         </div>
 
-        {/* BUTTON */}
-        <button
-          onClick={login}
-          className="mt-8 w-full rounded-2xl bg-blue-600 py-4 text-sm font-semibold text-white"
-        >
-          Ingresar
-        </button>
-
       </div>
+
     </div>
+
   );
 }

@@ -4,187 +4,296 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import {
+  Eye,
+  EyeOff,
+  Building2,
+} from "lucide-react";
+
 import { supabase } from "@/lib/supabase";
 
 export default function ClientLoginPage() {
 
   const router = useRouter();
 
-  const [username,
-    setUsername] =
+  const [email, setEmail] =
     useState("");
 
-  const [password,
-    setPassword] =
+  const [password, setPassword] =
     useState("");
 
-  const [loading,
-    setLoading] =
+  const [showPassword,
+    setShowPassword] =
     useState(false);
 
-  async function handleLogin() {
+  async function login() {
 
-    try {
-
-      setLoading(true);
-
-      const { data, error } =
-        await supabase
-          .from("companies")
-          .select("*")
-          .eq(
-            "username",
-            username
-          )
-          .eq(
-            "password",
-            password
-          )
-          .single();
-
-      if (error || !data) {
-
-        alert(
-          "Credenciales inválidas"
-        );
-
-        return;
-      }
-
-      // GUARDAR SESION
-      localStorage.setItem(
-        "client",
-        JSON.stringify(data)
-      );
-
-      // REDIRECCION
-      router.push(
-        "/client-dashboard"
-      );
-
-    } catch (error) {
-
-      console.log(error);
+    if (!email || !password) {
 
       alert(
-        "Error iniciando sesión"
+        "Completa todos los campos"
       );
 
-    } finally {
-
-      setLoading(false);
-
+      return;
     }
+
+    const {
+      data,
+      error,
+    } =
+      await supabase
+        .from("companies")
+        .select("*")
+        .eq(
+          "company_email",
+          email
+        )
+        .eq(
+          "password",
+          password
+        )
+        .single();
+
+    if (error || !data) {
+
+      alert(
+        "Credenciales inválidas"
+      );
+
+      return;
+    }
+
+    // GUARDAR SESIÓN
+    localStorage.setItem(
+      "client",
+      JSON.stringify(data)
+    );
+
+    // REDIRECT
+    router.push(
+      "/clients-dashboard"
+    );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
 
-      <div className="w-full max-w-md rounded-[32px] bg-white p-8 shadow-xl">
+    <div className="flex min-h-screen bg-gray-100">
 
-        {/* LOGO */}
-        <div className="mb-8 flex justify-center">
+      {/* LEFT */}
+      <div className="relative hidden lg:flex lg:w-1/2 items-center justify-center overflow-hidden bg-black text-white">
 
-          <img
-            src="https://mjr-fumigaciones.com/wp-content/uploads/2026/02/logo_colorm.png"
-            alt="Logo"
-            className="h-auto w-[220px] object-contain"
-          />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
 
-        </div>
+        <div className="relative z-10 max-w-lg px-10">
 
-        {/* TITLE */}
-        <div className="mb-8 text-center">
+          <div className="mb-8 flex items-center gap-4">
 
-          <h1 className="text-3xl font-bold text-gray-900">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
 
-            Portal Clientes
+              <Building2 size={34} />
 
-          </h1>
+            </div>
 
-          <p className="mt-2 text-sm text-gray-500">
+            <div>
 
-            Ingrese sus credenciales
+              <h1 className="text-3xl font-bold">
+
+                Portal Clientes MJR
+
+              </h1>
+
+              <p className="text-gray-300">
+
+                Plataforma empresarial
+
+              </p>
+
+            </div>
+
+          </div>
+
+          <h2 className="mb-6 text-5xl font-bold leading-tight">
+
+            Consulta tus servicios en línea
+
+          </h2>
+
+          <p className="text-lg text-gray-300">
+
+            Accede a tus órdenes de trabajo,
+            reportes técnicos y el historial
+            de servicios realizados.
 
           </p>
 
         </div>
 
-        {/* FORM */}
-        <div className="space-y-5">
+      </div>
 
-          {/* USERNAME */}
-          <div>
+      {/* RIGHT */}
+      <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
 
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+        <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
 
-              Usuario
+          <div className="mb-8 text-center">
+
+            {/* MOBILE ICON */}
+            <div className="mb-5 flex justify-center lg:hidden">
+
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-black text-white">
+
+                <Building2 size={30} />
+
+              </div>
+
+            </div>
+
+            {/* LOGO */}
+            <center>
+
+              <img
+                src="https://mjr-fumigaciones.com/wp-content/uploads/2026/02/logo_colorm.png"
+                alt="Logo"
+                className="h-auto w-[110px] sm:w-[150px]"
+              />
+
+            </center>
+
+            <h2 className="mt-6 text-2xl font-bold text-gray-900">
+
+              Acceso Clientes
+
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+
+              Inicia sesión para continuar
+
+            </p>
+
+          </div>
+
+          {/* EMAIL */}
+          <div className="mb-5">
+
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+
+              Correo electrónico
 
             </label>
 
             <input
-              type="text"
-              value={username}
+              type="email"
+              placeholder="cliente@empresa.com"
+              value={email}
               onChange={(e) =>
-                setUsername(
+                setEmail(
                   e.target.value
                 )
               }
-              placeholder="Ingrese usuario"
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
+              onKeyDown={(e) => {
+
+                if (
+                  e.key === "Enter"
+                ) {
+
+                  login();
+
+                }
+
+              }}
+              className="w-full rounded-xl border border-gray-300 p-4 outline-none transition focus:border-black"
             />
 
           </div>
 
           {/* PASSWORD */}
-          <div>
+          <div className="mb-6">
 
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
 
               Contraseña
 
             </label>
 
-            <input
-              type="password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              placeholder="Ingrese contraseña"
-              className="w-full rounded-2xl border border-gray-200 p-4 text-sm outline-none transition focus:border-black"
-            />
+            <div className="relative">
+
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
+                onKeyDown={(e) => {
+
+                  if (
+                    e.key === "Enter"
+                  ) {
+
+                    login();
+
+                  }
+
+                }}
+                className="w-full rounded-xl border border-gray-300 p-4 pr-14 outline-none transition focus:border-black"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword(
+                    !showPassword
+                  )
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+
+                {showPassword ? (
+
+                  <EyeOff size={20} />
+
+                ) : (
+
+                  <Eye size={20} />
+
+                )}
+
+              </button>
+
+            </div>
 
           </div>
 
           {/* BUTTON */}
           <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full rounded-2xl bg-black px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            onClick={login}
+            className="w-full rounded-xl bg-black p-4 text-lg font-semibold text-white transition hover:opacity-90"
           >
 
-            {loading
-              ? "Ingresando..."
-              : "Ingresar"}
+            Ingresar
 
           </button>
 
-        </div>
+          {/* FOOTER */}
+          <div className="mt-8 text-center text-sm text-gray-500">
 
-        {/* FOOTER */}
-        <div className="mt-8 text-center text-xs text-gray-500">
+            Portal Clientes SaaS © 2026.
+            Development by wiledwardmunoz
 
-          Desarrollado por
-          {" "}
-          wiledwardmunoz
+          </div>
 
         </div>
 
       </div>
 
     </div>
+
   );
 }

@@ -460,7 +460,6 @@ function MetricCard({
   value,
   icon,
 }: any) {
-  
 
   return (
     <div className="rounded-[24px] bg-white p-5 shadow-sm">
