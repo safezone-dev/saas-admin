@@ -69,7 +69,7 @@ export default function WorkOrdersPage() {
 
   async function loadOrders() {
 
-    const { data } =
+    const { data, error } =
       await supabase
         .from("work_orders")
         .select(`
@@ -78,7 +78,7 @@ export default function WorkOrdersPage() {
             company_name
           ),
           technicians (
-            name
+            full_name
           ),
           service_types (
             name
@@ -87,14 +87,16 @@ export default function WorkOrdersPage() {
         .order("created_at", {
           ascending: false,
         });
-
+  
+    if (error) {
+      console.error(error);
+      return;
+    }
+  
     if (data) {
-
       setOrders(data);
-
     }
   }
-
   async function loadCompanies() {
 
     const { data } =
@@ -139,43 +141,63 @@ export default function WorkOrdersPage() {
 
   async function createOrder() {
 
-    const { error } =
-      await supabase
-        .from("work_orders")
-        .insert([
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("work_orders")
+      .insert([
+        {
+          company_id: companyId,
+    
+          technician_id: technicianId,
+    
+          service_type_id: serviceId,
+    
+          scheduled_date: scheduledDate,
+    
+          status: "pending",
+        },
+      ])
+      .select()
+      .single();
+    
+      if (error) {
 
+        alert(error.message);
+      
+        return;
+      
+      }
+      
+      // Notificar al servidor
+      try {
+      
+        await fetch(
+          "/api/work-orders/notify",
           {
-
-            company_id:
-              companyId,
-
-            technician_id:
-              technicianId,
-
-            service_type_id:
-              serviceId,
-
-            scheduled_date:
-              scheduledDate,
-
-            status:
-              "pending",
-
-          },
-
-        ]);
-
-    if (error) {
-
-      alert(error.message);
-
-      return;
-
-    }
-
-    alert(
-      "Orden creada correctamente"
-    );
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              workOrderId: data.id,
+            }),
+          }
+        );
+      
+      } catch (err) {
+      
+        console.error(
+          "Error notificando:",
+          err
+        );
+      
+      }
+      
+      alert(
+        "Orden creada correctamente"
+      );
 
     setShowModal(false);
 
@@ -497,19 +519,24 @@ export default function WorkOrdersPage() {
                     Seleccionar técnico
                   </option>
 
-                  {technicians.map(
-                    (tech) => (
+                  {technicians
+  .filter(
+    (tech) =>
+      tech.full_name &&
+      tech.full_name.trim() !== ""
+  )
+  .map((tech) => (
 
-                      <option
-                        key={tech.id}
-                        value={tech.id}
-                      >
+    <option
+      key={tech.id}
+      value={tech.id}
+    >
 
-                        {tech.name}
+      {tech.full_name}
 
-                      </option>
-                    )
-                  )}
+    </option>
+  ))
+}
 
                 </select>
 
