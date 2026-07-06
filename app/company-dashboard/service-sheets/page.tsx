@@ -1,5 +1,7 @@
 "use client";
 
+
+const [filter, setFilter] = useState("all");
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
