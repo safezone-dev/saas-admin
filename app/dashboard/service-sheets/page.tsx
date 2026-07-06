@@ -55,7 +55,7 @@ export default function ServiceSheetsPage() {
             company_name
           ),
           technicians (
-            name
+            full_name
           )
         `)
         .order(
@@ -211,7 +211,7 @@ export default function ServiceSheetsPage() {
 
                         {
                           sheet.technicians
-                            ?.name
+                          ?.full_name
                         }
 
                       </td>
