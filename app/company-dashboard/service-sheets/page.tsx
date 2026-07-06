@@ -1,7 +1,5 @@
 "use client";
 
-
-const [filter, setFilter] = useState("all");
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -17,6 +15,8 @@ export default function TechnicianSheetsPage() {
 
   const [sheets, setSheets] =
     useState<any[]>([]);
+  
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
 
@@ -135,31 +135,20 @@ export default function TechnicianSheetsPage() {
 
   if (loading) {
 
-    const pendientes =
-  sheets.filter(
-    (sheet) =>
-      sheet.status === "pending"
-  ).length;
-
-const completadas =
-  sheets.filter(
-    (sheet) =>
-      sheet.status === "completed"
-  ).length;
-
     return (
-
+  
       <div className="min-h-screen bg-gray-100 p-6">
-
+  
         <div className="mx-auto max-w-7xl">
-
+  
           Cargando hojas de servicio...
-
+  
         </div>
-
+  
       </div>
-
+  
     );
+  
   }
 
   const pendientes =
@@ -174,11 +163,8 @@ const completadas =
       sheet.status === "completed"
   ).length;
 
-const [filter,
-  setFilter] =
-  useState("all");
+return (
 
-  return (
 
     <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
 
