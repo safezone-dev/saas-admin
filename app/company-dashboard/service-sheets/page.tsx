@@ -371,8 +371,20 @@ return (
 
                 <tbody>
 
-                  {sheets.map(
-                    (sheet) => (
+                {sheets
+    .filter((sheet) => {
+
+      if (filter === "all") {
+
+        return true;
+
+      }
+
+      return sheet.status === filter;
+
+    })
+    .map(
+      (sheet) => (
 
                       <tr
   key={sheet.id}
