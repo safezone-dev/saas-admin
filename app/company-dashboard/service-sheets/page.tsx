@@ -133,6 +133,18 @@ export default function TechnicianSheetsPage() {
 
   if (loading) {
 
+    const pendientes =
+  sheets.filter(
+    (sheet) =>
+      sheet.status === "pending"
+  ).length;
+
+const completadas =
+  sheets.filter(
+    (sheet) =>
+      sheet.status === "completed"
+  ).length;
+
     return (
 
       <div className="min-h-screen bg-gray-100 p-6">
@@ -148,6 +160,22 @@ export default function TechnicianSheetsPage() {
     );
   }
 
+  const pendientes =
+  sheets.filter(
+    (sheet) =>
+      sheet.status === "pending"
+  ).length;
+
+const completadas =
+  sheets.filter(
+    (sheet) =>
+      sheet.status === "completed"
+  ).length;
+
+const [filter,
+  setFilter] =
+  useState("all");
+
   return (
 
     <div className="min-h-screen bg-gray-100 p-3 lg:p-5">
@@ -155,6 +183,7 @@ export default function TechnicianSheetsPage() {
       <div className="mx-auto max-w-7xl">
 
         {/* HEADER */}
+        
 
         <div className="mb-8 flex items-center gap-3">
 
@@ -181,6 +210,106 @@ export default function TechnicianSheetsPage() {
           </div>
 
         </div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+
+  <div className="rounded-[24px] bg-white p-6 shadow-sm">
+
+    <p className="text-sm text-gray-500">
+
+      Total
+
+    </p>
+
+    <h2 className="mt-2 text-4xl font-bold">
+
+      {sheets.length}
+
+    </h2>
+
+  </div>
+
+  <div className="rounded-[24px] border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
+
+    <p className="text-sm text-yellow-700">
+
+      Pendientes
+
+    </p>
+
+    <h2 className="mt-2 text-4xl font-bold text-yellow-700">
+
+      {pendientes}
+
+    </h2>
+
+  </div>
+
+  <div className="rounded-[24px] border border-green-200 bg-green-50 p-6 shadow-sm">
+
+    <p className="text-sm text-green-700">
+
+      Completadas
+
+    </p>
+
+    <h2 className="mt-2 text-4xl font-bold text-green-700">
+
+      {completadas}
+
+    </h2>
+
+  </div>
+
+</div>
+
+<div className="mb-6 flex gap-3">
+
+  <button
+    onClick={() =>
+      setFilter("all")
+    }
+    className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+      filter === "all"
+        ? "bg-black text-white"
+        : "bg-white"
+    }`}
+  >
+
+    Todas
+
+  </button>
+
+  <button
+    onClick={() =>
+      setFilter("pending")
+    }
+    className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+      filter === "pending"
+        ? "bg-yellow-500 text-white"
+        : "bg-white"
+    }`}
+  >
+
+    Pendientes
+
+  </button>
+
+  <button
+    onClick={() =>
+      setFilter("completed")
+    }
+    className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+      filter === "completed"
+        ? "bg-green-600 text-white"
+        : "bg-white"
+    }`}
+  >
+
+    Completadas
+
+  </button>
+
+</div>
 
         {/* EMPTY */}
 
@@ -258,9 +387,14 @@ export default function TechnicianSheetsPage() {
                     (sheet) => (
 
                       <tr
-                        key={sheet.id}
-                        className="border-t border-gray-100 text-sm hover:bg-gray-50"
-                      >
+  key={sheet.id}
+  className={`border-t text-sm ${
+    sheet.status ===
+    "completed"
+      ? "bg-green-50"
+      : "hover:bg-gray-50"
+  }`}
+>
 
                         <td className="px-4 py-4 font-semibold text-gray-900">
 
@@ -311,21 +445,36 @@ export default function TechnicianSheetsPage() {
 
                         <td className="px-4 py-4">
 
-                          <Link
-                            href={`/company-dashboard/service-sheets/${sheet.id}`}
-                            className="inline-flex items-center gap-2 rounded-2xl bg-black px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
-                          >
+                        {sheet.status ===
+"completed" ? (
 
-                            Responder hoja
+  <Link
+    href={`/company-dashboard/service-sheets/${sheet.id}`}
+    className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
+  >
 
-                            <ArrowRight
-                              size={14}
-                            />
+    Ver hoja
 
-                          </Link>
+    <ArrowRight size={14} />
 
-                        </td>
+  </Link>
 
+) : (
+
+  <Link
+    href={`/company-dashboard/service-sheets/${sheet.id}`}
+    className="inline-flex items-center gap-2 rounded-2xl bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-gray-800"
+  >
+
+    Responder hoja
+
+    <ArrowRight size={14} />
+
+  </Link>
+
+)}
+
+</td>
                       </tr>
 
                     )
