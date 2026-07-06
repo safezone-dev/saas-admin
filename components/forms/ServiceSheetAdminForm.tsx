@@ -268,18 +268,18 @@ export default function ServiceSheetAdminForm({
             </option>
 
             {technicians.map(
-              (tech: any) => (
+  (tech: any) => (
 
-                <option
-                  key={tech.id}
-                  value={tech.id}
-                >
+    <option
+      key={tech.id}
+      value={tech.id}
+    >
 
-                  {tech.name}
+      {tech.full_name}
 
-                </option>
-              )
-            )}
+    </option>
+  )
+)}
 
           </select>
 
