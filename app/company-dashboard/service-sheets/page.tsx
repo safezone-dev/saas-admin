@@ -18,6 +18,22 @@ export default function TechnicianSheetsPage() {
   
   const [filter, setFilter] = useState("all");
 
+  const [showViewModal,
+    setShowViewModal] =
+    useState(false);
+  
+  const [selectedSheet,
+    setSelectedSheet] =
+    useState<any>(null);
+
+  const [searchCompany,
+    setSearchCompany] =
+    useState("");
+  
+  const [dateFilter,
+    setDateFilter] =
+    useState("");
+
   useEffect(() => {
 
     loadSheets();
@@ -250,50 +266,83 @@ return (
 
 </div>
 
-<div className="mb-6 flex gap-3">
+<div className="mb-6 grid gap-4 lg:grid-cols-4">
 
-  <button
-    onClick={() =>
-      setFilter("all")
+  {/* BUSCADOR EMPRESA */}
+
+  <input
+    type="text"
+    placeholder="Buscar empresa..."
+    value={searchCompany}
+    onChange={(e) =>
+      setSearchCompany(
+        e.target.value
+      )
     }
-    className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-      filter === "all"
-        ? "bg-black text-white"
-        : "bg-white"
-    }`}
+    className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-black"
+  />
+
+  {/* FECHA */}
+
+  <input
+    type="date"
+    value={dateFilter}
+    onChange={(e) =>
+      setDateFilter(
+        e.target.value
+      )
+    }
+    className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-black"
+  />
+
+  {/* ESTADO */}
+
+  <select
+    value={filter}
+    onChange={(e) =>
+      setFilter(
+        e.target.value
+      )
+    }
+    className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-black"
   >
 
-    Todas
+    <option value="all">
 
-  </button>
+      Todos los estados
+
+    </option>
+
+    <option value="pending">
+
+      Pendientes
+
+    </option>
+
+    <option value="completed">
+
+      Completadas
+
+    </option>
+
+  </select>
+
+  {/* LIMPIAR */}
 
   <button
-    onClick={() =>
-      setFilter("pending")
-    }
-    className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-      filter === "pending"
-        ? "bg-yellow-500 text-white"
-        : "bg-white"
-    }`}
+    onClick={() => {
+
+      setSearchCompany("");
+
+      setDateFilter("");
+
+      setFilter("all");
+
+    }}
+    className="rounded-xl bg-gray-200 px-4 py-3 text-sm font-semibold hover:bg-gray-300"
   >
 
-    Pendientes
-
-  </button>
-
-  <button
-    onClick={() =>
-      setFilter("completed")
-    }
-    className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-      filter === "completed"
-        ? "bg-green-600 text-white"
-        : "bg-white"
-    }`}
-  >
-
-    Completadas
+    Limpiar filtros
 
   </button>
 
@@ -374,14 +423,46 @@ return (
                 {sheets
     .filter((sheet) => {
 
-      if (filter === "all") {
-
-        return true;
-
-      }
-
-      return sheet.status === filter;
-
+      const coincideEmpresa =
+    
+        sheet.company_name
+          ?.toLowerCase()
+          .includes(
+            searchCompany.toLowerCase()
+          );
+    
+      const coincideFecha =
+    
+        dateFilter === ""
+    
+        ||
+    
+        sheet.service_date ===
+        dateFilter;
+    
+      const coincideEstado =
+    
+        filter === "all"
+    
+        ||
+    
+        sheet.status ===
+        filter;
+    
+      return (
+    
+        coincideEmpresa
+    
+        &&
+    
+        coincideFecha
+    
+        &&
+    
+        coincideEstado
+    
+      );
+    
     })
     .map(
       (sheet) => (
@@ -445,19 +526,24 @@ return (
 
                         <td className="px-4 py-4">
 
-                        {sheet.status ===
-"completed" ? (
+                        {sheet.status === "completed" ? (
 
-  <Link
-    href={`/company-dashboard/service-sheets/${sheet.id}`}
-    className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
-  >
+<button
+  onClick={() => {
 
-    Ver hoja
+    setSelectedSheet(sheet);
 
-    <ArrowRight size={14} />
+    setShowViewModal(true);
 
-  </Link>
+  }}
+  className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
+>
+
+  Ver hoja
+
+  <ArrowRight size={14} />
+
+</button>
 
 ) : (
 
@@ -488,11 +574,323 @@ return (
 
           </div>
 
-        )}
+)}
+
+</div>
+
+{/* ===========================
+    MODAL VER HOJA
+============================ */}
+
+{showViewModal && selectedSheet && (
+
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+
+<div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl">
+
+      {/* HEADER */}
+
+      <div className="flex items-center justify-between border-b p-6">
+
+        <div>
+
+          <h2 className="text-2xl font-bold">
+
+            Hoja de Servicio
+
+          </h2>
+
+          <p className="text-sm text-gray-500">
+
+            Información registrada
+
+          </p>
+
+        </div>
+
+        <button
+          onClick={() => {
+
+            setShowViewModal(false);
+
+            setSelectedSheet(null);
+
+          }}
+          className="rounded-xl bg-gray-100 px-4 py-2 hover:bg-gray-200"
+        >
+
+          Cerrar
+
+        </button>
+
+      </div>
+      <div className="flex-1 overflow-y-auto">
+
+      {/* INFORMACIÓN */}
+
+      <div className="grid gap-6 p-6 md:grid-cols-2">
+
+        <div>
+
+          <p className="text-sm text-gray-500">
+
+            Empresa
+
+          </p>
+
+          <p className="font-semibold">
+
+            {selectedSheet.company_name}
+
+          </p>
+
+        </div>
+
+        <div>
+
+          <p className="text-sm text-gray-500">
+
+            Fecha
+
+          </p>
+
+          <p className="font-semibold">
+
+            {selectedSheet.service_date}
+
+          </p>
+
+        </div>
+
+        <div>
+
+          <p className="text-sm text-gray-500">
+
+            Estado
+
+          </p>
+
+          <span
+            className={`inline-flex rounded-xl px-3 py-1 text-xs font-semibold ${
+              selectedSheet.status === "completed"
+
+                ? "bg-green-100 text-green-700"
+
+                : "bg-yellow-100 text-yellow-700"
+
+            }`}
+          >
+
+            {selectedSheet.status}
+
+          </span>
+
+        </div>
+
+        <div>
+
+          <p className="text-sm text-gray-500">
+
+            Total de Items
+
+          </p>
+
+          <p className="font-semibold">
+
+            {selectedSheet.items?.length || 0}
+
+          </p>
+
+        </div>
+
+      </div>
+
+      <div className="border-t p-6">
+
+<h3 className="mb-5 text-xl font-bold">
+
+  Items del Servicio
+
+</h3>
+
+<div className="space-y-4">
+
+{selectedSheet.items?.map((item: any, index: number) => (
+
+<div
+  key={index}
+  className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+>
+
+  <h4 className="mb-4 text-lg font-bold">
+
+    Área #{index + 1}
+
+  </h4>
+
+  <div className="grid gap-4 md:grid-cols-2">
+
+    <div>
+
+      <p className="text-sm text-gray-500">
+
+        Área
+
+      </p>
+
+      <p className="font-semibold">
+
+        {item.area || "-"}
+
+      </p>
+
+    </div>
+
+    <div>
+
+      <p className="text-sm text-gray-500">
+
+        Plaga observada
+
+      </p>
+
+      <p className="font-semibold">
+
+        {item.observed_pest || "-"}
+
+      </p>
+
+    </div>
+
+    <div>
+
+      <p className="text-sm text-gray-500">
+
+        Producto utilizado
+
+      </p>
+
+      <p className="font-semibold">
+
+        {item.product_used || "-"}
+
+      </p>
+
+    </div>
+
+    <div>
+
+      <p className="text-sm text-gray-500">
+
+        Dosificación
+
+      </p>
+
+      <p className="font-semibold">
+
+        {item.dosage || "-"}
+
+      </p>
+
+    </div>
+
+    <div>
+
+      <p className="text-sm text-gray-500">
+
+        Área tratada
+
+      </p>
+
+      <p className="font-semibold">
+
+        {item.treated_area || "-"}
+
+      </p>
+
+    </div>
+
+    <div>
+
+      <p className="text-sm text-gray-500">
+
+        Métodos de aplicación
+
+      </p>
+
+      <div className="mt-2 flex flex-wrap gap-2">
+
+        {item.application_methods?.map((method: string) => (
+
+          <span
+            key={method}
+            className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700"
+          >
+
+            {method}
+
+          </span>
+
+        ))}
 
       </div>
 
     </div>
 
-  );
+  </div>
+
+</div>
+
+))}
+
+</div>
+
+<div className="mt-8 grid gap-5 md:grid-cols-2">
+
+  <div className="rounded-2xl bg-gray-50 p-5">
+
+    <p className="text-sm text-gray-500">
+
+      Observaciones Administrador
+
+    </p>
+
+    <p className="mt-2">
+
+      {selectedSheet.admin_observations || "-"}
+
+    </p>
+
+  </div>
+
+  <div className="rounded-2xl bg-gray-50 p-5">
+
+    <p className="text-sm text-gray-500">
+
+      Observaciones Técnico
+
+    </p>
+
+    <p className="mt-2">
+
+    {selectedSheet.technician_execution_observations || "-"}
+
+    </p>
+
+  </div>
+
+</div>
+
+</div>
+
+    </div>
+
+  </div>
+  </div>
+
+)}
+
+</div>
+
+);
 }

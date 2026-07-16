@@ -382,8 +382,8 @@ export default function TechniciansPage() {
 
           <div className="overflow-x-auto">
 
-            <table className="w-full table-auto">
-
+          <table className="w-full table-fixed">
+            
               <thead className="bg-gray-50">
 
                 <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
@@ -502,40 +502,26 @@ export default function TechniciansPage() {
                       {/* EDIT */}
                       <td className="px-4 py-4 text-center">
 
-                        <button
-                          onClick={() =>
-                            handleEdit(
-                              tech
-                            )
-                          }
-                          className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
-                        >
-
-                          <Pencil size={12} />
-
-                          Editar
-
-                        </button>
+                      <button
+  onClick={() => handleEdit(tech)}
+  title="Editar"
+  className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 transition hover:bg-blue-200"
+>
+  <Pencil size={18} />
+</button>
 
                       </td>
 
                       {/* DELETE */}
                       <td className="px-4 py-4 text-center">
 
-                        <button
-                          onClick={() =>
-                            deleteTechnician(
-                              tech.id
-                            )
-                          }
-                          className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
-                        >
-
-                          <Trash2 size={12} />
-
-                          Desactivar
-
-                        </button>
+                      <button
+  onClick={() => deleteTechnician(tech.id)}
+  title="Desactivar"
+  className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-700 transition hover:bg-red-200"
+>
+  <Trash2 size={18} />
+</button>
 
                       </td>
 

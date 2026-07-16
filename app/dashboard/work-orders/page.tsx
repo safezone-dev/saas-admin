@@ -44,59 +44,104 @@ export default function WorkOrdersPage() {
   const [scheduledDate,
     setScheduledDate] =
     useState("");
-
-  useEffect(() => {
-
-    loadOrders();
-
-    loadCompanies();
-
-    loadTechnicians();
-
-    loadServices();
-
-    const interval =
-      setInterval(() => {
-
-        loadOrders();
-
-      }, 5000);
-
-    return () =>
-      clearInterval(interval);
-
-  }, []);
-
-  async function loadOrders() {
-
-    const { data, error } =
-      await supabase
-        .from("work_orders")
-        .select(`
-          *,
-          companies (
-            company_name
-          ),
-          technicians (
-            full_name
-          ),
-          service_types (
-            name
-          )
-        `)
-        .order("created_at", {
-          ascending: false,
-        });
   
-    if (error) {
-      console.error(error);
-      return;
-    }
-  
-    if (data) {
-      setOrders(data);
-    }
+    const [search,
+      setSearch] =
+      useState("");
+    
+    const [statusFilter,
+      setStatusFilter] =
+      useState("all");
+
+    const [page, 
+    setPage] = useState(1);
+
+const pageSize = 10;
+
+const [totalOrders, setTotalOrders] = useState(0);
+
+useEffect(() => {
+
+  loadOrders();
+
+}, [page]);
+
+useEffect(() => {
+
+  loadCompanies();
+
+  loadTechnicians();
+
+  loadServices();
+
+}, []);
+
+useEffect(() => {
+
+  const interval =
+    setInterval(() => {
+
+      loadOrders();
+
+    }, 5000);
+
+  return () =>
+    clearInterval(interval);
+
+}, [page]);
+
+async function loadOrders() {
+
+  const from =
+    (page - 1) * pageSize;
+
+  const to =
+    from + pageSize - 1;
+
+  const {
+    data,
+    error,
+    count,
+  } = await supabase
+    .from("work_orders")
+    .select(
+      `
+      *,
+      companies (
+        company_name
+      ),
+      technicians (
+        full_name
+      ),
+      service_types (
+        name
+      )
+      `,
+      {
+        count: "exact",
+      }
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false,
+      }
+    )
+    .range(from, to);
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
   }
+
+  setOrders(data || []);
+
+  setTotalOrders(count || 0);
+
+}
   async function loadCompanies() {
 
     const { data } =
@@ -267,6 +312,46 @@ export default function WorkOrdersPage() {
 
         </div>
 
+        {/* BUSCADOR */}
+
+<div className="mb-6 grid gap-4 lg:grid-cols-2">
+
+<input
+  type="text"
+  placeholder="Buscar empresa, técnico o servicio..."
+  value={search}
+  onChange={(e) =>
+    setSearch(e.target.value)
+  }
+  className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-black"
+/>
+
+<select
+  value={statusFilter}
+  onChange={(e) =>
+    setStatusFilter(
+      e.target.value
+    )
+  }
+  className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-black"
+>
+
+  <option value="all">
+    Todos los estados
+  </option>
+
+  <option value="pending">
+    Pendientes
+  </option>
+
+  <option value="completed">
+    Completadas
+  </option>
+
+</select>
+
+</div>
+
         {/* TABLE */}
         <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
@@ -314,7 +399,56 @@ export default function WorkOrdersPage() {
 
               <tbody>
 
-                {orders.map((order) => (
+              {orders
+  .filter((order) => {
+
+    const texto =
+      search.toLowerCase();
+
+    const coincideBusqueda =
+
+      order.companies
+        ?.company_name
+        ?.toLowerCase()
+        .includes(texto)
+
+      ||
+
+      order.technicians
+        ?.full_name
+        ?.toLowerCase()
+        .includes(texto)
+
+      ||
+
+      order.service_types
+        ?.name
+        ?.toLowerCase()
+        .includes(texto);
+
+    const coincideEstado =
+
+      statusFilter ===
+      "all"
+
+      ||
+
+      order.status ===
+      statusFilter;
+
+    return (
+
+      coincideBusqueda
+
+      &&
+
+      coincideEstado
+
+    );
+
+  })
+
+  .map((order) => (
 
                   <tr
                     key={order.id}
@@ -339,8 +473,7 @@ export default function WorkOrdersPage() {
                     <td className="px-4 py-4 align-top text-gray-700">
 
                       {
-                        order.technicians
-                          ?.name
+                        order.technicians?.full_name
                       }
 
                     </td>
@@ -400,6 +533,43 @@ export default function WorkOrdersPage() {
         </div>
 
       </div>
+
+      <div className="mt-6 flex items-center justify-between">
+
+  <button
+    disabled={page === 1}
+    onClick={() =>
+      setPage(page - 1)
+    }
+    className="rounded-xl bg-gray-200 px-4 py-2 text-sm disabled:opacity-40"
+  >
+
+    ← Anterior
+
+  </button>
+
+  <span className="text-sm font-semibold">
+
+    Página {page} de {Math.ceil(totalOrders / pageSize)}
+
+  </span>
+
+  <button
+    disabled={
+      page >=
+      Math.ceil(totalOrders / pageSize)
+    }
+    onClick={() =>
+      setPage(page + 1)
+    }
+    className="rounded-xl bg-black px-4 py-2 text-sm text-white disabled:opacity-40"
+  >
+
+    Siguiente →
+
+  </button>
+
+</div>
 
       {/* MODAL */}
       {showModal && (

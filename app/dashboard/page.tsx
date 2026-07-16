@@ -53,27 +53,56 @@ export default function DashboardPage() {
 
       <div className="mx-auto max-w-6xl">
 
-        {/* HEADER */}
-        <div className="mb-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+   {/* BIENVENIDA */}
 
-          <div>
+<div className="mb-8 overflow-hidden rounded-[28px] bg-gradient-to-r from-black via-gray-900 to-gray-800 p-6 text-white shadow-lg lg:p-10">
 
-            <h1 className="text-3xl font-bold text-gray-900">
+<div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
 
-              Dashboard
+  {/* TEXTO */}
 
-            </h1>
+  <div className="flex-1">
 
-            <p className="mt-1 text-sm text-gray-500">
+    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-300 sm:text-sm">
 
-              Panel principal del sistema
+      PANEL ADMINISTRATIVO
 
-            </p>
+    </p>
 
-          </div>
+    <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
 
-        </div>
+      Bienvenido al Sistema
 
+    </h1>
+
+    <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
+
+      Desde este panel puedes administrar empresas,
+      técnicos, administradores y órdenes de trabajo
+      de forma rápida, segura y centralizada.
+
+    </p>
+
+  </div>
+
+  {/* ICONO */}
+
+  <div className="flex justify-center lg:justify-end">
+
+    <div className="flex h-24 w-24 items-center justify-center rounded-[28px] bg-white/10 backdrop-blur-md sm:h-28 sm:w-28 lg:h-32 lg:w-32">
+
+      <ClipboardList
+        size={56}
+        className="text-white sm:h-16 sm:w-16"
+      />
+
+    </div>
+
+  </div>
+
+</div>
+
+</div>
         {/* GRID */}
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -123,23 +152,7 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* PANEL */}
-        <div className="mt-8 rounded-[24px] bg-white p-6 shadow-sm">
-
-          <h2 className="text-xl font-bold text-gray-900">
-
-            Bienvenido al sistema
-
-          </h2>
-
-          <p className="mt-2 text-sm text-gray-500">
-
-            Desde este panel puedes administrar empresas,
-            técnicos, administradores y órdenes de trabajo.
-
-          </p>
-
-        </div>
+    
 
       </div>
 

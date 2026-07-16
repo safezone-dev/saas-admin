@@ -32,6 +32,26 @@ export default function ServiceSheetsPage() {
     setShowModal] =
     useState(false);
 
+    const [search,
+      setSearch] =
+      useState("");
+    
+    const [statusFilter,
+      setStatusFilter] =
+      useState("all");
+    
+    const [companyFilter,
+      setCompanyFilter] =
+      useState("all");
+    
+    const [technicianFilter,
+      setTechnicianFilter] =
+      useState("all");
+    
+    const [dateFilter,
+      setDateFilter] =
+      useState("");
+
   useEffect(() => {
 
     loadSheets();
@@ -149,6 +169,132 @@ export default function ServiceSheetsPage() {
 
         </div>
 
+        {/* FILTROS */}
+
+<div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+
+{/* BUSCADOR */}
+<input
+  type="text"
+  placeholder="Buscar empresa o técnico..."
+  value={search}
+  onChange={(e) =>
+    setSearch(e.target.value)
+  }
+  className="rounded-xl border border-gray-200 bg-white p-3 text-sm"
+/>
+
+{/* FECHA */}
+<input
+  type="date"
+  value={dateFilter}
+  onChange={(e) =>
+    setDateFilter(e.target.value)
+  }
+  className="rounded-xl border border-gray-200 bg-white p-3 text-sm"
+/>
+
+{/* ESTADO */}
+<select
+  value={statusFilter}
+  onChange={(e) =>
+    setStatusFilter(
+      e.target.value
+    )
+  }
+  className="rounded-xl border border-gray-200 bg-white p-3 text-sm"
+>
+
+  <option value="all">
+
+    Todos los estados
+
+  </option>
+
+  <option value="pending">
+
+    Pendiente
+
+  </option>
+
+  <option value="completed">
+
+    Completada
+
+  </option>
+
+</select>
+
+{/* EMPRESA */}
+<select
+  value={companyFilter}
+  onChange={(e) =>
+    setCompanyFilter(
+      e.target.value
+    )
+  }
+  className="rounded-xl border border-gray-200 bg-white p-3 text-sm"
+>
+
+  <option value="all">
+
+    Todas las empresas
+
+  </option>
+
+  {companies.map(
+    (company) => (
+
+      <option
+        key={company.id}
+        value={company.id}
+      >
+
+        {company.company_name}
+
+      </option>
+
+    )
+  )}
+
+</select>
+
+{/* TECNICO */}
+<select
+  value={technicianFilter}
+  onChange={(e) =>
+    setTechnicianFilter(
+      e.target.value
+    )
+  }
+  className="rounded-xl border border-gray-200 bg-white p-3 text-sm"
+>
+
+  <option value="all">
+
+    Todos los técnicos
+
+  </option>
+
+  {technicians.map(
+    (tech) => (
+
+      <option
+        key={tech.id}
+        value={tech.id}
+      >
+
+        {tech.full_name}
+
+      </option>
+
+    )
+  )}
+
+</select>
+
+</div>
+
         {/* TABLE */}
         <div className="overflow-hidden rounded-[24px] bg-white shadow-sm">
 
@@ -190,7 +336,91 @@ export default function ServiceSheetsPage() {
 
               <tbody>
 
-                {sheets.map(
+              {sheets
+
+.filter((sheet) => {
+
+  const texto =
+    search.toLowerCase();
+
+  const coincideBusqueda =
+
+    sheet.companies
+      ?.company_name
+      ?.toLowerCase()
+      .includes(texto)
+
+    ||
+
+    sheet.technicians
+      ?.full_name
+      ?.toLowerCase()
+      .includes(texto);
+
+  const coincideEstado =
+
+    statusFilter ===
+    "all"
+
+    ||
+
+    sheet.status ===
+    statusFilter;
+
+  const coincideEmpresa =
+
+    companyFilter ===
+    "all"
+
+    ||
+
+    sheet.company_id ===
+    companyFilter;
+
+  const coincideTecnico =
+
+    technicianFilter ===
+    "all"
+
+    ||
+
+    sheet.technician_id ===
+    technicianFilter;
+
+  const coincideFecha =
+
+    dateFilter === ""
+
+    ||
+
+    sheet.service_date ===
+    dateFilter;
+
+  return (
+
+    coincideBusqueda
+
+    &&
+
+    coincideEstado
+
+    &&
+
+    coincideEmpresa
+
+    &&
+
+    coincideTecnico
+
+    &&
+
+    coincideFecha
+
+  );
+
+})
+
+.map(
                   (sheet) => (
 
                     <tr
