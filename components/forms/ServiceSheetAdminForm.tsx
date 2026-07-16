@@ -7,6 +7,8 @@ import {
 
 import { supabase }
 from "@/lib/supabase";
+import SearchSelect
+from "@/components/ui/SearchSelect";
 
 type ServiceItem = {
 
@@ -108,38 +110,29 @@ export default function ServiceSheetAdminForm({
     
     }
 
-    async function saveNewProduct() {
+    async function saveNewProduct(productName: string) {
 
-      if (!newProduct.trim()) {
+      if (!productName.trim()) return;
     
-        alert("Digite el nombre del producto");
-    
-        return;
-    
-      }
-    
-      const { error } =
-        await supabase
-          .from("products")
-          .insert({
-    
-            name: newProduct,
-    
-          });
+      const { data, error } = await supabase
+        .from("products")
+        .insert({
+          name: productName,
+        })
+        .select()
+        .single();
     
       if (error) {
     
         alert(error.message);
     
-        return;
+        return null;
     
       }
     
       await loadProducts();
     
-      setNewProduct("");
-    
-      setShowProductModal(false);
+      return data;
     
     }
 
@@ -414,52 +407,59 @@ export default function ServiceSheetAdminForm({
 
                   </label>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-start">
 
-  <select
+<div className="flex-1">
+
+  <SearchSelect
+
+    options={products.map(product => ({
+
+      id: product.id,
+
+      name: product.name,
+
+    }))}
+
     value={item.product_used}
-    onChange={(e) =>
+
+    placeholder="Buscar producto..."
+
+    allowCreate={true}
+
+    onCreate={async (value) => {
+
+      const product = await saveNewProduct(value);
+    
+      if (product) {
+    
+        updateItem(
+          index,
+          "product_used",
+          product.name
+        );
+    
+      }
+    
+    }}
+
+    onChange={(value) =>
+
       updateItem(
+
         index,
+
         "product_used",
-        e.target.value
+
+        value
+
       )
+
     }
-    className="flex-1 rounded-xl border border-gray-200 p-3 text-sm"
-  >
 
-    <option value="">
+  />
 
-      Seleccionar producto
-
-    </option>
-
-    {products.map((product) => (
-
-      <option
-        key={product.id}
-        value={product.name}
-      >
-
-        {product.name}
-
-      </option>
-
-    ))}
-
-  </select>
-
-  <button
-  type="button"
-  onClick={() =>
-    setShowProductModal(true)
-  }
-  className="rounded-xl bg-black px-4 text-white hover:bg-gray-800"
->
-
-  +
-
-</button>
+</div>
 
 </div>
 
