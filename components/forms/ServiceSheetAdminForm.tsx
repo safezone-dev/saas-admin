@@ -443,18 +443,14 @@ export default function ServiceSheetAdminForm({
     
     }}
 
-    onChange={(value) =>
+    onChange={(product) =>
 
       updateItem(
-
         index,
-
         "product_used",
-
-        value
-
+        product.name
       )
-
+    
     }
 
   />
