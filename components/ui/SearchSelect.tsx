@@ -12,7 +12,7 @@ type Props = {
     options: Option[];
     value: string;
     placeholder?: string;
-    onChange: (value: string) => void;
+    onChange: (option: Option) => void;
   
     allowCreate?: boolean;
   
@@ -44,16 +44,26 @@ type Props = {
 
   useEffect(() => {
 
-    const option = options.find(
-      o => o.name === value
-    );
-
-    if (option) {
-
-      setQuery(option.name);
-
+    if (!value) {
+  
+      setQuery("");
+  
+      return;
+  
     }
-
+  
+    const option = options.find(
+  
+      o => o.name === value
+  
+    );
+  
+    if (option) {
+  
+      setQuery(option.name);
+  
+    }
+  
   }, [value, options]);
 
   useEffect(() => {
@@ -84,17 +94,47 @@ type Props = {
 
   const filteredOptions = useMemo(() => {
 
-    return options.filter(option =>
-
-      option.name
-
-        .toLowerCase()
-
-        .includes(query.toLowerCase())
-
-    );
-
+    const search = query.trim().toLowerCase();
+  
+    return options
+      .filter(option =>
+        option.name
+          .toLowerCase()
+          .includes(search)
+      )
+      .sort((a, b) => {
+  
+        const aStarts = a.name
+          .toLowerCase()
+          .startsWith(search);
+  
+        const bStarts = b.name
+          .toLowerCase()
+          .startsWith(search);
+  
+        if (aStarts && !bStarts) return -1;
+  
+        if (!aStarts && bStarts) return 1;
+  
+        return a.name.localeCompare(b.name);
+  
+      });
+  
   }, [query, options]);
+
+  const exactMatch = useMemo(() => {
+
+    return options.some(
+  
+      option =>
+  
+        option.name.trim().toLowerCase() ===
+  
+        query.trim().toLowerCase()
+  
+    );
+  
+  }, [options, query]);
 
   return (
 
@@ -113,7 +153,13 @@ value={query}
 
 placeholder={placeholder}
 
-onFocus={() => setOpen(true)}
+onFocus={() => {
+
+    setOpen(true);
+  
+    setSelectedIndex(0);
+  
+  }}
 
 onChange={(e) => {
 
@@ -181,7 +227,7 @@ onKeyDown={(e) => {
 
     setQuery(option.name);
 
-    onChange(option.name);
+    onChange(option);
 
     setOpen(false);
 
@@ -198,82 +244,71 @@ className="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm outl
 
         <div className="absolute z-50 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl">
 
-          {filteredOptions.length > 0 ? (
-
-filteredOptions.map((option, index) => (
-
-              <button
-
-                key={option.id}
-
-                type="button"
-
-                onClick={() => {
-
-                  setQuery(option.name);
-
-                  onChange(option.name);
-
-                  setOpen(false);
-
-                }}
-
-                className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm
-
-${selectedIndex === index
-
-? "bg-gray-100"
-
-: "hover:bg-gray-100"
-
-}`}
-              >
-
-                {option.name}
-
-                {value === option.name && (
-
-                  <Check size={16} />
-
-                )}
-
-              </button>
-
-            ))
-
-          ) : (
-
-            <div className="p-4">
-
-  <p className="mb-3 text-sm text-gray-500">
-
-    No se encontraron resultados
-
-  </p>
-
-  {allowCreate && query.trim() !== "" && (
-
-    <button
-      type="button"
-      onClick={() => {
-
-        onCreate?.(query);
-
-        setOpen(false);
-
-      }}
-      className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800"
-    >
-
-      ➕ Crear "{query}"
-
-    </button>
-
+<>
+  {filteredOptions.length === 0 && (
+    <div className="px-4 py-3 text-sm text-gray-500">
+      No se encontraron resultados
+    </div>
   )}
 
-</div>
+  {filteredOptions.map((option, index) => (
+    <button
+      key={option.id}
+      type="button"
+      onClick={() => {
+        setQuery(option.name);
+        onChange(option);
+        setSelectedIndex(0);
+        setOpen(false);
+      }}
+      className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm ${
+        selectedIndex === index
+          ? "bg-gray-100"
+          : "hover:bg-gray-100"
+      }`}
+    >
+      <span>
+        {query === "" ? (
+          option.name
+        ) : (
+          <>
+            {option.name
+              .split(new RegExp(`(${query})`, "gi"))
+              .map((part, i) =>
+                part.toLowerCase() === query.toLowerCase() ? (
+                  <mark
+                    key={i}
+                    className="rounded bg-yellow-200 px-0.5"
+                  >
+                    {part}
+                  </mark>
+                ) : (
+                  <span key={i}>{part}</span>
+                )
+              )}
+          </>
+        )}
+      </span>
 
-          )}
+      {value === option.name && <Check size={16} />}
+    </button>
+  ))}
+
+  {allowCreate && query.trim() !== "" && !exactMatch && (
+    <div className="border-t border-gray-200">
+      <button
+        type="button"
+        onClick={() => {
+          onCreate?.(query);
+          setOpen(false);
+        }}
+        className="w-full px-4 py-3 text-left text-sm font-medium hover:bg-gray-100"
+      >
+        ➕ Crear "{query}"
+      </button>
+    </div>
+  )}
+</>
 
         </div>
 
