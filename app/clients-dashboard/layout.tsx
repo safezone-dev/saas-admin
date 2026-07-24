@@ -132,32 +132,37 @@ export default function ClientLayout({
           {/* MENU */}
           <nav className="flex-1 space-y-2 p-4">
 
-            <MenuItem
-              href="/clients-dashboard"
-              icon={<LayoutDashboard size={18} />}
-              title="Dashboard"
-            />
+  <MenuItem
+    href="/clients-dashboard"
+    icon={<LayoutDashboard size={18} />}
+    title="Dashboard"
+  />
 
-            <MenuItem
-              href="/clients-dashboard/work-orders"
-              icon={<ClipboardList size={18} />}
-              title="Órdenes de Servicio"
-            />
+  <MenuItem
+    href="/clients-dashboard/work-orders"
+    icon={<ClipboardList size={18} />}
+    title="Órdenes de Servicio"
+  />
 
-            <MenuItem
-              href="/clients-dashboard/reports"
-              icon={<FileText size={18} />}
-              title="Reportes"
-            />
+  <MenuItem
+    href="/clients-dashboard/service-sheets"
+    icon={<FileText size={18} />}
+    title="Hojas de Servicio"
+  />
 
-            <MenuItem
-              href="/clients-dashboard/profile"
-              icon={<User size={18} />}
-              title="Mi Perfil"
-            />
+  <MenuItem
+    href="/clients-dashboard/reports"
+    icon={<FileText size={18} />}
+    title="Reportes"
+  />
 
-          </nav>
+  <MenuItem
+    href="/clients-dashboard/profile"
+    icon={<User size={18} />}
+    title="Mi Perfil"
+  />
 
+</nav>
           {/* LOGOUT */}
           <div className="border-t border-white/10 p-4">
 
